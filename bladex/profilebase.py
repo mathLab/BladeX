@@ -4,10 +4,17 @@ import matplotlib.pyplot as plt
 
 class BaseProfile(object):
     """
-    TO DOC
-    Naca cambered airfoils have xup_coordinates != xdown_coordinates
-    Coordinates can be either generated using NACA functions, or be inserted directly by user (eg. Custom profiles)
-    Coordinates always must be inserted as floats
+    Base sectional profile of the propeller blade.
+
+    Each sectional profile is a 2D airfoil that is split into two parts: the upper and lower parts. The coordiates of each part is represented by two arrays corresponding to 
+    the X and Y components in the 2D coordinate system. Such coordinates can be either generated using NACA functions, or be inserted directly by the user as custom profiles.
+
+    :param numpy.ndarray xup_coordinates: 1D array that contains the X-components of the airfoil upper-half surface. Default value is None
+    :param numpy.ndarray xdown_coordinates: 1D array that contains the X-components of the airfoil lower-half surface. Default value is None
+    :param numpy.ndarray yup_coordinates: 1D array that contains the Y-components of the airfoil upper-half surface. Default value is None
+    :param numpy.ndarray ydown_coordinates: 1D array that contains the Y-components of the airfoil lower-half surface. Default value is None
+    :param numpy.ndarray leading_edge: 2D coordinates of the airfoil's leading edge. Default values are zeros
+    :param numpy.ndarray trailing_edge: 2D coordinates of the airfoil's trailing edge. Default values are zeros
     """
     def __init__(self):
         self.xup_coordinates = None
@@ -19,9 +26,11 @@ class BaseProfile(object):
 
     def _update_edges(self):
         """
-        TO DOC
-        Always: self.xup_coordinates[0] = self.xdown_coordinates[0] | self.xup_coordinates[-1] = self.xdown_coordinates[-1] | self.yup_coordinates[0] = self.ydown_coordinates[0]
-        We must ensure for the coordinates that x,y[0] correspond to LE, while x,y[-1] correspond to TE, even for custom profiles; otherwise the assignment names will be incorrect.
+        Private method that identifies and updates the airfoil's leading and trailing edges.
+
+        Given the airfoil coordinates from the leading to the trailing edge, if the trailing edge has a non-zero thickness, 
+        then the average value between the upper and lower trailing edges is taken as the true trailing edge, hence both 
+        the leading and the trailing edges are always unique.
         """
         self.leading_edge[0] = self.xup_coordinates[0]
         self.leading_edge[1] = self.yup_coordinates[0]
@@ -35,8 +44,10 @@ class BaseProfile(object):
     @property
     def reference_point(self):
         """
-        TO DOC
-        If TE is open, then take average value as true TE. Hence, both LE and TE points are always unique.
+        Returns the coordinates of the airfoil's geometric center.
+
+        :return: reference point in 2D
+        :rtype: numpy.ndarray
         """
         self._update_edges()
         reference_point = [0.5 * (self.leading_edge[0] + self.trailing_edge[0]), 
@@ -46,17 +57,35 @@ class BaseProfile(object):
     @property
     def chord_length(self):
         """
-        TO DOC
-        Measures the l2-norm (Euclidean distance) between the leading edge and trailing edge.
+        Measures the l2-norm (Euclidean distance) between the leading edge and the trailing edge.
+        
+        :return: chord length
+        :rtype: float
         """
         self._update_edges()
         return np.linalg.norm(self.leading_edge - self.trailing_edge)
 
     def rotate(self, rad_angle=None, deg_angle=None):
         """
-        TO DOC
-        ##Input angle is given in degrees## Did not work. Switch to radians
-        Rotation is 2D and counter clockwise (for standard orientation system) about Z-axis
+        2D counter clockwise rotation about the origin of the Cartesian coordinate system.
+        
+        The rotation matrix, :math:`R(\\theta)`, is used to perform rotation in the 2D Euclidean space about the origin, which is -- by default -- the leading edge.
+
+        :math:`R(\\theta)` is defined by:
+        .. math::
+             \\left(\\begin{matrix} cos (\\theta) & - sin (\\theta) \\
+            sin (\\theta) & cos (\\theta) \\end{matrix}\\right)
+
+        Given the coordinates of point :math:`(P) = \\left(\\begin{matrix} x \\ y \\end{matrix}\\right)`, the rotated coordinates will be: 
+        .. math::
+            P^{'} = \\left(\\begin{matrix} x^{'} \\ y^{'} \\end{matrix}\\right) = R (\\theta) \\cdot P` 
+
+        If a standard right-handed Cartesian coordinate system is used, with the X-axis to the right and the Y-axis up, the rotation :math:`R (\\theta)` 
+        is counterclockwise. If a left-handed Cartesian coordinate system is used, with X-axis directed to the right and Y-axis directed down, :math:`R (\\theta)` is clockwise.
+
+        :param float rad_angle: angle in radians. Default value is None
+        :param float deg_angle: angle in degrees. Default value is None
+        :raises ValueError: if both rad_angle and deg_angle are inserted, or if neither is inserted
         """
         if rad_angle is not None and deg_angle is not None:
             raise ValueError('You have to pass either the angle in radians or in degrees, not both.')
@@ -88,7 +117,9 @@ class BaseProfile(object):
 
     def translate(self, translation):
         """
-        TO DOC
+        Translates the airfoil coordinates according to a 2D translation vector.
+        
+        :param array_like translation: the translation vector in 2D
         """
         self.xup_coordinates += translation[0]
         self.xdown_coordinates += translation[0]
@@ -97,7 +128,7 @@ class BaseProfile(object):
 
     def flip(self):
         """
-        TO DOC
+        Flips the airfoil coordinates about both the X-axis and the Y-axis.
         """
         self.xup_coordinates  *= -1 
         self.xdown_coordinates *= -1 
@@ -106,9 +137,12 @@ class BaseProfile(object):
 
     def scale(self, factor):
         """
-        TO DOC
-        it translates the profile to the origin with respect to the reference point. Then scaling and 
-        translating back
+        Scales the airfoil coordinates according to a scaling factor.
+
+        In order to apply the scaling without affecting the position of the reference point, the method translates the airfoil by its refernce point 
+        to be centered in the origin, then the scaling is applied, and finally the airfoil is translated back by its reference point to the initial position.
+
+        :param float factor: the scaling factor
         """
         ref_point = self.reference_point
         self.translate(-ref_point)
@@ -120,8 +154,9 @@ class BaseProfile(object):
 
     def plot(self, outfile=None):
         """
-        TO DOC
-        the plot function, if an outfile is provided then save it
+        Plots the airfoil coordinates.
+
+        :param string outfile: outfile name. If a string is provided then the plot is saved with that name, otherwise the plot is not saved. Default value is None
         """
         plt.figure()
         plt.plot(self.xup_coordinates, self.yup_coordinates)
@@ -130,4 +165,6 @@ class BaseProfile(object):
         plt.axis('equal')
 
         if outfile:
+            if not isinstance(outfile, string):
+                raise ValueError('Output file name must be string.')
             plt.savefig(outfile)
