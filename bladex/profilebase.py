@@ -1,7 +1,7 @@
-from math import cos, sin, tan, atan, pi, radians, degrees, sqrt
 import numpy as np
 import matplotlib.pyplot as plt
 from utils.rbf import reconstruct_f
+
 
 class BaseProfile(object):
     """
@@ -17,6 +17,7 @@ class BaseProfile(object):
     :param numpy.ndarray leading_edge: 2D coordinates of the airfoil's leading edge. Default values are zeros
     :param numpy.ndarray trailing_edge: 2D coordinates of the airfoil's trailing edge. Default values are zeros
     """
+
     def __init__(self):
         self.xup_coordinates = None
         self.xdown_coordinates = None
@@ -40,7 +41,8 @@ class BaseProfile(object):
         if self.yup_coordinates[-1] == self.ydown_coordinates[-1]:
             self.trailing_edge[1] = self.yup_coordinates[-1]
         else:
-            self.trailing_edge[1] = 0.5 * (self.yup_coordinates[-1] + self.ydown_coordinates[-1])
+            self.trailing_edge[1] = 0.5 * (
+                self.yup_coordinates[-1] + self.ydown_coordinates[-1])
 
     @property
     def reference_point(self):
@@ -51,8 +53,10 @@ class BaseProfile(object):
         :rtype: numpy.ndarray
         """
         self._update_edges()
-        reference_point = [0.5 * (self.leading_edge[0] + self.trailing_edge[0]), 
-                           0.5 * (self.leading_edge[1] + self.trailing_edge[1])]
+        reference_point = [
+            0.5 * (self.leading_edge[0] + self.trailing_edge[0]),
+            0.5 * (self.leading_edge[1] + self.trailing_edge[1])
+        ]
         return np.asarray(reference_point)
 
     @property
@@ -92,12 +96,26 @@ class BaseProfile(object):
         if num <= 0 or radius <= 0:
             raise ValueError('Inserted value must be positive.')
 
-        xx_up = np.linspace(self.xup_coordinates[0], self.xup_coordinates[-1], num=num)
+        xx_up = np.linspace(
+            self.xup_coordinates[0], self.xup_coordinates[-1], num=num)
         yy_up = np.zeros(num)
-        reconstruct_f(basis='wendland', radius=radius, original_input=self.xup_coordinates, original_output=self.yup_coordinates, xx=xx_up, yy=yy_up)
-        xx_down = np.linspace(self.xdown_coordinates[0], self.xdown_coordinates[-1], num=num)
+        reconstruct_f(
+            basis='beckert_wendland_c2_basis',
+            radius=radius,
+            original_input=self.xup_coordinates,
+            original_output=self.yup_coordinates,
+            rbf_input=xx_up,
+            rbf_output=yy_up)
+        xx_down = np.linspace(
+            self.xdown_coordinates[0], self.xdown_coordinates[-1], num=num)
         yy_down = np.zeros(num)
-        reconstruct_f(basis='wendland', radius=radius, original_input=self.xdown_coordinates, original_output=self.ydown_coordinates, xx=xx_down, yy=yy_down)
+        reconstruct_f(
+            basis='beckert_wendland_c2_basis',
+            radius=radius,
+            original_input=self.xdown_coordinates,
+            original_output=self.ydown_coordinates,
+            rbf_input=xx_down,
+            rbf_output=yy_down)
 
         return xx_up, xx_down, yy_up, yy_down
 
@@ -120,9 +138,10 @@ class BaseProfile(object):
         :return: maximum thickness
         :rtype: float
         """
-        if (interpolate == True) or ((self.xup_coordinates == self.xdown_coordinates).all() == False):
-            # Evaluation of the thickness requires comparing both y_up and y_down for the same x-section, 
-            # (i.e. same x_coordinate), according to the british convention. If x_up != x_down element-wise, 
+        if (interpolate == True) or (
+            (self.xup_coordinates == self.xdown_coordinates).all() == False):
+            # Evaluation of the thickness requires comparing both y_up and y_down for the same x-section,
+            # (i.e. same x_coordinate), according to the british convention. If x_up != x_down element-wise,
             # then the corresponding y_up and y_down can not be comparable, hence a uniform interpolation is required.
             xx_up, xx_down, yy_up, yy_down = self.interpolate_coordinates()
             return np.fabs(yy_up - yy_down).max()
@@ -140,13 +159,15 @@ class BaseProfile(object):
         :return: maximum camber
         :rtype: float
         """
-        if (interpolate == True) or ((self.xup_coordinates == self.xdown_coordinates).all() == False):
+        if (interpolate == True) or (
+            (self.xup_coordinates == self.xdown_coordinates).all() == False):
             # Evaluation of camber requires comparing both y_up and y_down for the same x-section (i.e. same x_coordinate).
             # If x_up != x_down element-wise, then the corresponding y_up and y_down can not be comparable, hence a uniform interpolation is required.
             xx_up, xx_down, yy_up, yy_down = self.interpolate_coordinates()
-            camber = yy_down + 0.5*np.fabs(yy_up - yy_down)
+            camber = yy_down + 0.5 * np.fabs(yy_up - yy_down)
         else:
-            camber = self.ydown_coordinates + 0.5*np.fabs(self.yup_coordinates - self.ydown_coordinates)
+            camber = self.ydown_coordinates + 0.5 * np.fabs(
+                self.yup_coordinates - self.ydown_coordinates)
         return camber.max()
 
     def rotate(self, rad_angle=None, deg_angle=None):
@@ -172,27 +193,34 @@ class BaseProfile(object):
         :raises ValueError: if both rad_angle and deg_angle are inserted, or if neither is inserted
         """
         if rad_angle is not None and deg_angle is not None:
-            raise ValueError('You have to pass either the angle in radians or in degrees, not both.')
+            raise ValueError(
+                'You have to pass either the angle in radians or in degrees, not both.'
+            )
         if rad_angle:
-            cosine = cos(rad_angle)
-            sine = sin(rad_angle)
+            cosine = np.cos(rad_angle)
+            sine = np.sin(rad_angle)
         elif deg_angle:
-            cosine = cos(radians(deg_angle))
-            sine = sin(radians(deg_angle))
+            cosine = np.cos(np.radians(deg_angle))
+            sine = np.sin(np.radians(deg_angle))
         else:
-            raise ValueError('You have to pass either the angle in radians or in degrees.')
+            raise ValueError(
+                'You have to pass either the angle in radians or in degrees.')
 
         rot_matrix = np.array([cosine, -sine, sine, cosine]).reshape((2, 2))
 
-        coord_matrix_up = np.vstack((self.xup_coordinates, self.yup_coordinates))
-        coord_matrix_down = np.vstack((self.xdown_coordinates, self.ydown_coordinates))
+        coord_matrix_up = np.vstack((self.xup_coordinates,
+                                     self.yup_coordinates))
+        coord_matrix_down = np.vstack((self.xdown_coordinates,
+                                       self.ydown_coordinates))
 
         new_coord_matrix_up = np.zeros(coord_matrix_up.shape)
         new_coord_matrix_down = np.zeros(coord_matrix_down.shape)
 
         for i in range(self.xup_coordinates.shape[0]):
-            new_coord_matrix_up[:, i] = np.dot(rot_matrix, coord_matrix_up[:, i])
-            new_coord_matrix_down[:, i] = np.dot(rot_matrix, coord_matrix_down[:, i])
+            new_coord_matrix_up[:, i] = np.dot(rot_matrix,
+                                               coord_matrix_up[:, i])
+            new_coord_matrix_down[:, i] = np.dot(rot_matrix,
+                                                 coord_matrix_down[:, i])
 
         self.xup_coordinates = new_coord_matrix_up[0]
         self.xdown_coordinates = new_coord_matrix_down[0]
@@ -214,8 +242,8 @@ class BaseProfile(object):
         """
         Flips the airfoil coordinates about both the X-axis and the Y-axis.
         """
-        self.xup_coordinates  *= -1 
-        self.xdown_coordinates *= -1 
+        self.xup_coordinates *= -1
+        self.xdown_coordinates *= -1
         self.yup_coordinates *= -1
         self.ydown_coordinates *= -1
 

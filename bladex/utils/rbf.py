@@ -51,10 +51,40 @@ class RBF(object):
         multi-quadratic biharmonic splines, Thin-plate splines, Beckert and
         Wendland :math:`C^2` basis and Polyharmonic splines all defined and
         implemented below.
+
+   :Example:
+    >>> import numpy as np
+    >>> from bladex.utils.rbf import reconstruct_f
+    >>> x = np.arange(10)
+    >>> y = np.square(x)
+    >>> radius = 10
+    >>> n_interp = 50
+    >>> x_rbf = np.linspace(x[0], x[-1], num=n_interp)
+    >>> y_rbf = np.zeros(n_interp)
+    >>> reconstruct_f(original_input=x, original_output=y, rbf_input=x_rbf, rbf_output=y_rbf, radius=radius, basis='beckert_wendland_c2_basis')
     """
-    def __init__(self, radius):
-        self.basis = self.gaussian_spline
+    def __init__(self, radius, basis):
         self.radius = radius
+
+        self.bases = {
+            'gaussian_spline':
+            self.gaussian_spline,
+            'multi_quadratic_biharmonic_spline':
+            self.multi_quadratic_biharmonic_spline,
+            'inv_multi_quadratic_biharmonic_spline':
+            self.inv_multi_quadratic_biharmonic_spline,
+            'thin_plate_spline':
+            self.thin_plate_spline,
+            'beckert_wendland_c2_basis':
+            self.beckert_wendland_c2_basis
+            }
+
+        if basis in self.bases:
+            self.basis = self.bases[basis]
+        else:
+            raise NameError(
+                """The name of the basis function is not correct. Check 
+                the documentation for all the available functions.""")
 
     @staticmethod
     def gaussian_spline(X, r):
@@ -174,27 +204,20 @@ class RBF(object):
                 matrix[i][j] = self.basis(X1[i] - X2[j], self.radius)
         return matrix
 
-def reconstruct_f(basis, original_input, original_output, xx, yy, radius=10.0):
-    radial = RBF(radius=radius)
-    if basis == 'gaussian':
-        radial.basis = radial.gaussian_spline
+def reconstruct_f(original_input, original_output, rbf_input, rbf_output, basis, radius):
+    """
+    Reconstruct a function by using the radial basis function approximations.
 
-    elif basis == 'biharmonic':
-        radial.basis = radial.multi_quadratic_biharmonic_spline
-
-    elif basis == 'inv_biharmonic':
-        radial.basis = radial.inv_multi_quadratic_biharmonic_spline
-
-    elif basis == 'thin_plate':
-        radial.basis = radial.thin_plate_spline
-
-    elif basis == 'wendland':
-        radial.basis = radial.beckert_wendland_c2_basis 
-
-    else:
-        raise Exception
+    :param array_like original_input: contains the original values of the function inputs
+    :param array_like original_output: contains the original values of the function output
+    :param array_like rbf_input: contains the interpolated input data for RBF approximation
+    :param array_like rbf_output: contains the array elements to be updated with the RBF interpolated outputs after the approximation
+    :param float radius: cut-off radius
+    :param string basis: RBF basis function
+    """
+    radial = RBF(radius=radius, basis=basis)
 
     weights = np.dot(np.linalg.inv(radial._distance_matrix(original_input, original_input)), original_output)
-    for i in range(xx.shape[0]):
+    for i in range(rbf_input.shape[0]):
         for j in range(0, original_input.shape[0]):
-            yy[i] += weights[j] * radial.basis(xx[i] - original_input[j], radial.radius)
+            rbf_output[i] += weights[j] * radial.basis(rbf_input[i] - original_input[j], radial.radius)
