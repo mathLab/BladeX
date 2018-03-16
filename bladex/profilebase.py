@@ -1,6 +1,7 @@
 from math import cos, sin, tan, atan, pi, radians, degrees, sqrt
 import numpy as np
 import matplotlib.pyplot as plt
+from utils.rbf import reconstruct_f
 
 class BaseProfile(object):
     """
@@ -64,6 +65,89 @@ class BaseProfile(object):
         """
         self._update_edges()
         return np.linalg.norm(self.leading_edge - self.trailing_edge)
+
+    def interpolate_coordinates(self, num=500, radius=1.0):
+        """
+        Interpolates the airfoil coordinates from the given data set of discrete points.
+
+        The interpolation applies the Radial Basis Function (RBF) method, to construct approximations of the two functions
+        that correspond to the airfoil upper half and lower half coordinates. The RBF implementation is present in :doc:`/utils/rbf`.
+
+        References:
+        Buhmann, Martin D. (2003), Radial Basis Functions: Theory and Implementations.
+        http://www.cs.bham.ac.uk/~jxb/NN/l12.pdf
+        https://www.cc.gatech.edu/~isbell/tutorials/rbf-intro.pdf
+
+        :param int num: number of interpolated points. Default value is 500
+        :param float radius: range of the cut-off radius necessary for the RBF interpolation. Default value is 1.0 
+                             It is quite necessary to adjust the value properly so as to ensure a smooth interpolation
+        :return: interpolation points for the airfoil upper half X-component, interpolation points for the airfoil lower half X-component, 
+                 interpolation points for the airfoil upper half Y-component, interpolation points for the airfoil lower half Y-component
+        :rtype: numpy.ndarray, numpy.ndarray, numpy.ndarray, numpy.ndarray
+        :raises TypeError: if num is not of type int
+        :raises ValueError: if num is not positive, or if radius is not positive
+        """
+        if not isinstance(num, int):
+            raise TypeError('inserted value must be of type integer.')
+        if num <= 0 or radius <= 0:
+            raise ValueError('Inserted value must be positive.')
+
+        xx_up = np.linspace(self.xup_coordinates[0], self.xup_coordinates[-1], num=num)
+        yy_up = np.zeros(num)
+        reconstruct_f(basis='wendland', radius=radius, original_input=self.xup_coordinates, original_output=self.yup_coordinates, xx=xx_up, yy=yy_up)
+        xx_down = np.linspace(self.xdown_coordinates[0], self.xdown_coordinates[-1], num=num)
+        yy_down = np.zeros(num)
+        reconstruct_f(basis='wendland', radius=radius, original_input=self.xdown_coordinates, original_output=self.ydown_coordinates, xx=xx_down, yy=yy_down)
+
+        return xx_up, xx_down, yy_up, yy_down
+
+    def max_thickness(self, interpolate=False):
+        """
+        Returns the airfoil's maximum thickness.
+
+        Thickness is defined as the distnace between the upper and lower surfaces of the airfoil, and can be measured 
+        in two different ways:
+            - American convention: measures along the line perpendicular to the mean camber line.
+            - British convention: measures along the line perpendicular to the chord line.
+        In this implementation, the british convention is used to evaluate the maximum thickness.
+
+        References:
+            Phillips, Warren F. (2010). Mechanics of Flight (2nd ed.). Wiley & Sons. p. 27. ISBN 978-0-470-53975-0.
+            Bertin, John J.; Cummings, Russel M. (2009). Pearson Prentice Hall, ed. Aerodynamics for Engineers (5th ed.). p. 199. ISBN 978-0-13-227268-1.
+
+        :param bool interpolate: if True, the interpolated coordinates are used to measure the thickness; 
+                                 otherwise, the original discrete coordinates are used. Default value is False
+        :return: maximum thickness
+        :rtype: float
+        """
+        if (interpolate == True) or ((self.xup_coordinates == self.xdown_coordinates).all() == False):
+            # Evaluation of the thickness requires comparing both y_up and y_down for the same x-section, 
+            # (i.e. same x_coordinate), according to the british convention. If x_up != x_down element-wise, 
+            # then the corresponding y_up and y_down can not be comparable, hence a uniform interpolation is required.
+            xx_up, xx_down, yy_up, yy_down = self.interpolate_coordinates()
+            return np.fabs(yy_up - yy_down).max()
+        return np.fabs(self.yup_coordinates - self.ydown_coordinates).max()
+
+    def max_camber(self, interpolate=False):
+        """
+        Returns the airfoil's maximum camber.
+
+        Camber is defined as the distance between the chord line and the mean camber line, and is 
+        measured along the line perpendicular to the chord line.
+
+        :param bool interpolate: if True, the interpolated coordinates are used to measure the camber; 
+                                 otherwise, the original discrete coordinates are used. Default value is False
+        :return: maximum camber
+        :rtype: float
+        """
+        if (interpolate == True) or ((self.xup_coordinates == self.xdown_coordinates).all() == False):
+            # Evaluation of camber requires comparing both y_up and y_down for the same x-section (i.e. same x_coordinate).
+            # If x_up != x_down element-wise, then the corresponding y_up and y_down can not be comparable, hence a uniform interpolation is required.
+            xx_up, xx_down, yy_up, yy_down = self.interpolate_coordinates()
+            camber = yy_down + 0.5*np.fabs(yy_up - yy_down)
+        else:
+            camber = self.ydown_coordinates + 0.5*np.fabs(self.yup_coordinates - self.ydown_coordinates)
+        return camber.max()
 
     def rotate(self, rad_angle=None, deg_angle=None):
         """
