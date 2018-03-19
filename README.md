@@ -1,4 +1,4 @@
-**BladeX**: Python Dynamic Mode Decomposition
+**BladeX**: Python Package for Blade Generation
 
 <p align="center">
     <a href="https://github.com/mathLab/BladeX/blob/master/LICENSE" target="_blank">
