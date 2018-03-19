@@ -1,9 +1,9 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from utils.rbf import reconstruct_f
+from .utils.rbf import reconstruct_f
 
 
-class BaseProfile(object):
+class ProfileBase(object):
     """
     Base sectional profile of the propeller blade.
 
@@ -138,8 +138,8 @@ class BaseProfile(object):
         :return: maximum thickness
         :rtype: float
         """
-        if (interpolate == True) or (
-            (self.xup_coordinates == self.xdown_coordinates).all() == False):
+        if (interpolate is True) or (
+            (self.xup_coordinates == self.xdown_coordinates).all() is False):
             # Evaluation of the thickness requires comparing both y_up and y_down for the same x-section,
             # (i.e. same x_coordinate), according to the british convention. If x_up != x_down element-wise,
             # then the corresponding y_up and y_down can not be comparable, hence a uniform interpolation is required.
@@ -159,8 +159,8 @@ class BaseProfile(object):
         :return: maximum camber
         :rtype: float
         """
-        if (interpolate == True) or (
-            (self.xup_coordinates == self.xdown_coordinates).all() == False):
+        if (interpolate is True) or (
+            (self.xup_coordinates == self.xdown_coordinates).all() is False):
             # Evaluation of camber requires comparing both y_up and y_down for the same x-section (i.e. same x_coordinate).
             # If x_up != x_down element-wise, then the corresponding y_up and y_down can not be comparable, hence a uniform interpolation is required.
             xx_up, xx_down, yy_up, yy_down = self.interpolate_coordinates()
@@ -194,8 +194,7 @@ class BaseProfile(object):
         """
         if rad_angle is not None and deg_angle is not None:
             raise ValueError(
-                'You have to pass either the angle in radians or in degrees, not both.'
-            )
+                'You have to pass either the angle in radians or in degrees, not both.')
         if rad_angle:
             cosine = np.cos(rad_angle)
             sine = np.sin(rad_angle)

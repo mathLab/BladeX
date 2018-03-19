@@ -1,5 +1,5 @@
 import numpy as np
-import matplotlib.pyplot as plt
+
 
 class RBF(object):
     """
@@ -11,6 +11,7 @@ class RBF(object):
     regular lattice, with RBF we hano no more limitations. So we have the
     possibility to perform localized control points refiniments.
     The module is analogous to the freeform one.
+
     :Theoretical Insight:
         As reference please consult M.D. Buhmann, Radial Basis Functions, volume 12
         of Cambridge monographs on applied and computational mathematics. Cambridge
@@ -63,21 +64,19 @@ class RBF(object):
     >>> y_rbf = np.zeros(n_interp)
     >>> reconstruct_f(original_input=x, original_output=y, rbf_input=x_rbf, rbf_output=y_rbf, radius=radius, basis='beckert_wendland_c2_basis')
     """
+
     def __init__(self, radius, basis):
         self.radius = radius
 
         self.bases = {
-            'gaussian_spline':
-            self.gaussian_spline,
+            'gaussian_spline': self.gaussian_spline,
             'multi_quadratic_biharmonic_spline':
             self.multi_quadratic_biharmonic_spline,
             'inv_multi_quadratic_biharmonic_spline':
             self.inv_multi_quadratic_biharmonic_spline,
-            'thin_plate_spline':
-            self.thin_plate_spline,
-            'beckert_wendland_c2_basis':
-            self.beckert_wendland_c2_basis
-            }
+            'thin_plate_spline': self.thin_plate_spline,
+            'beckert_wendland_c2_basis': self.beckert_wendland_c2_basis
+        }
 
         if basis in self.bases:
             self.basis = self.bases[basis]
@@ -186,9 +185,9 @@ class RBF(object):
         result = first * second
         return result
 
-    def _distance_matrix(self, X1, X2):
+    def distance_matrix(self, X1, X2):
         """
-        This private method returns the following matrix:
+        This method returns the following matrix:
         :math:`\\boldsymbol{D_{ij}} = \\varphi(\\| \\boldsymbol{x_i} - \\boldsymbol{y_j} \\|)`
 
         :param numpy.ndarray X1: the vector x in the formula above.
@@ -204,20 +203,26 @@ class RBF(object):
                 matrix[i][j] = self.basis(X1[i] - X2[j], self.radius)
         return matrix
 
-def reconstruct_f(original_input, original_output, rbf_input, rbf_output, basis, radius):
+
+def reconstruct_f(original_input, original_output, rbf_input, rbf_output, basis,
+                  radius):
     """
     Reconstruct a function by using the radial basis function approximations.
 
     :param array_like original_input: contains the original values of the function inputs
     :param array_like original_output: contains the original values of the function output
     :param array_like rbf_input: contains the interpolated input data for RBF approximation
-    :param array_like rbf_output: contains the array elements to be updated with the RBF interpolated outputs after the approximation
-    :param float radius: cut-off radius
+    :param array_like rbf_output: contains the array elements to be updated with the RBF
+        interpolated outputs after the approximation
     :param string basis: RBF basis function
+    :param float radius: cut-off radius
     """
     radial = RBF(radius=radius, basis=basis)
 
-    weights = np.dot(np.linalg.inv(radial._distance_matrix(original_input, original_input)), original_output)
+    weights = np.dot(
+        np.linalg.inv(radial.distance_matrix(original_input, original_input)),
+        original_output)
     for i in range(rbf_input.shape[0]):
         for j in range(0, original_input.shape[0]):
-            rbf_output[i] += weights[j] * radial.basis(rbf_input[i] - original_input[j], radial.radius)
+            rbf_output[i] += weights[j] * radial.basis(
+                rbf_input[i] - original_input[j], radial.radius)
