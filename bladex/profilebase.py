@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from .utils.rbf import reconstruct_f
+from .ndinterpolator import reconstruct_f
 
 
 class ProfileBase(object):

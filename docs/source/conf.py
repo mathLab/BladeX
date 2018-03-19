@@ -44,6 +44,7 @@ extensions = [
     'sphinx.ext.intersphinx',
     'sphinx.ext.todo',
     'sphinx.ext.coverage',
+    'sphinx.ext.viewcode',
     'sphinx.ext.imgmath',
     'sphinx.ext.ifconfig',
 ]
@@ -127,6 +128,15 @@ keep_warnings = False
 
 # If true, `todo` and `todoList` produce output, else they produce nothing.
 todo_include_todos = True
+
+
+# -- Options for viewcode extension ---------------------------------------
+
+# Follow alias objects that are imported from another module such as functions,
+# classes and attributes. As side effects, this option ... ???
+# If false, ... ???.
+# The default is True.
+viewcode_import = True
 
 
 # -- Options for HTML output ----------------------------------------------

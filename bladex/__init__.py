@@ -1,8 +1,8 @@
 """
 BladeX init
 """
-__all__ = ['profilebase', 'profiles', 'rbf']
+__all__ = ['profilebase', 'profiles', 'ndinterpolator']
 
 from .profilebase import ProfileBase
 from .profiles import CustomProfile, NacaProfile
-from .utils.rbf import RBF
+from .ndinterpolator import RBF
