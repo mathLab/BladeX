@@ -3,12 +3,22 @@ import unittest
 import pkgutil
 from os import walk
 from os import path
+import numpy as np
 
 
 class TestPackage(TestCase):
     def test_import_blade_1(self):
         import bladex as bx
         profile = bx.profilebase.ProfileBase()
+
+    def test_import_blade_2(self):
+        import bladex as bx
+        vec = np.array([1.2, 2.4])
+        profile = bx.profiles.CustomProfile(vec, vec, vec, vec)
+
+    def test_import_blade_3(self):
+        import bladex as bx
+        profile = bx.profiles.NacaProfile('0012')
 
     def test_modules_name(self):
         # it checks that __all__ includes all the .py files in bladex folder
