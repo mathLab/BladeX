@@ -20,6 +20,10 @@ class TestPackage(TestCase):
         import bladex as bx
         profile = bx.profiles.NacaProfile('0012')
 
+    def test_import_blade_4(self):
+        import bladex as bx
+        inter = bx.ndinterpolator.RBF(1.2, 'gaussian_spline')
+
     def test_modules_name(self):
         # it checks that __all__ includes all the .py files in bladex folder
         import bladex
