@@ -8,7 +8,7 @@ from os import path
 class TestPackage(TestCase):
     def test_import_blade_1(self):
         import bladex as bx
-        profile = bx.profilebase.BaseProfile()
+        profile = bx.profilebase.ProfileBase()
 
     def test_modules_name(self):
         # it checks that __all__ includes all the .py files in bladex folder
@@ -27,4 +27,4 @@ class TestPackage(TestCase):
 
         print(f)
         print(package.__all__)
-        assert (sorted(package.__all__) == sorted(f))
+        assert sorted(package.__all__) == sorted(f)

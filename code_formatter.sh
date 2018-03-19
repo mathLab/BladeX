@@ -41,7 +41,7 @@ done
 
 # Here the important part: yapf format the files.
 for file in $python_files; do
-	echo "Making beatiful $file..."
+	echo "Making beautiful $file..."
 	[[ ! -f $file ]] && echo "$file does not exist; $0 -h for more info" && exit
 	
 	yapf --style='{

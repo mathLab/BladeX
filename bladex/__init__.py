@@ -1,7 +1,7 @@
 """
 BladeX init
 """
-
 __all__ = ['profilebase', 'rbf']
-from . import profilebase
-from .utils import rbf
+
+from .profilebase import ProfileBase
+from .utils.rbf import RBF
