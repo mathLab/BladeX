@@ -57,10 +57,12 @@ class ProfileBase(object):
         trailing edge, hence both the leading and the trailing edges are always
         unique.
         """
-        assert(self.xup_coordinates[0] == self.xdown_coordinates[0],
-              "Airfoils must have xup_coordinates[0] != xdown_coordinates[0]")
-        assert(self.xup_coordinates[-1] == self.xdown_coordinates[-1],
-            "Airfoils must have xup_coordinates[-1] != xdown_coordinates[-1]")
+        if self.xup_coordinates[0] != self.xdown_coordinates[0]:
+            raise ValueError('Airfoils must have xup_coordinates[0] \
+                            != xdown_coordinates[0]')
+        if self.xup_coordinates[-1] != self.xdown_coordinates[-1]:
+            raise ValueError('Airfoils must have xup_coordinates[-1] \
+                                != xdown_coordinates[-1]')
 
         self.leading_edge[0] = self.xup_coordinates[0]
         self.leading_edge[1] = self.yup_coordinates[0]
@@ -129,7 +131,7 @@ class ProfileBase(object):
 
         return xx_up, xx_down, yy_up, yy_down
 
-    def get_chord_line(self, lin_spaced=False, num=500):
+    def compute_chord_line(self, lin_spaced=False, num=500):
         """
         Computes the 2D coordinates of the chord line. Also updates
         the chord_line class member.
@@ -146,26 +148,26 @@ class ProfileBase(object):
             is True. Default value is 500
         """
         self._update_edges()
-        aratio = (self.trailing_edge[1]-self.leading_edge[1]) / \
-                 (self.trailing_edge[0]-self.leading_edge[0])
-        if (lin_spaced==True) or \
-            (self.xup_coordinates == self.xdown_coordinates).all() == False:
-            cl_x_coordinates = np.linspace(self.leading_edge[0], \
+        aratio = ((self.trailing_edge[1]-self.leading_edge[1]) /
+                 (self.trailing_edge[0]-self.leading_edge[0]))
+        if ((lin_spaced==True) or 
+            (self.xup_coordinates == self.xdown_coordinates).all() == False):
+            cl_x_coordinates = np.linspace(self.leading_edge[0],
                                            self.trailing_edge[0], num=num)
             cl_y_coordinates = np.zeros(cl_x_coordinates.size)
-            cl_y_coordinates = aratio \
-                               * (cl_x_coordinates - self.leading_edge[0]) \
-                               + self.leading_edge[1]
+            cl_y_coordinates = (aratio
+                               * (cl_x_coordinates - self.leading_edge[0])
+                               + self.leading_edge[1])
             self.chord_line = np.array([cl_x_coordinates, cl_y_coordinates])
         else:
             cl_y_coordinates = np.zeros(self.xup_coordinates.size)
-            cl_y_coordinates = aratio * \
-                               (self.xup_coordinates - self.leading_edge[0]) \
-                               + self.leading_edge[1]
-            self.chord_line = np.array([self.xup_coordinates, 
-                                       cl_y_coordinates])
+            cl_y_coordinates = (aratio *
+                               (self.xup_coordinates - self.leading_edge[0])
+                               + self.leading_edge[1])
+            self.chord_line = np.array([self.xup_coordinates,
+                                        cl_y_coordinates])
 
-    def get_camber_line(self, interpolate=False, n_interpolated_points=500):
+    def compute_camber_line(self, interpolate=False, n_interpolated_points=500):
         """
         Computes the 2D coordinates of the camber line. Also updates the
         camber_line class member.
@@ -185,19 +187,19 @@ class ProfileBase(object):
         correspond to the same vertical sections, since this would imply
         inaccurate measurements for obtaining the camberline.
         """
-        if (interpolate == True) or \
-           ((self.xup_coordinates == self.xdown_coordinates).all() == False):
+        if (interpolate == True) or ((self.xup_coordinates
+                                    == self.xdown_coordinates).all() == False):
             # If x_up != x_down element-wise, then the corresponding y_up and
             # y_down can not be comparable, hence a uniform interpolation is
             # required.
-            cl_x_coordinates, yy_up, yy_down = \
-                self.interpolate_coordinates(num=n_interpolated_points)[1:]
+            cl_x_coordinates, yy_up, yy_down = (
+                self.interpolate_coordinates(num=n_interpolated_points)[1:])
             cl_y_coordinates = 0.5 * (yy_up + yy_down)
             self.camber_line = np.array([cl_x_coordinates, cl_y_coordinates])
         else:
-            cl_y_coordinates = 0.5 * (self.ydown_coordinates \
-                                   + self.yup_coordinates)
-            self.camber_line = np.array(\
+            cl_y_coordinates = (0.5 * (self.ydown_coordinates
+                                    + self.yup_coordinates))
+            self.camber_line = np.array(
                                [self.xup_coordinates, cl_y_coordinates])
 
     @property
@@ -285,13 +287,18 @@ class ProfileBase(object):
         :return: maximum camber
         :rtype: float
         """
-        self.get_camber_line(interpolate=interpolate,
+        self.compute_camber_line(interpolate=interpolate,
                              n_interpolated_points=n_interpolated_points)
 
-        self.get_chord_line(lin_spaced=interpolate, 
+        self.compute_chord_line(lin_spaced=interpolate, 
                             num=n_interpolated_points)
 
-        camber = self.chord_line[1] + self.camber_line[1]
+        n_points = self.camber_line[0].size
+        camber = np.zeros(n_points)
+        for i in range(n_points):
+            camber[i] = np.linalg.norm(self.chord_line[:,i]
+                                     - self.camber_line[:,i])
+
         return camber.max()
 
     def rotate(self, rad_angle=None, deg_angle=None):
