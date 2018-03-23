@@ -1,10 +1,11 @@
 """
-TO DOC
+Base module for blade construction. Provide essential tools for on airfoils.
 """
 
 import numpy as np
 import matplotlib.pyplot as plt
 from .ndinterpolator import reconstruct_f
+
 
 class ProfileBase(object):
     """
@@ -76,7 +77,7 @@ class ProfileBase(object):
 
     def interpolate_coordinates(self, num=500, radius=1.0):
         """
-        Interpolates the airfoil coordinates from the given data set of
+        Interpolate the airfoil coordinates from the given data set of
         discrete points.
 
         The interpolation applies the Radial Basis Function (RBF) method,
@@ -131,45 +132,46 @@ class ProfileBase(object):
 
         return xx_up, xx_down, yy_up, yy_down
 
-    def compute_chord_line(self, lin_spaced=False, num=500):
+    def compute_chord_line(self, interpolate=False, n_interpolated_points=500):
         """
-        Computes the 2D coordinates of the chord line. Also updates
+        Compute the 2D coordinates of the chord line. Also updates
         the chord_line class member.
 
         The chord line is the straight line that joins between the leading edge
         and the trailing edge. It is simply computed from the equation of
         a line passing through two points, the LE and TE.
 
-        :param bool lin_spaced: if True, then the coordinates are computed at
+        :param bool interpolate: if True, then the coordinates are computed at
             equally spaced intervals within the range of LE and TE. Default
             value is False
-        :param int num: number of points to be used for the equally-spaced
-            sample computations, and is used only if parameter lin_spaced
-            is True. Default value is 500
+        :param int n_interpolated_points: number of points to be used for the
+            equally-spaced sample computations, and is used only if parameter
+            interpolate is True. Default value is 500
         """
         self._update_edges()
-        aratio = ((self.trailing_edge[1]-self.leading_edge[1]) /
-                 (self.trailing_edge[0]-self.leading_edge[0]))
-        if ((lin_spaced==True) or 
-            (self.xup_coordinates == self.xdown_coordinates).all() == False):
-            cl_x_coordinates = np.linspace(self.leading_edge[0],
-                                           self.trailing_edge[0], num=num)
+        aratio = ((self.trailing_edge[1] - self.leading_edge[1]) /
+                  (self.trailing_edge[0] - self.leading_edge[0]))
+        if ((interpolate is True) or
+            (self.xup_coordinates == self.xdown_coordinates).all() is False):
+            cl_x_coordinates = np.linspace(
+                self.leading_edge[0],
+                self.trailing_edge[0],
+                num=n_interpolated_points)
             cl_y_coordinates = np.zeros(cl_x_coordinates.size)
-            cl_y_coordinates = (aratio
-                               * (cl_x_coordinates - self.leading_edge[0])
-                               + self.leading_edge[1])
+            cl_y_coordinates = (aratio *
+                                (cl_x_coordinates - self.leading_edge[0]) +
+                                self.leading_edge[1])
             self.chord_line = np.array([cl_x_coordinates, cl_y_coordinates])
         else:
             cl_y_coordinates = np.zeros(self.xup_coordinates.size)
             cl_y_coordinates = (aratio *
-                               (self.xup_coordinates - self.leading_edge[0])
-                               + self.leading_edge[1])
-            self.chord_line = np.array([self.xup_coordinates,
-                                        cl_y_coordinates])
+                                (self.xup_coordinates - self.leading_edge[0]) +
+                                self.leading_edge[1])
+            self.chord_line = np.array([self.xup_coordinates, cl_y_coordinates])
 
     def compute_camber_line(self, interpolate=False, n_interpolated_points=500):
         """
-        Computes the 2D coordinates of the camber line. Also updates the
+        Compute the 2D coordinates of the camber line. Also updates the
         camber_line class member.
 
         The camber line is defined by the curve passing through all the mid
@@ -187,8 +189,8 @@ class ProfileBase(object):
         correspond to the same vertical sections, since this would imply
         inaccurate measurements for obtaining the camberline.
         """
-        if (interpolate == True) or ((self.xup_coordinates
-                                    == self.xdown_coordinates).all() == False):
+        if (interpolate is True) or (
+            (self.xup_coordinates == self.xdown_coordinates).all() is False):
             # If x_up != x_down element-wise, then the corresponding y_up and
             # y_down can not be comparable, hence a uniform interpolation is
             # required.
@@ -197,15 +199,72 @@ class ProfileBase(object):
             cl_y_coordinates = 0.5 * (yy_up + yy_down)
             self.camber_line = np.array([cl_x_coordinates, cl_y_coordinates])
         else:
-            cl_y_coordinates = (0.5 * (self.ydown_coordinates
-                                    + self.yup_coordinates))
+            cl_y_coordinates = (0.5 *
+                                (self.ydown_coordinates + self.yup_coordinates))
             self.camber_line = np.array(
-                               [self.xup_coordinates, cl_y_coordinates])
+                [self.xup_coordinates, cl_y_coordinates])
+
+    def deform_camber_line(self,
+                           percent_change,
+                           interpolate=False,
+                           n_interpolated_points=500):
+        """
+        Deform camber line according to a given percentage of change of the
+        maximum camber. Also reconstructs the deformed airfoil's coordinates.
+
+        The percentage of change is defined as follows:
+        .. math::
+            \\frac{new magnitude of max camber - old magnitude of maximum \
+             camber}{old magnitude of maximum camber} * 100
+
+        A positive percentage means the new camber is larger than the max
+        camber value, while a negative percentage indicates the new value
+        is smaller.
+
+        We note that the method works only for airfoils in the reference
+        position, i.e. chord line lies on the X-axis and the foil is not
+        rotated, since the measurements are based on the Y-values of the
+        airfoil coordinates, hence any measurements or scalings will be
+        inaccurate for the foils not in their reference position.
+
+        :param float max_camber_change_percent: percentage of change of the
+            maximum camber. Default value is None
+        :param bool interpolate:  if True, the interpolated coordinates are
+            used to compute the camber line and foil's thickness, otherwise
+            the original discrete coordinates are used. Default value is False.
+        :param n_interpolated_points: number of points to be used for the
+            uniform interpolation, and is used only if parameter interpolate
+            is True. Default value is 500
+        :raises ValueError: if max_camber_change_percent is None
+        """
+        # Updating camber line
+        self.compute_camber_line(
+            interpolate=interpolate,
+            n_interpolated_points=n_interpolated_points)
+        scaling_factor = percent_change / 100. + 1.
+        self.camber_line[1] *= scaling_factor
+
+        # Evaluating half-thickness of the undeformed airfoil,
+        # which should hold same values for the deformed foil.
+        if (interpolate is True) or (
+            (self.xup_coordinates == self.xdown_coordinates).all() is False):
+            # If x_up != x_down element-wise, then the corresponding y_up and
+            # y_down can not be comparable, hence a uniform interpolation
+            # is required.
+            (self.xup_coordinates, self.xdown_coordinates, self.yup_coordinates,
+             self.ydown_coordinates
+            ) = self.interpolate_coordinates(num=n_interpolated_points)
+
+        half_thickness = 0.5 * np.fabs(
+            self.yup_coordinates - self.ydown_coordinates)
+
+        self.yup_coordinates = self.camber_line[1] + half_thickness
+        self.ydown_coordinates = self.camber_line[1] - half_thickness
 
     @property
     def reference_point(self):
         """
-        Returns the coordinates of the airfoil's geometric center.
+        Return the coordinates of the airfoil's geometric center.
 
         :return: reference point in 2D
         :rtype: numpy.ndarray
@@ -220,7 +279,7 @@ class ProfileBase(object):
     @property
     def chord_length(self):
         """
-        Measures the l2-norm (Euclidean distance) between the leading edge
+        Measure the l2-norm (Euclidean distance) between the leading edge
         and the trailing edge.
         
         :return: chord length
@@ -229,16 +288,16 @@ class ProfileBase(object):
         self._update_edges()
         return np.linalg.norm(self.leading_edge - self.trailing_edge)
 
-    def max_thickness(self, interpolate=False, n_interpolated_points=500):
+    def get_max_thickness(self, interpolate=False, n_interpolated_points=500):
         """
-        Returns the airfoil's maximum thickness.
+        Return the airfoil's maximum thickness.
 
         Thickness is defined as the distnace between the upper and lower
         surfaces of the airfoil, and can be measured in two different ways:
             - American convention: measures along the line perpendicular to
-                the mean camber line.
+              the mean camber line.
             - British convention: measures along the line perpendicular to
-                the chord line. 
+              the chord line.
         In this implementation, the british convention is used to evaluate
             the maximum thickness.
 
@@ -246,7 +305,7 @@ class ProfileBase(object):
             Phillips, Warren F. (2010). Mechanics of Flight (2nd ed.).
                 Wiley & Sons. p. 27. ISBN 978-0-470-53975-0.
             Bertin, John J.; Cummings, Russel M. (2009). Pearson Prentice Hall,
-                ed. Aerodynamics for Engineers (5th ed.). 
+                ed. Aerodynamics for Engineers (5th ed.).
                 p. 199. ISBN 978-0-13-227268-1.
 
         :param bool interpolate: if True, the interpolated coordinates are used
@@ -265,14 +324,14 @@ class ProfileBase(object):
             # according to british convention. If x_up != x_down element-wise,
             # then the corresponding y_up and y_down can not be comparable,
             # hence a uniform interpolation is required.
-            xx_up, xx_down, yy_up, yy_down = self.interpolate_coordinates(
-                                                num=n_interpolated_points)
+            yy_up, yy_down = self.interpolate_coordinates(
+                num=n_interpolated_points)[2:]
             return np.fabs(yy_up - yy_down).max()
         return np.fabs(self.yup_coordinates - self.ydown_coordinates).max()
 
-    def max_camber(self, interpolate=False, n_interpolated_points=500):
+    def get_max_camber(self, interpolate=False, n_interpolated_points=500):
         """
-        Returns the airfoil's maximum camber.
+        Return the magnitude of the airfoil's maximum camber.
 
         Camber is defined as the distance between the chord line and the mean
         camber line, and is measured along the line perpendicular to the chord
@@ -287,19 +346,30 @@ class ProfileBase(object):
         :return: maximum camber
         :rtype: float
         """
-        self.compute_camber_line(interpolate=interpolate,
-                             n_interpolated_points=n_interpolated_points)
+        self.compute_chord_line(
+            interpolate=interpolate,
+            n_interpolated_points=n_interpolated_points)
 
-        self.compute_chord_line(lin_spaced=interpolate, 
-                            num=n_interpolated_points)
+        self.compute_camber_line(
+            interpolate=interpolate,
+            n_interpolated_points=n_interpolated_points)
 
         n_points = self.camber_line[0].size
         camber = np.zeros(n_points)
-        for i in range(n_points):
-            camber[i] = np.linalg.norm(self.chord_line[:,i]
-                                     - self.camber_line[:,i])
 
-        return camber.max()
+        for i in range(n_points):
+            camber[i] = np.linalg.norm(
+                self.chord_line[:, i] - self.camber_line[:, i])
+
+        if (self.camber_line[1][camber.argmax()] >
+                self.chord_line[1][camber.argmax()]):
+            # Camber line is above the chord line, at the point of max camber
+            max_camber = camber.max()
+        else:
+            # Camber line is below the chord line, at the point of max camber
+            max_camber = camber.max() * -1
+
+        return max_camber
 
     def rotate(self, rad_angle=None, deg_angle=None):
         """
@@ -315,11 +385,11 @@ class ProfileBase(object):
              \\left(\\begin{matrix} cos (\\theta) & - sin (\\theta) \\
             sin (\\theta) & cos (\\theta) \\end{matrix}\\right)
 
-        Given the coordinates of point :math:`(P) = 
+        Given the coordinates of point :math:`(P) =
             \\left(\\begin{matrix} x \\ y \\end{matrix}\\right)`,
         the rotated coordinates will be: .. math::
             P^{'} = \\left(\\begin{matrix} x^{'} \\ y^{'} \\end{matrix}\\right)
-                  = R (\\theta) \\cdot P` 
+                  = R (\\theta) \\cdot P`
 
         If a standard right-handed Cartesian coordinate system is used, with
         the X-axis to the right and the Y-axis up, the rotation
@@ -369,7 +439,7 @@ class ProfileBase(object):
 
     def translate(self, translation):
         """
-        Translates the airfoil coordinates according to a 2D translation vector.
+        Translate the airfoil coordinates according to a 2D translation vector.
         
         :param array_like translation: the translation vector in 2D
         """
@@ -380,7 +450,7 @@ class ProfileBase(object):
 
     def flip(self):
         """
-        Flips the airfoil coordinates about both the X-axis and the Y-axis.
+        Flip the airfoil coordinates about both the X-axis and the Y-axis.
         """
         self.xup_coordinates *= -1
         self.xdown_coordinates *= -1
@@ -389,7 +459,7 @@ class ProfileBase(object):
 
     def scale(self, factor):
         """
-        Scales the airfoil coordinates according to a scaling factor.
+        Scale the airfoil coordinates according to a scaling factor.
 
         In order to apply the scaling without affecting the position of the
         reference point, the method translates the airfoil by its refernce
@@ -409,7 +479,7 @@ class ProfileBase(object):
 
     def plot(self, outfile=None):
         """
-        Plots the airfoil coordinates.
+        Plot the airfoil coordinates.
 
         :param string outfile: outfile name. If a string is provided then the
             plot is saved with that name, otherwise the plot is not saved.
@@ -422,6 +492,6 @@ class ProfileBase(object):
         plt.axis('equal')
 
         if outfile:
-            if not isinstance(outfile, string):
+            if not isinstance(outfile, str):
                 raise ValueError('Output file name must be string.')
             plt.savefig(outfile)
