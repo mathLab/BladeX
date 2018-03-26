@@ -69,13 +69,16 @@ class RBF(object):
         self.radius = radius
 
         self.bases = {
-            'gaussian_spline': self.gaussian_spline,
+            'gaussian_spline':
+            self.gaussian_spline,
             'multi_quadratic_biharmonic_spline':
             self.multi_quadratic_biharmonic_spline,
             'inv_multi_quadratic_biharmonic_spline':
             self.inv_multi_quadratic_biharmonic_spline,
-            'thin_plate_spline': self.thin_plate_spline,
-            'beckert_wendland_c2_basis': self.beckert_wendland_c2_basis
+            'thin_plate_spline':
+            self.thin_plate_spline,
+            'beckert_wendland_c2_basis':
+            self.beckert_wendland_c2_basis
         }
 
         if basis in self.bases:

@@ -41,7 +41,8 @@ class CustomProfile(ProfileBase):
                 self.ydown_coordinates, dtype=float)
         if self.xup_coordinates.shape != self.yup_coordinates.shape or self.xdown_coordinates.shape != self.ydown_coordinates.shape:
             raise ValueError(
-                'Arrays {xup_coordinates, yup_coordinates} or {xdown_coordinates, ydown_coordinates} do not have the same shape.')
+                'Arrays {xup_coordinates, yup_coordinates} or {xdown_coordinates, ydown_coordinates} do not have the same shape.'
+            )
 
         if not all(
                 np.greater_equal(self.yup_coordinates, self.ydown_coordinates)):
@@ -54,7 +55,8 @@ class CustomProfile(ProfileBase):
                 not self.xdown_coordinates[-1] == self.xup_coordinates[-1]) or (
                     not self.ydown_coordinates[0] == self.yup_coordinates[0]):
             raise ValueError(
-                'One of the following conditions is not satisfied: (xdown_coordinates[0]=xup_coordinates[0]) or (xdown_coordinates[-1]=xup_coordinates[-1]) or (ydown_coordinates[0]=yup_coordinates[0])')
+                'One of the following conditions is not satisfied: (xdown_coordinates[0]=xup_coordinates[0]) or (xdown_coordinates[-1]=xup_coordinates[-1]) or (ydown_coordinates[0]=yup_coordinates[0])'
+            )
 
 
 class NacaProfile(ProfileBase):
@@ -139,8 +141,10 @@ class NacaProfile(ProfileBase):
 
             x = np.linspace(0.0, 1.0, num=self.n_points + 1)
 
-            yt = [5 * t * (a0 * sqrt(xx) + a1 * xx + a2 * pow(xx, 2) + a3 * pow(
-                xx, 3) + a4 * pow(xx, 4)) for xx in x]
+            yt = [
+                5 * t * (a0 * sqrt(xx) + a1 * xx + a2 * pow(xx, 2) +
+                         a3 * pow(xx, 3) + a4 * pow(xx, 4)) for xx in x
+            ]
 
             if p == 0:
                 xu = np.linspace(0.0, 1.0, num=self.n_points + 1)
@@ -151,8 +155,10 @@ class NacaProfile(ProfileBase):
                 xc1 = [xx for xx in x if xx <= p]
                 xc2 = [xx for xx in x if xx > p]
                 yc1 = [m / pow(p, 2) * xx * (2 * p - xx) for xx in xc1]
-                yc2 = [m / pow(1 - p, 2) * (1 - 2 * p + xx) * (1 - xx)
-                       for xx in xc2]
+                yc2 = [
+                    m / pow(1 - p, 2) * (1 - 2 * p + xx) * (1 - xx)
+                    for xx in xc2
+                ]
                 zc = yc1 + yc2
 
                 dyc1_dx = [m / pow(p, 2) * (2 * p - 2 * xx) for xx in xc1]
@@ -190,8 +196,10 @@ class NacaProfile(ProfileBase):
 
             x = np.linspace(0.0, 1.0, num=self.n_points + 1)
 
-            yt = [5 * t * (a0 * sqrt(xx) + a1 * xx + a2 * pow(xx, 2) + a3 * pow(
-                xx, 3) + a4 * pow(xx, 4)) for xx in x]
+            yt = [
+                5 * t * (a0 * sqrt(xx) + a1 * xx + a2 * pow(xx, 2) +
+                         a3 * pow(xx, 3) + a4 * pow(xx, 4)) for xx in x
+            ]
 
             P = [0.05, 0.1, 0.15, 0.2, 0.25]
             M = [0.0580, 0.1260, 0.2025, 0.2900, 0.3910]
@@ -207,13 +215,18 @@ class NacaProfile(ProfileBase):
                 k1 = self._cubic_spline_interpolation(M, K, [m])
                 xc1 = [xx for xx in x if xx <= p]
                 xc2 = [xx for xx in x if xx > p]
-                yc1 = [k1 / 6.0 * (pow(xx, 3) - 3 * m * pow(xx, 2) + pow(m, 2) *
-                                   (3 - m) * xx) for xx in xc1]
+                yc1 = [
+                    k1 / 6.0 * (pow(xx, 3) - 3 * m * pow(xx, 2) + pow(m, 2) *
+                                (3 - m) * xx) for xx in xc1
+                ]
                 yc2 = [k1 / 6.0 * pow(m, 3) * (1 - xx) for xx in xc2]
                 zc = [cld / 0.3 * xx for xx in yc1 + yc2]
 
-                dyc1_dx = [cld / 0.3 * (1.0 / 6.0) * k1 * (3 * pow(
-                    xx, 2) - 6 * m * xx + pow(m, 2) * (3 - m)) for xx in xc1]
+                dyc1_dx = [
+                    cld / 0.3 * (1.0 / 6.0) * k1 *
+                    (3 * pow(xx, 2) - 6 * m * xx + pow(m, 2) * (3 - m))
+                    for xx in xc1
+                ]
                 dyc2_dx = [cld / 0.3 * (1.0 / 6.0) * k1 * pow(m, 3)] * len(xc2)
 
                 dyc_dx = dyc1_dx + dyc2_dx
