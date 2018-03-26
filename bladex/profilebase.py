@@ -105,7 +105,7 @@ class ProfileBase(object):
             positive
         """
         if not isinstance(num, int):
-            raise TypeError('inserted value must be of type integer.')
+            raise TypeError('Inserted value must be of type integer.')
         if num <= 0 or radius <= 0:
             raise ValueError('Inserted value must be positive.')
 
@@ -143,10 +143,10 @@ class ProfileBase(object):
 
         :param bool interpolate: if True, then the coordinates are computed at
             equally spaced intervals within the range of LE and TE. Default
-            value is False
+            value is False.
         :param int n_interpolated_points: number of points to be used for the
             equally-spaced sample computations, and is used only if parameter
-            interpolate is True. Default value is 500
+            interpolate is True. Default value is 500.
         """
         self._update_edges()
         aratio = ((self.trailing_edge[1] - self.leading_edge[1]) /
@@ -182,12 +182,12 @@ class ProfileBase(object):
             coordinates are used. Default value is False.
         :param int n_interpolated_points: number of points to be used for the
             uniform interpolation, and is used only if parameter interpolate
-            is True. Default value is 500
+            is True. Default value is 500.
 
         We note that a uniform interpolation becomes necessary for the cases
         when the X-coordinates of the upper and lower surfaces do not
         correspond to the same vertical sections, since this would imply
-        inaccurate measurements for obtaining the camberline.
+        inaccurate measurements for obtaining the camber line.
         """
         if (interpolate is True) or (
             (self.xup_coordinates == self.xdown_coordinates).all() is False):
@@ -227,15 +227,14 @@ class ProfileBase(object):
         airfoil coordinates, hence any measurements or scalings will be
         inaccurate for the foils not in their reference position.
 
-        :param float max_camber_change_percent: percentage of change of the
+        :param float percent_change: percentage of change of the
             maximum camber. Default value is None
         :param bool interpolate:  if True, the interpolated coordinates are
             used to compute the camber line and foil's thickness, otherwise
             the original discrete coordinates are used. Default value is False.
-        :param n_interpolated_points: number of points to be used for the
+        :param int n_interpolated_points: number of points to be used for the
             uniform interpolation, and is used only if parameter interpolate
-            is True. Default value is 500
-        :raises ValueError: if max_camber_change_percent is None
+            is True. Default value is 500.
         """
         # Updating camber line
         self.compute_camber_line(
@@ -253,7 +252,7 @@ class ProfileBase(object):
             # is required.
             (self.xup_coordinates, self.xdown_coordinates, self.yup_coordinates,
              self.ydown_coordinates
-            ) = self.interpolate_coordinates(num=n_interpolated_points)
+             ) = self.interpolate_coordinates(num=n_interpolated_points)
 
         half_thickness = 0.5 * np.fabs(
             self.yup_coordinates - self.ydown_coordinates)
@@ -281,7 +280,7 @@ class ProfileBase(object):
         """
         Measure the l2-norm (Euclidean distance) between the leading edge
         and the trailing edge.
-        
+
         :return: chord length
         :rtype: float
         """
@@ -361,13 +360,11 @@ class ProfileBase(object):
             camber[i] = np.linalg.norm(
                 self.chord_line[:, i] - self.camber_line[:, i])
 
-        if (self.camber_line[1][camber.argmax()] >
+        max_camber = camber.max()
+        if (self.camber_line[1][camber.argmax()] <
                 self.chord_line[1][camber.argmax()]):
-            # Camber line is above the chord line, at the point of max camber
-            max_camber = camber.max()
-        else:
             # Camber line is below the chord line, at the point of max camber
-            max_camber = camber.max() * -1
+            max_camber *= -1
 
         return max_camber
 
