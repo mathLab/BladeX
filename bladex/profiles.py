@@ -1,13 +1,19 @@
 """
+Derived module from profilebase.py to provide the airfoil coordinates.
 """
-from math import sqrt
+
 import numpy as np
 from .profilebase import ProfileBase
 
 
 class CustomProfile(ProfileBase):
     """
-    TO DOC
+    Provide custom profile for the airfoil coordinates.
+
+    :param numpy.ndarray xup: 1D array that contains the X-components of the airfoil's upper surface
+    :param numpy.ndarray xdown: 1D array that contains the X-components of the airfoil's lower surface
+    :param numpy.ndarray yup: 1D array that contains the Y-components of the airfoil's upper surface
+    :param numpy.ndarray ydown: 1D array that contains the Y-components of the airfoil's lower surface
     """
 
     def __init__(self, xdown, xup, ydown, yup):
@@ -19,15 +25,30 @@ class CustomProfile(ProfileBase):
 
     def _check_coordinates(self):
         """
-        TO DOC
-        TODO: 
-        - add a check on single coordinates of ydown and yup. yup has to be ABOVE ydown componentwise.
-        - check on xdown[0] and xup[0]: they have to be equal. Same for [-1].
+        Private method that checks whether the airfoil coordinates defined are provided correctly.
+
+        We note that each array of coordinates must be consistent with the other arrays.
+        The upper and lower surfaces should start from exactly the same point, the leading edge,
+        and proceed on the way till the trailing edge. The trailing edge might have a non-zero thickness as in the case of some NACA-airfoils. In case of an open trailing edge, 
+        the average coordinate between upper and lower part is taken as the unique value.
+
+        :raises ValueError: if either xup, xdown, yup, ydown is None
+        :raises ValueError: if the 1D arrays xup, yup or xdown, ydown do not have the same length
+        :raises ValueError: if array yup not greater than or equal array ydown element-wise
+        :raises ValueError: if xdown[0] != xup[0] or ydown[0] != yup[0] or xdown[-1] != xup[-1]
         """
-        assert self.xup_coordinates is not None, "object 'xup_coordinates' refers to an empty array."
-        assert self.xdown_coordinates is not None, "object 'xdown_coordinates' refers to an empty array."
-        assert self.yup_coordinates is not None, "object 'yup_coordinates' refers to an empty array."
-        assert self.ydown_coordinates is not None, "object 'ydown_coordinates' refers to an empty array."
+        if self.xup_coordinates is None:
+            raise ValueError(
+                'object "xup_coordinates" refers to an empty array.')
+        if self.xdown_coordinates is None:
+            raise ValueError(
+                'object "xdown_coordinates" refers to an empty array.')
+        if self.yup_coordinates is None:
+            raise ValueError(
+                'object "yup_coordinates" refers to an empty array.')
+        if self.ydown_coordinates is None:
+            raise ValueError(
+                'object "ydown_coordinates" refers to an empty array.')
 
         if not isinstance(self.xup_coordinates, np.ndarray):
             self.xup_coordinates = np.asarray(self.xup_coordinates, dtype=float)
@@ -39,36 +60,85 @@ class CustomProfile(ProfileBase):
         if not isinstance(self.ydown_coordinates, np.ndarray):
             self.ydown_coordinates = np.asarray(
                 self.ydown_coordinates, dtype=float)
-        if self.xup_coordinates.shape != self.yup_coordinates.shape or self.xdown_coordinates.shape != self.ydown_coordinates.shape:
+
+        # Therefore the arrays xup_coordinates and yup_coordinates must have the same length = N,
+        # Same holds for the arrays xdown_coordinates and ydown_coordinates.
+        if self.xup_coordinates.shape != self.yup_coordinates.shape:
             raise ValueError(
-                'Arrays {xup_coordinates, yup_coordinates} or {xdown_coordinates, ydown_coordinates} do not have the same shape.'
+                'Arrays xup_coordinates and yup_coordinates do not have the same shape.'
+            )
+        if self.xdown_coordinates.shape != self.ydown_coordinates.shape:
+            raise ValueError(
+                'Arrays xdown_coordinates and ydown_coordinates do not have the same shape.'
             )
 
+        # - The condition yup_coordinates >= ydown_coordinates must be satisfied element-wise to the whole elements in the mentioned arrays.
         if not all(
                 np.greater_equal(self.yup_coordinates, self.ydown_coordinates)):
             raise ValueError(
                 'yup_coordinates !>= ydown_coordinates elementwise.')
 
-        # FIXED
-        # TODO: split the checks, same above
-        if (not self.xdown_coordinates[0] == self.xup_coordinates[0]) or (
-                not self.xdown_coordinates[-1] == self.xup_coordinates[-1]) or (
-                    not self.ydown_coordinates[0] == self.yup_coordinates[0]):
+        if not self.xdown_coordinates[0] == self.xup_coordinates[0]:
             raise ValueError(
-                'One of the following conditions is not satisfied: (xdown_coordinates[0]=xup_coordinates[0]) or (xdown_coordinates[-1]=xup_coordinates[-1]) or (ydown_coordinates[0]=yup_coordinates[0])'
+                'The condition (xdown_coordinates[0]=xup_coordinates[0]) is not satisfied.'
+            )
+        if not self.ydown_coordinates[0] == self.yup_coordinates[0]:
+            raise ValueError(
+                'The condition (ydown_coordinates[0]=yup_coordinates[0]) is not satisfied.'
+            )
+        if not self.xdown_coordinates[-1] == self.xup_coordinates[-1]:
+            raise ValueError(
+                'The condition (xdown_coordinates[-1]=xup_coordinates[-1]) is not satisfied.'
             )
 
 
 class NacaProfile(ProfileBase):
     """
-    TO DOC
-    the 5 digits does not work properly. We can think to remove it in the near future.
+    Generate 4- and 5-digit NACA profiles.
+
+    The NACA airfoils are airfoil shapes for aircraft wings developed by the National Advisory Committee for Aeronautics (NACA).
+    The shape of the NACA airfoils is described using a series of digits following the word "NACA". The parameters in the numerical
+    code can be entered into equations to precisely generate the cross-section of the airfoil and calculate its properties.
+
+    The NACA four-digit series describes airfoil by the format MPTT, where:
+        M/100: indicates the maximum camber in percentage, with respect to the chord length.
+        P/10: indicates the location of the maximum camber measured from the leading edge. The location is normalized by the chord length.
+        TT/100: the maximum thickness as fraction of the chord length.
+
+    The profile 00TT refers to a symmetrical NACA airfoil.
+
+    The NACA five-digit series describes more complex airfoil shapes. Its format is: LPSTT, where:
+        L: the theoretical optimum lift coefficient at ideal angle-of-attack = 0.15*L
+        P: the x-coordinate of the point of maximum camber (max camber at x = 0.05*P)
+        S: indicates whether the camber is simple (S=0) or reflex (S=1)
+        TT/100: the maximum thickness in percent of chord, as in a four-digit NACA airfoil code
+
+    References:
+    Moran, Jack (2003). An introduction to theoretical and computational aerodynamics. Dover. p. 7. ISBN 0-486-42879-6.
+    Abbott, Ira (1959). Theory of Wing Sections: Including a Summary of Airfoil Data. New York: Dover Publications. p. 115. ISBN 978-0486605869.
+
+    :param string digits: 4 or 5 digits that describes the NACA profile
+    :param int n_points: number of discrete points that represents the airfoil profile. Default value is 240
+    :raises ValueError: if n_points is not positive
+    :raises TypeError: if n_points is not of type int
+    :raises SyntaxError: if digits is not a string
+    :raises Exception: if digits is not of length 4 or 5
     """
 
     def __init__(self, digits, n_points=240):
         self.digits = digits
         self.n_points = n_points
+        self._check_args()
         self._generate_coordinates()
+
+    def _check_args(self):
+        """
+        Private method to check that the number of the airfoil discrete points is a positive integer.
+        """
+        if not isinstance(self.n_points, int):
+            raise TypeError('n_points must be of type integer.')
+        if self.n_points < 0:
+            raise ValueError('n_points must be positive.')
 
     @staticmethod
     def _cubic_spline_interpolation(xa, ya, query_points):
@@ -124,8 +194,8 @@ class NacaProfile(ProfileBase):
 
     def _generate_coordinates(self):
         """
-        TO DOC
-        Works always as finite_TE=False, half_cosine_spacing=False
+        Private method that generates the coordinates of the NACA 4 or 5 digits airfoil profile. 
+        The method assumes a zero-thickness trailing edge, and no half-cosine spacing.
         """
         if len(self.digits) == 4:
             # Returns n+1 points in [0 1] for the given 4 digit NACA number string
@@ -137,46 +207,41 @@ class NacaProfile(ProfileBase):
             a1 = -0.1260
             a2 = -0.3516
             a3 = +0.2843
-            a4 = -0.1036  # zero thick TE
+            a4 = -0.1036  # zero thickness TE
 
             x = np.linspace(0.0, 1.0, num=self.n_points + 1)
 
-            yt = [
-                5 * t * (a0 * sqrt(xx) + a1 * xx + a2 * pow(xx, 2) +
-                         a3 * pow(xx, 3) + a4 * pow(xx, 4)) for xx in x
-            ]
+            yt = 5 * t * (a0 * np.sqrt(x) + a1 * x + a2 * np.power(x, 2) +
+                          a3 * np.power(x, 3) + a4 * np.power(x, 4))
 
             if p == 0:
-                xu = np.linspace(0.0, 1.0, num=self.n_points + 1)
-                yu = yt
-                xl = np.linspace(0.0, 1.0, num=self.n_points + 1)
-                yl = [-xx for xx in yt]
+                self.xup_coordinates = np.linspace(
+                    0.0, 1.0, num=self.n_points + 1)
+                self.yup_coordinates = yt
+                self.xdown_coordinates = np.linspace(
+                    0.0, 1.0, num=self.n_points + 1)
+                self.ydown_coordinates = -yt
             else:
-                xc1 = [xx for xx in x if xx <= p]
-                xc2 = [xx for xx in x if xx > p]
-                yc1 = [m / pow(p, 2) * xx * (2 * p - xx) for xx in xc1]
-                yc2 = [
-                    m / pow(1 - p, 2) * (1 - 2 * p + xx) * (1 - xx)
-                    for xx in xc2
-                ]
-                zc = yc1 + yc2
+                xc1 = np.asarray([xx for xx in x if xx <= p])
+                xc2 = np.asarray([xx for xx in x if xx > p])
+                yc1 = m / np.power(p, 2) * xc1 * (2 * p - xc1)
+                yc2 = m / np.power(1 - p, 2) * (1 - 2 * p + xc2) * (1 - xc2)
+                zc = np.append(yc1, yc2)
 
-                dyc1_dx = [m / pow(p, 2) * (2 * p - 2 * xx) for xx in xc1]
-                dyc2_dx = [m / pow(1 - p, 2) * (2 * p - 2 * xx) for xx in xc2]
-                dyc_dx = dyc1_dx + dyc2_dx
+                dyc1_dx = m / np.power(p, 2) * (2 * p - 2 * xc1)
+                dyc2_dx = m / np.power(1 - p, 2) * (2 * p - 2 * xc2)
+                dyc_dx = np.append(dyc1_dx, dyc2_dx)
 
-                theta = [atan(xx) for xx in dyc_dx]
+                theta = np.arctan(dyc_dx)
 
-                xu = [xx - yy * sin(zz) for xx, yy, zz in zip(x, yt, theta)]
-                yu = [xx + yy * cos(zz) for xx, yy, zz in zip(zc, yt, theta)]
-
-                xl = [xx + yy * sin(zz) for xx, yy, zz in zip(x, yt, theta)]
-                yl = [xx - yy * cos(zz) for xx, yy, zz in zip(zc, yt, theta)]
-
-            self.xup_coordinates = np.asarray(xu)
-            self.xdown_coordinates = np.asarray(xl)
-            self.yup_coordinates = np.asarray(yu)
-            self.ydown_coordinates = np.asarray(yl)
+                self.xup_coordinates = np.asarray(
+                    [xx - yy * np.sin(zz) for xx, yy, zz in zip(x, yt, theta)])
+                self.yup_coordinates = np.asarray(
+                    [xx + yy * np.cos(zz) for xx, yy, zz in zip(zc, yt, theta)])
+                self.xdown_coordinates = np.asarray(
+                    [xx + yy * np.sin(zz) for xx, yy, zz in zip(x, yt, theta)])
+                self.ydown_coordinates = np.asarray(
+                    [xx - yy * np.cos(zz) for xx, yy, zz in zip(zc, yt, theta)])
 
         elif len(self.digits) == 5:
             # Returns n+1 points in [0 1] for the given 5 digit NACA number string
@@ -196,52 +261,48 @@ class NacaProfile(ProfileBase):
 
             x = np.linspace(0.0, 1.0, num=self.n_points + 1)
 
-            yt = [
-                5 * t * (a0 * sqrt(xx) + a1 * xx + a2 * pow(xx, 2) +
-                         a3 * pow(xx, 3) + a4 * pow(xx, 4)) for xx in x
-            ]
+            yt = 5 * t * (a0 * np.sqrt(x) + a1 * x + a2 * np.power(x, 2) +
+                          a3 * np.power(x, 3) + a4 * np.power(x, 4))
 
-            P = [0.05, 0.1, 0.15, 0.2, 0.25]
-            M = [0.0580, 0.1260, 0.2025, 0.2900, 0.3910]
-            K = [361.4, 51.64, 15.957, 6.643, 3.230]
+            P = np.array([0.05, 0.1, 0.15, 0.2, 0.25])
+            M = np.array([0.0580, 0.1260, 0.2025, 0.2900, 0.3910])
+            K = np.array([361.4, 51.64, 15.957, 6.643, 3.230])
 
             if p == 0:
-                xu = np.linspace(0.0, 1.0, num=self.n_points + 1)
-                yu = yt
-                xl = np.linspace(0.0, 1.0, num=self.n_points + 1)
-                yl = [-yy for yy in yt]
+                self.xup_coordinates = np.linspace(
+                    0.0, 1.0, num=self.n_points + 1)
+                self.yup_coordinates = yt
+                self.xdown_coordinates = np.linspace(
+                    0.0, 1.0, num=self.n_points + 1)
+                self.ydown_coordinates = -yt
             else:
                 m = self._cubic_spline_interpolation(P, M, [p])
                 k1 = self._cubic_spline_interpolation(M, K, [m])
-                xc1 = [xx for xx in x if xx <= p]
-                xc2 = [xx for xx in x if xx > p]
-                yc1 = [
-                    k1 / 6.0 * (pow(xx, 3) - 3 * m * pow(xx, 2) + pow(m, 2) *
-                                (3 - m) * xx) for xx in xc1
-                ]
-                yc2 = [k1 / 6.0 * pow(m, 3) * (1 - xx) for xx in xc2]
-                zc = [cld / 0.3 * xx for xx in yc1 + yc2]
+                xc1 = np.asarray([xx for xx in x if xx <= p])
+                xc2 = np.asarray([xx for xx in x if xx > p])
+                yc1 = k1 / 6.0 * (np.power(xc1, 3) - 3 * m * np.power(xc1, 2) +
+                                  np.power(m, 2) * (3 - m) * xc1)
+                yc2 = k1 / 6.0 * np.power(m, 3) * (1 - xc2)
+                yc = np.append(yc1, yc2)
+                zc = cld / 0.3 * yc
 
-                dyc1_dx = [
-                    cld / 0.3 * (1.0 / 6.0) * k1 *
-                    (3 * pow(xx, 2) - 6 * m * xx + pow(m, 2) * (3 - m))
-                    for xx in xc1
-                ]
-                dyc2_dx = [cld / 0.3 * (1.0 / 6.0) * k1 * pow(m, 3)] * len(xc2)
+                dyc1_dx = cld / 0.3 * (1.0 / 6.0) * k1 * (
+                    3 * np.power(xc1, 2) - 6 * m * xc1 + np.power(m, 2) *
+                    (3 - m))
+                dyc2_dx = np.tile(cld / 0.3 * (1.0 / 6.0) * k1 * np.power(m, 3),
+                                  len(xc2))
 
-                dyc_dx = dyc1_dx + dyc2_dx
-                theta = [atan(xx) for xx in dyc_dx]
+                dyc_dx = np.append(dyc1_dx, dyc2_dx)
+                theta = np.arctan(dyc_dx)
 
-                xu = [xx - yy * sin(zz) for xx, yy, zz in zip(x, yt, theta)]
-                yu = [xx + yy * cos(zz) for xx, yy, zz in zip(zc, yt, theta)]
-
-                xl = [xx + yy * sin(zz) for xx, yy, zz in zip(x, yt, theta)]
-                yl = [xx - yy * cos(zz) for xx, yy, zz in zip(zc, yt, theta)]
-
-            self.xup_coordinates = np.asarray(xu)
-            self.xdown_coordinates = np.asarray(xl)
-            self.yup_coordinates = np.asarray(yu)
-            self.ydown_coordinates = np.asarray(yl)
+                self.xup_coordinates = np.asarray(
+                    [xx - yy * np.sin(zz) for xx, yy, zz in zip(x, yt, theta)])
+                self.yup_coordinates = np.asarray(
+                    [xx + yy * np.cos(zz) for xx, yy, zz in zip(zc, yt, theta)])
+                self.xdown_coordinates = np.asarray(
+                    [xx + yy * np.sin(zz) for xx, yy, zz in zip(x, yt, theta)])
+                self.ydown_coordinates = np.asarray(
+                    [xx - yy * np.cos(zz) for xx, yy, zz in zip(zc, yt, theta)])
 
         else:
             raise Exception
