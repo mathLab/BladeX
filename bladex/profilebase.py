@@ -132,7 +132,7 @@ class ProfileBase(object):
 
         return xx_up, xx_down, yy_up, yy_down
 
-    def compute_chord_line(self, interpolate=False, n_interpolated_points=500):
+    def compute_chord_line(self, n_interpolated_points=None):
         """
         Compute the 2D coordinates of the chord line. Also updates
         the chord_line class member.
@@ -141,35 +141,40 @@ class ProfileBase(object):
         and the trailing edge. It is simply computed from the equation of
         a line passing through two points, the LE and TE.
 
-        :param bool interpolate: if True, then the coordinates are computed at
-            equally spaced intervals within the range of LE and TE. Default
-            value is False.
         :param int n_interpolated_points: number of points to be used for the
-            equally-spaced sample computations, and is used only if parameter
-            interpolate is True. Default value is 500.
+            equally-spaced sample computations. If None then there is no
+            interpolation, unless the arrays x_up != x_down elementwise which
+            implies that the corresponding y_up and y_down can not be
+            comparable, hence a uniform interpolation is required. Default
+            value is None
         """
         self._update_edges()
         aratio = ((self.trailing_edge[1] - self.leading_edge[1]) /
                   (self.trailing_edge[0] - self.leading_edge[0]))
-        if ((interpolate is True) or
-            (self.xup_coordinates == self.xdown_coordinates).all() is False):
+        if not (self.xup_coordinates == self.xdown_coordinates
+               ).all() and n_interpolated_points is None:
+            # If x_up != x_down element-wise, then the corresponding y_up and
+            # y_down can not be comparable, hence a uniform interpolation is
+            # required. Also in case the interpolated_points is None,
+            # then we assume a default number of interpolated points
+            n_interpolated_points = 500
+
+        if n_interpolated_points:
             cl_x_coordinates = np.linspace(
                 self.leading_edge[0],
                 self.trailing_edge[0],
                 num=n_interpolated_points)
-            cl_y_coordinates = np.zeros(cl_x_coordinates.size)
             cl_y_coordinates = (aratio *
                                 (cl_x_coordinates - self.leading_edge[0]) +
                                 self.leading_edge[1])
             self.chord_line = np.array([cl_x_coordinates, cl_y_coordinates])
         else:
-            cl_y_coordinates = np.zeros(self.xup_coordinates.size)
             cl_y_coordinates = (aratio *
                                 (self.xup_coordinates - self.leading_edge[0]) +
                                 self.leading_edge[1])
             self.chord_line = np.array([self.xup_coordinates, cl_y_coordinates])
 
-    def compute_camber_line(self, interpolate=False, n_interpolated_points=500):
+    def compute_camber_line(self, n_interpolated_points=None):
         """
         Compute the 2D coordinates of the camber line. Also updates the
         camber_line class member.
@@ -177,23 +182,27 @@ class ProfileBase(object):
         The camber line is defined by the curve passing through all the mid
         points between the upper surface and the lower surface of the airfoil.
 
-        :param bool interpolate: if True, the interpolated coordinates are used
-            to obtain the camber line, otherwise the original discrete
-            coordinates are used. Default value is False.
         :param int n_interpolated_points: number of points to be used for the
-            uniform interpolation, and is used only if parameter interpolate
-            is True. Default value is 500.
+            equally-spaced sample computations. If None then there is no
+            interpolation, unless the arrays x_up != x_down elementwise which
+            implies that the corresponding y_up and y_down can not be
+            comparable, hence a uniform interpolation is required. Default
+            value is None
 
         We note that a uniform interpolation becomes necessary for the cases
         when the X-coordinates of the upper and lower surfaces do not
         correspond to the same vertical sections, since this would imply
         inaccurate measurements for obtaining the camber line.
         """
-        if (interpolate is True) or (
-            (self.xup_coordinates == self.xdown_coordinates).all() is False):
+        if not (self.xup_coordinates == self.xdown_coordinates
+               ).all() and n_interpolated_points is None:
             # If x_up != x_down element-wise, then the corresponding y_up and
             # y_down can not be comparable, hence a uniform interpolation is
-            # required.
+            # required. Also in case the interpolated_points is None,
+            # then we assume a default number of interpolated points
+            n_interpolated_points = 500
+
+        if n_interpolated_points:
             cl_x_coordinates, yy_up, yy_down = (
                 self.interpolate_coordinates(num=n_interpolated_points)[1:])
             cl_y_coordinates = 0.5 * (yy_up + yy_down)
@@ -204,10 +213,7 @@ class ProfileBase(object):
             self.camber_line = np.array(
                 [self.xup_coordinates, cl_y_coordinates])
 
-    def deform_camber_line(self,
-                           percent_change,
-                           interpolate=False,
-                           n_interpolated_points=500):
+    def deform_camber_line(self, percent_change, n_interpolated_points=None):
         """
         Deform camber line according to a given percentage of change of the
         maximum camber. Also reconstructs the deformed airfoil's coordinates.
@@ -233,26 +239,31 @@ class ProfileBase(object):
             used to compute the camber line and foil's thickness, otherwise
             the original discrete coordinates are used. Default value is False.
         :param int n_interpolated_points: number of points to be used for the
-            uniform interpolation, and is used only if parameter interpolate
-            is True. Default value is 500.
+            equally-spaced sample computations. If None then there is no
+            interpolation, unless the arrays x_up != x_down elementwise which
+            implies that the corresponding y_up and y_down can not be
+            comparable, hence a uniform interpolation is required. Default
+            value is None
         """
         # Updating camber line
-        self.compute_camber_line(
-            interpolate=interpolate,
-            n_interpolated_points=n_interpolated_points)
+        self.compute_camber_line(n_interpolated_points=n_interpolated_points)
         scaling_factor = percent_change / 100. + 1.
         self.camber_line[1] *= scaling_factor
 
+        if not (self.xup_coordinates == self.xdown_coordinates
+               ).all() and n_interpolated_points is None:
+            # If x_up != x_down element-wise, then the corresponding y_up and
+            # y_down can not be comparable, hence a uniform interpolation is
+            # required. Also in case the interpolated_points is None,
+            # then we assume a default number of interpolated points
+            n_interpolated_points = 500
+
         # Evaluating half-thickness of the undeformed airfoil,
         # which should hold same values for the deformed foil.
-        if (interpolate is True) or (
-            (self.xup_coordinates == self.xdown_coordinates).all() is False):
-            # If x_up != x_down element-wise, then the corresponding y_up and
-            # y_down can not be comparable, hence a uniform interpolation
-            # is required.
+        if n_interpolated_points:
             (self.xup_coordinates, self.xdown_coordinates, self.yup_coordinates,
              self.ydown_coordinates
-             ) = self.interpolate_coordinates(num=n_interpolated_points)
+            ) = self.interpolate_coordinates(num=n_interpolated_points)
 
         half_thickness = 0.5 * np.fabs(
             self.yup_coordinates - self.ydown_coordinates)
@@ -287,7 +298,7 @@ class ProfileBase(object):
         self._update_edges()
         return np.linalg.norm(self.leading_edge - self.trailing_edge)
 
-    def get_max_thickness(self, interpolate=False, n_interpolated_points=500):
+    def max_thickness(self, n_interpolated_points=None):
         """
         Return the airfoil's maximum thickness.
 
@@ -311,13 +322,23 @@ class ProfileBase(object):
             to measure the thickness; otherwise, the original discrete
             coordinates are used. Default value is False
         :param int n_interpolated_points: number of points to be used for the
-            uniform interpolation, and is used only if parameter interpolate is
-            True. Default value is 500
+            equally-spaced sample computations. If None then there is no
+            interpolation, unless the arrays x_up != x_down elementwise which
+            implies that the corresponding y_up and y_down can not be
+            comparable, hence a uniform interpolation is required. Default
+            value is None
         :return: maximum thickness
         :rtype: float
         """
-        if (interpolate is True) or (
-            (self.xup_coordinates == self.xdown_coordinates).all() is False):
+        if not (self.xup_coordinates == self.xdown_coordinates
+               ).all() and n_interpolated_points is None:
+            # If x_up != x_down element-wise, then the corresponding y_up and
+            # y_down can not be comparable, hence a uniform interpolation is
+            # required. Also in case the interpolated_points is None,
+            # then we assume a default number of interpolated points
+            n_interpolated_points = 500
+
+        if n_interpolated_points:
             # Evaluation of the thickness requires comparing both y_up and
             # y_down for the same x-section, (i.e. same x_coordinate),
             # according to british convention. If x_up != x_down element-wise,
@@ -328,7 +349,7 @@ class ProfileBase(object):
             return np.fabs(yy_up - yy_down).max()
         return np.fabs(self.yup_coordinates - self.ydown_coordinates).max()
 
-    def get_max_camber(self, interpolate=False, n_interpolated_points=500):
+    def max_camber(self, n_interpolated_points=500):
         """
         Return the magnitude of the airfoil's maximum camber.
 
@@ -340,18 +361,17 @@ class ProfileBase(object):
             to measure the camber; otherwise, the original discrete coordinates
             are used. Default value is False
         :param int n_interpolated_points: number of points to be used for the
-            uniform interpolation, and is used only if parameter interpolate
-            is True. Default value is 500
+            equally-spaced sample computations. If None then there is no
+            interpolation, unless the arrays x_up != x_down elementwise which
+            implies that the corresponding y_up and y_down can not be
+            comparable, hence a uniform interpolation is required. Default
+            value is None
         :return: maximum camber
         :rtype: float
         """
-        self.compute_chord_line(
-            interpolate=interpolate,
-            n_interpolated_points=n_interpolated_points)
+        self.compute_chord_line(n_interpolated_points=n_interpolated_points)
 
-        self.compute_camber_line(
-            interpolate=interpolate,
-            n_interpolated_points=n_interpolated_points)
+        self.compute_camber_line(n_interpolated_points=n_interpolated_points)
 
         n_points = self.camber_line[0].size
         camber = np.zeros(n_points)
