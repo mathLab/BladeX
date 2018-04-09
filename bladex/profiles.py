@@ -19,11 +19,11 @@ class CustomProfile(ProfileBase):
         airfoil's lower surface
     """
 
-    def __init__(self, xdown, xup, ydown, yup):
-        self.xdown_coordinates = xdown
+    def __init__(self, xup, yup, xdown, ydown):
         self.xup_coordinates = xup
-        self.ydown_coordinates = ydown
         self.yup_coordinates = yup
+        self.xdown_coordinates = xdown
+        self.ydown_coordinates = ydown
         self._check_coordinates()
 
     def _check_coordinates(self):
@@ -83,7 +83,7 @@ class CustomProfile(ProfileBase):
                 'xdown_coordinates and ydown_coordinates must have same shape.'
             )
 
-        # - The condition yup_coordinates >= ydown_coordinates must be satisfied
+        # The condition yup_coordinates >= ydown_coordinates must be satisfied
         # element-wise to the whole elements in the mentioned arrays.
         if not all(
                 np.greater_equal(self.yup_coordinates, self.ydown_coordinates)):
@@ -160,6 +160,10 @@ class NacaProfile(ProfileBase):
         Private method to check that the number of the airfoil discrete points
         is a positive integer.
         """
+        if not isinstance(self.digits, str):
+            raise TypeError('digits must be of type string.')
+        if isinstance(self.n_points, float):
+            self.n_points = int(self.n_points)
         if not isinstance(self.n_points, int):
             raise TypeError('n_points must be of type integer.')
         if self.n_points < 0:
@@ -180,11 +184,12 @@ class NacaProfile(ProfileBase):
         x = np.linspace(0.0, 1.0, num=self.n_points + 1)
 
         if len(self.digits) == 4:
-            # Returns n+1 points in [0 1] for the given 4 digit NACA number string
+            # Returns n+1 points in [0 1] for the given 4-digits NACA string
             m = float(self.digits[0]) / 100.0
             p = float(self.digits[1]) / 10.0
             t = float(self.digits[2:]) / 100.0
 
+            # half-thickness distribution
             yt = 5 * t * (a0 * np.sqrt(x) + a1 * x + a2 * np.power(x, 2) +
                           a3 * np.power(x, 3) + a4 * np.power(x, 4))
 
@@ -200,6 +205,7 @@ class NacaProfile(ProfileBase):
                 xc2 = np.asarray([xx for xx in x if xx > p])
                 yc1 = m / np.power(p, 2) * xc1 * (2 * p - xc1)
                 yc2 = m / np.power(1 - p, 2) * (1 - 2 * p + xc2) * (1 - xc2)
+                # Y-coordinates of camber line
                 zc = np.append(yc1, yc2)
 
                 dyc1_dx = m / np.power(p, 2) * (2 * p - 2 * xc1)
@@ -208,18 +214,21 @@ class NacaProfile(ProfileBase):
 
                 theta = np.arctan(dyc_dx)
 
+                # points are generated according to cosine distribution of the
+                # X-coordinates of the chord
                 self.xup_coordinates = x - yt * np.sin(theta)
                 self.yup_coordinates = zc + yt * np.cos(theta)
                 self.xdown_coordinates = x + yt * np.sin(theta)
                 self.ydown_coordinates = zc - yt * np.cos(theta)
 
         elif len(self.digits) == 5:
-            # Returns n+1 points in [0 1] for the given 5 digit NACA number string
+            # Returns n+1 points in [0 1] for the given 5-digits NACA string
             cld = float(self.digits[0]) * 0.15
             p = 5.0 * float(self.digits[1]) / 100.0
             s = float(self.digits[2])
             t = float(self.digits[3:]) / 100.0
 
+            # half-thickness distribution
             yt = 5 * t * (a0 * np.sqrt(x) + a1 * x + a2 * np.power(x, 2) +
                           a3 * np.power(x, 3) + a4 * np.power(x, 4))
 
@@ -263,6 +272,8 @@ class NacaProfile(ProfileBase):
                 dyc_dx = np.append(dyc1_dx, dyc2_dx)
                 theta = np.arctan(dyc_dx)
 
+                # points are generated according to cosine distribution of the
+                # X-coordinates of the chord
                 self.xup_coordinates = x - yt * np.sin(theta)
                 self.yup_coordinates = zc + yt * np.cos(theta)
                 self.xdown_coordinates = x + yt * np.sin(theta)
