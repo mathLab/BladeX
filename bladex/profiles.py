@@ -5,6 +5,7 @@ from scipy.interpolate import splev, splrep
 import numpy as np
 from .profilebase import ProfileBase
 
+
 class CustomProfile(ProfileBase):
     """
     Provide custom profile for the airfoil coordinates.
@@ -76,12 +77,10 @@ class CustomProfile(ProfileBase):
         # and ydown_coordinates.
         if self.xup_coordinates.shape != self.yup_coordinates.shape:
             raise ValueError(
-                'xup_coordinates and yup_coordinates must have same shape.'
-            )
+                'xup_coordinates and yup_coordinates must have same shape.')
         if self.xdown_coordinates.shape != self.ydown_coordinates.shape:
             raise ValueError(
-                'xdown_coordinates and ydown_coordinates must have same shape.'
-            )
+                'xdown_coordinates and ydown_coordinates must have same shape.')
 
         # The condition yup_coordinates >= ydown_coordinates must be satisfied
         # element-wise to the whole elements in the mentioned arrays.
@@ -92,16 +91,13 @@ class CustomProfile(ProfileBase):
 
         if not self.xdown_coordinates[0] == self.xup_coordinates[0]:
             raise ValueError(
-                '(xdown_coordinates[0]=xup_coordinates[0]) not satisfied.'
-            )
+                '(xdown_coordinates[0]=xup_coordinates[0]) not satisfied.')
         if not self.ydown_coordinates[0] == self.yup_coordinates[0]:
             raise ValueError(
-                '(ydown_coordinates[0]=yup_coordinates[0]) not satisfied.'
-            )
+                '(ydown_coordinates[0]=yup_coordinates[0]) not satisfied.')
         if not self.xdown_coordinates[-1] == self.xup_coordinates[-1]:
             raise ValueError(
-                '(xdown_coordinates[-1]=xup_coordinates[-1]) not satisfied.'
-            )
+                '(xdown_coordinates[-1]=xup_coordinates[-1]) not satisfied.')
 
 
 class NacaProfile(ProfileBase):
@@ -143,15 +139,19 @@ class NacaProfile(ProfileBase):
     :param string digits: 4 or 5 digits that describes the NACA profile
     :param int n_points: number of discrete points that represents the
         airfoil profile. Default value is 240
+    :param bool cosine_spacing: if True, then a cosine spacing is used for the
+        airfoil coordinate distribution, otherwise linear spacing is used.
+        Default value is True
     :raises ValueError: if n_points is not positive
     :raises TypeError: if n_points is not of type int
     :raises SyntaxError: if digits is not a string
     :raises Exception: if digits is not of length 4 or 5
     """
 
-    def __init__(self, digits, n_points=240):
+    def __init__(self, digits, n_points=240, cosine_spacing=True):
         self.digits = digits
         self.n_points = n_points
+        self.cosine_spacing = cosine_spacing
         self._check_args()
         self._generate_coordinates()
 
@@ -194,6 +194,7 @@ class NacaProfile(ProfileBase):
                           a3 * np.power(x, 3) + a4 * np.power(x, 4))
 
             if p == 0:
+                # Symmetric foil
                 self.xup_coordinates = np.linspace(
                     0.0, 1.0, num=self.n_points + 1)
                 self.yup_coordinates = yt
@@ -201,25 +202,33 @@ class NacaProfile(ProfileBase):
                     0.0, 1.0, num=self.n_points + 1)
                 self.ydown_coordinates = -yt
             else:
+                # Cambered foil
                 xc1 = np.asarray([xx for xx in x if xx <= p])
                 xc2 = np.asarray([xx for xx in x if xx > p])
                 yc1 = m / np.power(p, 2) * xc1 * (2 * p - xc1)
                 yc2 = m / np.power(1 - p, 2) * (1 - 2 * p + xc2) * (1 - xc2)
                 # Y-coordinates of camber line
-                zc = np.append(yc1, yc2)
+                yc = np.append(yc1, yc2)
 
-                dyc1_dx = m / np.power(p, 2) * (2 * p - 2 * xc1)
-                dyc2_dx = m / np.power(1 - p, 2) * (2 * p - 2 * xc2)
-                dyc_dx = np.append(dyc1_dx, dyc2_dx)
-
-                theta = np.arctan(dyc_dx)
-
-                # points are generated according to cosine distribution of the
-                # X-coordinates of the chord
-                self.xup_coordinates = x - yt * np.sin(theta)
-                self.yup_coordinates = zc + yt * np.cos(theta)
-                self.xdown_coordinates = x + yt * np.sin(theta)
-                self.ydown_coordinates = zc - yt * np.cos(theta)
+                if self.cosine_spacing:
+                    # points are generated according to cosine distribution of
+                    # the X-coordinates of the chord
+                    dyc1_dx = m / np.power(p, 2) * (2 * p - 2 * xc1)
+                    dyc2_dx = m / np.power(1 - p, 2) * (2 * p - 2 * xc2)
+                    dyc_dx = np.append(dyc1_dx, dyc2_dx)
+                    theta = np.arctan(dyc_dx)
+                    self.xup_coordinates = x - yt * np.sin(theta)
+                    self.yup_coordinates = yc + yt * np.cos(theta)
+                    self.xdown_coordinates = x + yt * np.sin(theta)
+                    self.ydown_coordinates = yc - yt * np.cos(theta)
+                else:
+                    # Linear spacing distribution of the foil coordinates
+                    self.xup_coordinates = np.linspace(
+                        0.0, 1.0, num=self.n_points + 1)
+                    self.xdown_coordinates = np.linspace(
+                        0.0, 1.0, num=self.n_points + 1)
+                    self.yup_coordinates = yc + yt
+                    self.ydown_coordinates = yc - yt
 
         elif len(self.digits) == 5:
             # Returns n+1 points in [0 1] for the given 5-digits NACA string
@@ -233,10 +242,12 @@ class NacaProfile(ProfileBase):
                           a3 * np.power(x, 3) + a4 * np.power(x, 4))
 
             if s == 1:
+                # Relfex camber
                 P = np.array([0.1, 0.15, 0.2, 0.25])
                 M = np.array([0.13, 0.2170, 0.318, 0.441])
                 K = np.array([51.99, 15.793, 6.520, 3.191])
             elif s == 0:
+                # Standard camber
                 P = np.array([0.05, 0.1, 0.15, 0.2, 0.25])
                 M = np.array([0.0580, 0.1260, 0.2025, 0.2900, 0.3910])
                 K = np.array([361.4, 51.64, 15.957, 6.643, 3.230])
@@ -245,6 +256,7 @@ class NacaProfile(ProfileBase):
                     'For NACA "LPSTT" the value of "S" can be either 0 or 1.')
 
             if p == 0:
+                # Symmetric foil
                 self.xup_coordinates = np.linspace(
                     0.0, 1.0, num=self.n_points + 1)
                 self.yup_coordinates = yt
@@ -252,32 +264,41 @@ class NacaProfile(ProfileBase):
                     0.0, 1.0, num=self.n_points + 1)
                 self.ydown_coordinates = -yt
             else:
+                # Cambered foil
                 spl_m = splrep(P, M)
                 spl_k = splrep(M, K)
                 m = splev(p, spl_m)
                 k1 = splev(m, spl_k)
-
                 xc1 = np.asarray([xx for xx in x if xx <= m])
                 xc2 = np.asarray([xx for xx in x if xx > m])
                 yc1 = k1 / 6.0 * (np.power(xc1, 3) - 3 * m * np.power(xc1, 2) +
                                   np.power(m, 2) * (3 - m) * xc1)
                 yc2 = k1 / 6.0 * np.power(m, 3) * (1 - xc2)
                 yc = np.append(yc1, yc2)
-                zc = cld / 0.3 * yc
 
-                dyc1_dx = 1.0 / 6.0 * k1 * (
-                    3 * np.power(xc1, 2) - 6 * m * xc1 + np.power(m, 2) *
-                    (3 - m))
-                dyc2_dx = np.tile(-1.0 / 6.0 * k1 * np.power(m, 3), len(xc2))
-                dyc_dx = np.append(dyc1_dx, dyc2_dx)
-                theta = np.arctan(dyc_dx)
-
-                # points are generated according to cosine distribution of the
-                # X-coordinates of the chord
-                self.xup_coordinates = x - yt * np.sin(theta)
-                self.yup_coordinates = zc + yt * np.cos(theta)
-                self.xdown_coordinates = x + yt * np.sin(theta)
-                self.ydown_coordinates = zc - yt * np.cos(theta)
+                if self.cosine_spacing:
+                    # points are generated according to cosine distribution of
+                    # the X-coordinates of the chord
+                    zc = cld / 0.3 * yc
+                    dyc1_dx = 1.0 / 6.0 * k1 * (
+                        3 * np.power(xc1, 2) - 6 * m * xc1 + np.power(m, 2) *
+                        (3 - m))
+                    dyc2_dx = np.tile(-1.0 / 6.0 * k1 * np.power(m, 3),
+                                      len(xc2))
+                    dyc_dx = np.append(dyc1_dx, dyc2_dx)
+                    theta = np.arctan(dyc_dx)
+                    self.xup_coordinates = x - yt * np.sin(theta)
+                    self.yup_coordinates = zc + yt * np.cos(theta)
+                    self.xdown_coordinates = x + yt * np.sin(theta)
+                    self.ydown_coordinates = zc - yt * np.cos(theta)
+                else:
+                    # Linear spacing distribution of the foil coordinates
+                    self.xup_coordinates = np.linspace(
+                        0.0, 1.0, num=self.n_points + 1)
+                    self.xdown_coordinates = np.linspace(
+                        0.0, 1.0, num=self.n_points + 1)
+                    self.yup_coordinates = yc + yt
+                    self.ydown_coordinates = yc - yt
 
         else:
             raise Exception

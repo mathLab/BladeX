@@ -60,10 +60,10 @@ class ProfileBase(object):
         """
         if self.xup_coordinates[0] != self.xdown_coordinates[0]:
             raise ValueError('Airfoils must have xup_coordinates[0] \
-                            != xdown_coordinates[0]')
+                            == xdown_coordinates[0]')
         if self.xup_coordinates[-1] != self.xdown_coordinates[-1]:
             raise ValueError('Airfoils must have xup_coordinates[-1] \
-                                != xdown_coordinates[-1]')
+                                == xdown_coordinates[-1]')
 
         self.leading_edge[0] = self.xup_coordinates[0]
         self.leading_edge[1] = self.yup_coordinates[0]
