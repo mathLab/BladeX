@@ -21,6 +21,7 @@ class CustomProfile(ProfileBase):
     """
 
     def __init__(self, xup, yup, xdown, ydown):
+        super(CustomProfile, self).__init__()
         self.xup_coordinates = xup
         self.yup_coordinates = yup
         self.xdown_coordinates = xdown
@@ -149,6 +150,7 @@ class NacaProfile(ProfileBase):
     """
 
     def __init__(self, digits, n_points=240, cosine_spacing=True):
+        super(NacaProfile, self).__init__()
         self.digits = digits
         self.n_points = n_points
         self.cosine_spacing = cosine_spacing
@@ -181,7 +183,7 @@ class NacaProfile(ProfileBase):
         a3 = +0.2843
         a4 = -0.1036  # zero thickness TE
 
-        x = np.linspace(0.0, 1.0, num=self.n_points + 1)
+        x = np.linspace(0.0, 1.0, num=self.n_points)
 
         if len(self.digits) == 4:
             # Returns n+1 points in [0 1] for the given 4-digits NACA string
@@ -196,10 +198,10 @@ class NacaProfile(ProfileBase):
             if p == 0:
                 # Symmetric foil
                 self.xup_coordinates = np.linspace(
-                    0.0, 1.0, num=self.n_points + 1)
+                    0.0, 1.0, num=self.n_points)
                 self.yup_coordinates = yt
                 self.xdown_coordinates = np.linspace(
-                    0.0, 1.0, num=self.n_points + 1)
+                    0.0, 1.0, num=self.n_points)
                 self.ydown_coordinates = -yt
             else:
                 # Cambered foil
@@ -224,9 +226,9 @@ class NacaProfile(ProfileBase):
                 else:
                     # Linear spacing distribution of the foil coordinates
                     self.xup_coordinates = np.linspace(
-                        0.0, 1.0, num=self.n_points + 1)
+                        0.0, 1.0, num=self.n_points)
                     self.xdown_coordinates = np.linspace(
-                        0.0, 1.0, num=self.n_points + 1)
+                        0.0, 1.0, num=self.n_points)
                     self.yup_coordinates = yc + yt
                     self.ydown_coordinates = yc - yt
 
@@ -258,10 +260,10 @@ class NacaProfile(ProfileBase):
             if p == 0:
                 # Symmetric foil
                 self.xup_coordinates = np.linspace(
-                    0.0, 1.0, num=self.n_points + 1)
+                    0.0, 1.0, num=self.n_points)
                 self.yup_coordinates = yt
                 self.xdown_coordinates = np.linspace(
-                    0.0, 1.0, num=self.n_points + 1)
+                    0.0, 1.0, num=self.n_points)
                 self.ydown_coordinates = -yt
             else:
                 # Cambered foil
@@ -294,9 +296,9 @@ class NacaProfile(ProfileBase):
                 else:
                     # Linear spacing distribution of the foil coordinates
                     self.xup_coordinates = np.linspace(
-                        0.0, 1.0, num=self.n_points + 1)
+                        0.0, 1.0, num=self.n_points)
                     self.xdown_coordinates = np.linspace(
-                        0.0, 1.0, num=self.n_points + 1)
+                        0.0, 1.0, num=self.n_points)
                     self.yup_coordinates = yc + yt
                     self.ydown_coordinates = yc - yt
 

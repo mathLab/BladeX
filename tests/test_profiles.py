@@ -1,5 +1,6 @@
 from unittest import TestCase
 import bladex.profiles as pr
+import bladex.profilebase as pb
 import numpy as np
 
 
@@ -15,6 +16,9 @@ def create_custom_profile():
 
 
 class TestCustomProfile(TestCase):
+    def test_inheritance_custom(self):
+        self.assertTrue(issubclass(pr.CustomProfile, pb.ProfileBase))
+
     def test_xup_member(self):
         profile = create_custom_profile()
         np.testing.assert_equal(profile.xup_coordinates,
@@ -120,6 +124,9 @@ class TestCustomProfile(TestCase):
 
 
 class TestNacaProfile(TestCase):
+    def test_inheritance_naca(self):
+        self.assertTrue(issubclass(pr.NacaProfile, pb.ProfileBase))
+
     def test_digits_member(self):
         profile = pr.NacaProfile(digits='0012', n_points=240)
         assert profile.digits == '0012'
@@ -196,12 +203,14 @@ class TestNacaProfile(TestCase):
 
     def test_naca_4_cambered_xdown_cosine(self):
         foil = pr.NacaProfile(digits='2412', n_points=240, cosine_spacing=True)
-        xdown_expected = np.load('tests/test_datasets/naca4_2412_xdown_cosine.npy')
+        xdown_expected = np.load(
+            'tests/test_datasets/naca4_2412_xdown_cosine.npy')
         np.testing.assert_almost_equal(foil.xdown_coordinates, xdown_expected)
 
     def test_naca_4_cambered_ydown_cosine(self):
         foil = pr.NacaProfile(digits='2412', n_points=240, cosine_spacing=True)
-        ydown_expected = np.load('tests/test_datasets/naca4_2412_ydown_cosine.npy')
+        ydown_expected = np.load(
+            'tests/test_datasets/naca4_2412_ydown_cosine.npy')
         np.testing.assert_almost_equal(foil.ydown_coordinates, ydown_expected)
 
     def test_naca_4_cambered_xup_linear(self):
@@ -216,12 +225,14 @@ class TestNacaProfile(TestCase):
 
     def test_naca_4_cambered_xdown_linear(self):
         foil = pr.NacaProfile(digits='2412', n_points=240, cosine_spacing=False)
-        xdown_expected = np.load('tests/test_datasets/naca4_2412_xdown_linear.npy')
+        xdown_expected = np.load(
+            'tests/test_datasets/naca4_2412_xdown_linear.npy')
         np.testing.assert_almost_equal(foil.xdown_coordinates, xdown_expected)
 
     def test_naca_4_cambered_ydown_linear(self):
         foil = pr.NacaProfile(digits='2412', n_points=240, cosine_spacing=False)
-        ydown_expected = np.load('tests/test_datasets/naca4_2412_ydown_linear.npy')
+        ydown_expected = np.load(
+            'tests/test_datasets/naca4_2412_ydown_linear.npy')
         np.testing.assert_almost_equal(foil.ydown_coordinates, ydown_expected)
 
     def test_naca_5_wrong_reflex(self):
@@ -260,32 +271,40 @@ class TestNacaProfile(TestCase):
 
     def test_naca_5_cambered_standard_xdown_cosine(self):
         foil = pr.NacaProfile(digits='23012', n_points=240, cosine_spacing=True)
-        xdown_expected = np.load('tests/test_datasets/naca5_23012_xdown_cosine.npy')
+        xdown_expected = np.load(
+            'tests/test_datasets/naca5_23012_xdown_cosine.npy')
         np.testing.assert_almost_equal(foil.xdown_coordinates, xdown_expected)
 
     def test_naca_5_cambered_standard_ydown_cosine(self):
         foil = pr.NacaProfile(digits='23012', n_points=240, cosine_spacing=True)
-        ydown_expected = np.load('tests/test_datasets/naca5_23012_ydown_cosine.npy')
+        ydown_expected = np.load(
+            'tests/test_datasets/naca5_23012_ydown_cosine.npy')
         np.testing.assert_almost_equal(foil.ydown_coordinates, ydown_expected)
 
     def test_naca_5_cambered_standard_xup_linear(self):
-        foil = pr.NacaProfile(digits='23012', n_points=240, cosine_spacing=False)
+        foil = pr.NacaProfile(
+            digits='23012', n_points=240, cosine_spacing=False)
         xup_expected = np.load('tests/test_datasets/naca5_23012_xup_linear.npy')
         np.testing.assert_almost_equal(foil.xup_coordinates, xup_expected)
 
     def test_naca_5_cambered_standard_yup_linear(self):
-        foil = pr.NacaProfile(digits='23012', n_points=240, cosine_spacing=False)
+        foil = pr.NacaProfile(
+            digits='23012', n_points=240, cosine_spacing=False)
         yup_expected = np.load('tests/test_datasets/naca5_23012_yup_linear.npy')
         np.testing.assert_almost_equal(foil.yup_coordinates, yup_expected)
 
     def test_naca_5_cambered_standard_xdown_linear(self):
-        foil = pr.NacaProfile(digits='23012', n_points=240, cosine_spacing=False)
-        xdown_expected = np.load('tests/test_datasets/naca5_23012_xdown_linear.npy')
+        foil = pr.NacaProfile(
+            digits='23012', n_points=240, cosine_spacing=False)
+        xdown_expected = np.load(
+            'tests/test_datasets/naca5_23012_xdown_linear.npy')
         np.testing.assert_almost_equal(foil.xdown_coordinates, xdown_expected)
 
     def test_naca_5_cambered_standard_ydown_linear(self):
-        foil = pr.NacaProfile(digits='23012', n_points=240, cosine_spacing=False)
-        ydown_expected = np.load('tests/test_datasets/naca5_23012_ydown_linear.npy')
+        foil = pr.NacaProfile(
+            digits='23012', n_points=240, cosine_spacing=False)
+        ydown_expected = np.load(
+            'tests/test_datasets/naca5_23012_ydown_linear.npy')
         np.testing.assert_almost_equal(foil.ydown_coordinates, ydown_expected)
 
     def test_naca_5_cambered_reflexed_xup(self):
