@@ -1,5 +1,5 @@
 """
-Base module for blade construction. Provide essential tools for airfoils.
+Base module that provides essential tools and transformations on airfoils.
 """
 
 import numpy as np
