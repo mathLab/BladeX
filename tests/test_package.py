@@ -33,7 +33,7 @@ class TestPackage(TestCase):
 
     def test_import_blade_5(self):
         import bladex as bx
-        inter = bx.ndinterpolator.RBF(1.2, 'gaussian_spline')
+        inter = bx.ndinterpolator.RBF('gaussian_spline', 1.2)
 
     def test_modules_name(self):
         # it checks that __all__ includes all the .py files in bladex folder

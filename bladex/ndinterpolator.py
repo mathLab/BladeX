@@ -1,6 +1,7 @@
 import numpy as np
 from scipy.spatial.distance import cdist
 
+
 class RBF(object):
     """
     Module focused on the implementation of the Radial Basis Functions
@@ -206,8 +207,8 @@ class RBF(object):
         :return: matrix: the matrix D.
         :rtype: numpy.ndarray
         """
-        XA1 = X1.reshape(-1,1)
-        XA2 = X2.reshape(-1,1)
+        XA1 = X1.reshape(-1, 1)
+        XA2 = X2.reshape(-1, 1)
         return self.basis(cdist(XA1, XA2), self.radius)
 
 
@@ -226,7 +227,8 @@ def reconstruct_f(original_input, original_output, rbf_input, rbf_output, basis,
     """
     radial = RBF(basis=basis, radius=radius)
 
-    weights_coeff = np.linalg.solve(radial.weights_matrix(original_input, original_input), original_output)
+    weights_coeff = np.linalg.solve(
+        radial.weights_matrix(original_input, original_input), original_output)
 
     weights_rbf = radial.weights_matrix(rbf_input, original_input)
 
