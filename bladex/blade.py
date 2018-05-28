@@ -12,10 +12,10 @@ class Blade(object):
     Given the following parameters of a propeller blade:
 
         - :math:`(X, Y)` coordinates of the blade cylindrical sections after
-            being expanded in 2D to create airfoils.
+          being expanded in 2D to create airfoils.
 
         - Radial distance :math:`(r_i)` from the propeller axis of rotation
-            to each cylindrical section.
+          to each cylindrical section.
 
         - Pitch angle :math:`(\\varphi)`, for each cylindrical section.
 
@@ -31,37 +31,37 @@ class Blade(object):
     Useful definitions on the propeller geometry:
 
         - Blade cylindrical section: the cross section of a blade cut by a
-            cylinder whose centerline is the propeller axis of rotation.
-            We may also refer as "radial section".
+          cylinder whose centerline is the propeller axis of rotation.
+          We may also refer as "radial section".
 
         - Pitch :math:`(P)`: the linear distance that a propeller would move in
-            one revolution with no slippage. The geometric pitch angle
-            :math:`(\\varphi)` is the angle between the pitch reference line
-            and a line perpendicular to the propeller axis of rotation.
+          one revolution with no slippage. The geometric pitch angle
+          :math:`(\\varphi)` is the angle between the pitch reference line
+          and a line perpendicular to the propeller axis of rotation.
 
         .. math::
-            tan (\\varphi) =
-                \\frac{pitch}{propeller circumference} = \\frac{P}{2 \\pi r}
+            tan (\\varphi) = \\frac{\\text{pitch}}
+            {\\text{propeller circumference}} = \\frac{P}{2 \\pi r}
 
         - Rake: the fore or aft slant of the blade with respect to a line
-            perpendicular to the propeller axis of rotation.
+          perpendicular to the propeller axis of rotation.
 
         - Skew: the transverse sweeping of a blade such that viewing the blades
-            from fore or aft would show an asymmetrical shape.
+          from fore or aft would show an asymmetrical shape.
 
     References:
 
-    Carlton, J. Marine propellers and propulsion. Butterworth-Heinemann, 2012.
-    http://navalex.com/downloads/Michigan_Wheel_Propeller_Geometry.pdf
+    - Carlton, J. Marine propellers and propulsion. Butterworth-Heinemann, 2012.
+      http://navalex.com/downloads/Michigan_Wheel_Propeller_Geometry.pdf
 
-    J. Babicz. Wartsila Encyclopedia of Ship Technology. 2nd ed. Wartsila
-    Corporation. 2015.
+    - J. Babicz. Wartsila Encyclopedia of Ship Technology. 2nd ed. Wartsila
+      Corporation. 2015.
 
     .. _transformation_operations:
 
     Transformation operations according to the provided parameters:
 
-    .. figure:: ../readme/transformations.png
+    .. figure:: ../../readme/transformations.png
        :scale: 75 %
        :alt: transformations
 
@@ -215,11 +215,14 @@ class Blade(object):
         cylindrical sections.
 
         The cylindrical transformation is defined by the following formulas:
-            - :math:`x = x_{i} \\forall x_i \\in X`
 
-            - :math:`y = r sin (y_i / r) \\forall y_i \\in Y`
+            - :math:`x = x_{i} \\qquad \\forall x_i \\in X`
 
-            - :math:`z = -r cos (y_i / r) \\forall y_i \\in Y`
+            - :math:`y = r \\sin\\left( \\frac{y_i}{r} \\right) \\qquad
+              \\forall y_i \\in Y`
+
+            - :math:`z = -r \\cos\\left( \\frac{y_i}{r} \\right) \\qquad
+              \\forall y_i \\in Y`
 
         After transformation, the method also fills the numpy.ndarray
         "blade_coordinates" with the new :math:`(X, Y, Z)` coordinates.
@@ -250,20 +253,20 @@ class Blade(object):
 
             1. Translate airfoils by reference points into origin.
 
-            3. Scale X, Y coordinates by a factor of the chord length. Also
-                flip the airfoils if necessary.
+            2. Scale X, Y coordinates by a factor of the chord length. Also
+               flip the airfoils if necessary.
 
-            4. Rotate the airfoils counter-clockwise according to the local
-                pitch angles. Beware of the orientation system.
+            3. Rotate the airfoils counter-clockwise according to the local
+               pitch angles. Beware of the orientation system.
 
-            5. Translate airfoils along X-axis by a magnitude of the local
-                rake. Perform another translation for the skew-induced rake.
+            4. Translate airfoils along X-axis by a magnitude of the local
+               rake. Perform another translation for the skew-induced rake.
 
-            6. Translate airfoils along Y-axis by a magnitude of the skewness.
+            5. Translate airfoils along Y-axis by a magnitude of the skewness.
 
-            7. Transform the 2D airfoils into cylindrical sections, by laying
-                each foil on a cylinder of radius equals to the section radius,
-                and the cylinder axis is the propeller axis of rotation.
+            6. Transform the 2D airfoils into cylindrical sections, by laying
+               each foil on a cylinder of radius equals to the section radius,
+               and the cylinder axis is the propeller axis of rotation.
 
         :param bool flip: if true, then flip the coordinates of all the airfoils
             about both X-axis and Y-axis. Default value is True.

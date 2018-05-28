@@ -113,29 +113,37 @@ class NacaProfile(ProfileBase):
     properties.
 
     The NACA four-digit series describes airfoil by the format MPTT, where:
-        M/100: indicates the maximum camber in percentage, with respect to the
-            chord length.
-        P/10: indicates the location of the maximum camber measured from the
-            leading edge. The location is normalized by the chord length.
-        TT/100: the maximum thickness as fraction of the chord length.
+
+        - M/100: indicates the maximum camber in percentage, with respect to the
+          chord length.
+
+        - P/10: indicates the location of the maximum camber measured from the
+          leading edge. The location is normalized by the chord length.
+        
+        - TT/100: the maximum thickness as fraction of the chord length.
 
     The profile 00TT refers to a symmetrical NACA airfoil.
 
     The NACA five-digit series describes more complex airfoil shapes.
     Its format is: LPSTT, where:
-        L: the theoretical optimum lift coefficient at ideal
-            angle-of-attack = 0.15*L
-        P: the x-coordinate of the point of maximum camber
-            (max camber at x = 0.05*P)
-        S: indicates whether the camber is simple (S=0) or reflex (S=1)
-        TT/100: the maximum thickness in percent of chord, as in a four-digit
-            NACA airfoil code
+        
+        - L: the theoretical optimum lift coefficient at ideal
+          angle-of-attack = 0.15*L
+        
+        - P: the x-coordinate of the point of maximum camber
+          (max camber at x = 0.05*P)
+        
+        - S: indicates whether the camber is simple (S=0) or reflex (S=1)
+          TT/100: the maximum thickness in percent of chord, as in a four-digit
+          NACA airfoil code
 
     References:
-    Moran, Jack (2003). An introduction to theoretical and computational
-        aerodynamics. Dover. p. 7. ISBN 0-486-42879-6.
-    Abbott, Ira (1959). Theory of Wing Sections: Including a Summary of
-        Airfoil Data. New York: Dover Publications. p. 115. ISBN 978-0486605869.
+    
+    - Moran, Jack (2003). An introduction to theoretical and computational
+      aerodynamics. Dover. p. 7. ISBN 0-486-42879-6.
+    
+    - Abbott, Ira (1959). Theory of Wing Sections: Including a Summary of
+      Airfoil Data. New York: Dover Publications. p. 115. ISBN 978-0486605869.
 
     :param string digits: 4 or 5 digits that describes the NACA profile
     :param int n_points: number of discrete points that represents the

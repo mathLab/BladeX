@@ -27,10 +27,12 @@ class RBF(object):
         \\mathbb{R}^n`, that allows the possibility of transferring data across
         non-matching grids and facing the dynamic mesh handling. The map
         introduced is defines as follows
+        
         .. math::
             \\mathcal{M}(\\boldsymbol{x}) = p(\\boldsymbol{x}) + 
             \\sum_{i=1}^{\\mathcal{N}_C} \\gamma_i
             \\varphi(\\| \\boldsymbol{x} - \\boldsymbol{x_{C_i}} \\|)
+        
         where :math:`p(\\boldsymbol{x})` is a low_degree polynomial term,
         :math:`\\gamma_i` is the weight, corresponding to the a-priori selected
         :math:`\\mathcal{N}_C` control points, associated to the :math:`i`-th
@@ -43,10 +45,12 @@ class RBF(object):
         \\|\\boldsymbol{x} \\|)`.
 
         The matrix version of the formula above is:
+        
         .. math::
             \\mathcal{M}(\\boldsymbol{x}) = \\boldsymbol{c} +
             \\boldsymbol{Q}\\boldsymbol{x} +
             \\boldsymbol{W^T}\\boldsymbol{d}(\\boldsymbol{x})
+        
         The idea is that after the computation of the weights and the
         polynomial terms from the coordinates of the control points before and
         after the deformation, we can deform all the points of the mesh
@@ -198,8 +202,10 @@ class RBF(object):
     def weights_matrix(self, X1, X2):
         """
         This method returns the following matrix:
-        :math:`\\boldsymbol{D_{ij}} = \\varphi(\\| \\boldsymbol{x_i} -
-                                      \\boldsymbol{y_j} \\|)`
+
+        .. math::
+            \\boldsymbol{D_{ij}} = \\varphi(\\| \\boldsymbol{x_i} -
+            \\boldsymbol{y_j} \\|)
 
         :param numpy.ndarray X1: the vector x in the formula above.
         :param numpy.ndarray X2: the vector y in the formula above.
