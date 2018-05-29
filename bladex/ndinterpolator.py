@@ -63,17 +63,6 @@ class RBF(object):
     :param string basis: RBF basis function
     :param float radius: cut-off radius
 
-   :Example:
-    >>> import numpy as np
-    >>> from bladex.ndinterpolator import reconstruct_f
-    >>> x = np.arange(10)
-    >>> y = np.square(x)
-    >>> radius = 10
-    >>> n_interp = 50
-    >>> x_rbf = np.linspace(x[0], x[-1], num=n_interp)
-    >>> y_rbf = np.zeros(n_interp)
-    >>> reconstruct_f(original_input=x, original_output=y, rbf_input=x_rbf,
-        rbf_output=y_rbf, radius=radius, basis='beckert_wendland_c2_basis')
     """
 
     def __init__(self, basis, radius):
@@ -112,7 +101,7 @@ class RBF(object):
 
         :param numpy.ndarray X: l2-norm between given inputs of a function
             and the locations to perform rbf approximation to that function.
-        :param float r: smoothing length, also called the cut-ff radius.
+        :param float r: smoothing length, also called the cut-off radius.
 
         :return: result: the result of the formula above.
         :rtype: float
@@ -130,7 +119,7 @@ class RBF(object):
 
         :param numpy.ndarray X: l2-norm between given inputs of a function
             and the locations to perform rbf approximation to that function.
-        :param float r: smoothing length, also called the cut-ff radius.
+        :param float r: smoothing length, also called the cut-off radius.
 
         :return: result: the result of the formula above.
         :rtype: float
@@ -148,7 +137,7 @@ class RBF(object):
 
         :param numpy.ndarray X: l2-norm between given inputs of a function
             and the locations to perform rbf approximation to that function.
-        :param float r: smoothing length, also called the cut-ff radius.
+        :param float r: smoothing length, also called the cut-off radius.
 
         :return: result: the result of the formula above.
         :rtype: float
@@ -167,7 +156,7 @@ class RBF(object):
 
         :param numpy.ndarray X: l2-norm between given inputs of a function
             and the locations to perform rbf approximation to that function.
-        :param float r: smoothing length, also called the cut-ff radius.
+        :param float r: smoothing length, also called the cut-off radius.
 
         :return: result: the result of the formula above.
         :rtype: float
@@ -189,7 +178,7 @@ class RBF(object):
 
         :param numpy.ndarray X: l2-norm between given inputs of a function
             and the locations to perform rbf approximation to that function.
-        :param float r: smoothing length, also called the cut-ff radius.
+        :param float r: smoothing length, also called the cut-off radius.
 
         :return: result: the result of the formula above.
         :rtype: float
@@ -213,9 +202,11 @@ class RBF(object):
         :return: matrix: the matrix D.
         :rtype: numpy.ndarray
         """
-        XA1 = X1.reshape(-1, 1)
-        XA2 = X2.reshape(-1, 1)
-        return self.basis(cdist(XA1, XA2), self.radius)
+        if X1.size == X1.shape[0]:
+            X1 = X1.reshape(-1, 1)
+        if X2.size == X2.shape[0]:
+            X2 = X2.reshape(-1, 1)
+        return self.basis(cdist(X1, X2), self.radius)
 
 
 def reconstruct_f(original_input, original_output, rbf_input, rbf_output, basis,
@@ -229,7 +220,20 @@ def reconstruct_f(original_input, original_output, rbf_input, rbf_output, basis,
     :param array_like rbf_output: the array elements to be updated with the RBF
         interpolated outputs after the approximation.
     :param string basis: radial basis function.
-    :param float radius: smoothing length, also called the cut-ff radius.
+    :param float radius: smoothing length, also called the cut-off radius.
+
+   :Example:
+    >>> import numpy as np
+    >>> from bladex.ndinterpolator import reconstruct_f
+    >>> x = np.arange(10)
+    >>> y = np.square(x)
+    >>> radius = 10
+    >>> n_interp = 50
+    >>> x_rbf = np.linspace(x[0], x[-1], num=n_interp)
+    >>> y_rbf = np.zeros(n_interp)
+    >>> reconstruct_f(original_input=x, original_output=y, rbf_input=x_rbf,
+        rbf_output=y_rbf, radius=radius, basis='beckert_wendland_c2_basis')
+
     """
     radial = RBF(basis=basis, radius=radius)
 
