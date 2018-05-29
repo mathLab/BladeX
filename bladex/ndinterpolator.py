@@ -222,17 +222,17 @@ def reconstruct_f(original_input, original_output, rbf_input, rbf_output, basis,
     :param string basis: radial basis function.
     :param float radius: smoothing length, also called the cut-off radius.
 
-   :Example:
-    >>> import numpy as np
-    >>> from bladex.ndinterpolator import reconstruct_f
-    >>> x = np.arange(10)
-    >>> y = np.square(x)
-    >>> radius = 10
-    >>> n_interp = 50
-    >>> x_rbf = np.linspace(x[0], x[-1], num=n_interp)
-    >>> y_rbf = np.zeros(n_interp)
-    >>> reconstruct_f(original_input=x, original_output=y, rbf_input=x_rbf,
-        rbf_output=y_rbf, radius=radius, basis='beckert_wendland_c2_basis')
+    :Example:
+        >>> import numpy as np
+        >>> from bladex.ndinterpolator import reconstruct_f
+        >>> x = np.arange(10)
+        >>> y = np.square(x)
+        >>> radius = 10
+        >>> n_interp = 50
+        >>> x_rbf = np.linspace(x[0], x[-1], num=n_interp)
+        >>> y_rbf = np.zeros(n_interp)
+        >>> reconstruct_f(original_input=x, original_output=y, rbf_input=x_rbf,
+            rbf_output=y_rbf, radius=radius, basis='beckert_wendland_c2_basis')
 
     """
     radial = RBF(basis=basis, radius=radius)
