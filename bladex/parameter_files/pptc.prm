@@ -1,0 +1,208 @@
+
+[Original parameters]
+# This section describes the radial distributions of the parameters:
+# "chord lengths", "pitch", "rake", "skew angles", and "camber"
+# at given radial sections.
+
+Radial sections =  0.3
+                   0.35
+                   0.4
+                   0.5
+                   0.6
+                   0.7
+                   0.8
+                   0.85
+                   0.9
+                   0.95
+                   0.975
+                   1.0
+
+Radial distribution of chord =  0.18
+                                0.225
+                                0.26168
+                                0.325
+                                0.37668
+                                0.41668
+                                0.42832
+                                0.42616
+                                0.41668
+                                0.37668
+                                0.31468
+                                0.1
+
+Radial distribution of pitch =  1.4
+                                1.455
+                                1.505
+                                1.578
+                                1.62
+                                1.635
+                                1.614
+                                1.582
+                                1.531
+                                1.458
+                                1.411
+                                1.355
+
+Radial distribution of rake =   0.0
+                                0.002
+                                0.005
+                                0.0134
+                                0.0235
+                                0.03
+                                0.0295
+                                0.0265
+                                0.0218
+                                0.016132
+                                0.0132
+                                0.01
+
+Radial distribution of skew =   3.6262795
+                                -1.188323
+                                -4.4654502
+                                -7.440779
+                                -7.3840979
+                                -5.0367916
+                                -1.3257914
+                                1.0856404
+                                4.1448947
+                                7.697235
+                                9.5368917
+                                11.397609
+
+Radial distribution of camber = 0.015
+                                0.02
+                                0.02399878
+                                0.02899692
+                                0.03012637
+                                0.02969185
+                                0.02850205
+                                0.02784869
+                                0.02565038
+                                0.02329829
+                                0.02179992
+                                0.02
+
+
+[Chord B-Spline]
+# This section describes the B-Spline construction of the RADII -- CHORD curve.
+
+# degree of the B-Spline curve
+spline degree: 3
+
+# number of points to be evaluated with the B-Spline interpolation
+spline npoints: 500
+
+# number of the control points
+number of control points: 10
+
+# Y-deformations of the control points.
+control points Y-deformations =  0.0
+                                 0.0
+                                 0.0
+                                 0.0
+                                 0.0
+                                 0.0
+                                 0.0
+                                 0.0
+                                 0.0
+                                 0.0
+
+
+[Pitch B-Spline]
+# This section describes the B-Spline construction of the RADII -- PITCH curve.
+
+# degree of the B-Spline curve
+spline degree: 3
+
+# number of points to be evaluated with the B-Spline interpolation
+spline npoints: 500
+
+# number of the control points
+number of control points: 10
+
+# Y-deformations of the control points.
+control points Y-deformations =  0.0
+                                 0.0
+                                 0.0
+                                 0.0
+                                 0.0
+                                 0.0
+                                 0.0
+                                 0.0
+                                 0.0
+                                 0.0
+
+
+[Rake B-Spline]
+# This section describes the B-Spline construction of the RADII -- RAKE curve.
+
+# degree of the B-Spline curve
+spline degree: 3
+
+# number of points to be evaluated with the B-Spline interpolation
+spline npoints: 500
+
+# number of the control points
+number of control points: 10
+
+# Y-deformations of the control points.
+control points Y-deformations =  0.0
+                                 0.0
+                                 0.0
+                                 0.0
+                                 0.0
+                                 0.0
+                                 0.0
+                                 0.0
+                                 0.0
+                                 0.0
+
+
+[Skew B-Spline]
+# This section describes the B-Spline construction of the RADII -- SKEW curve.
+
+# degree of the B-Spline curve
+spline degree: 3
+
+# number of points to be evaluated with the B-Spline interpolation
+spline npoints: 500
+
+# number of the control points
+number of control points: 10
+
+# Y-deformations of the control points.
+control points Y-deformations =  0.0
+                                 0.0
+                                 0.0
+                                 0.0
+                                 0.0
+                                 0.0
+                                 0.0
+                                 0.0
+                                 0.0
+                                 0.0
+
+
+[Camber B-Spline]
+# This section describes the B-Spline construction of the RADII -- CAMBER curve.
+
+# degree of the B-Spline curve
+spline degree: 3
+
+# number of points to be evaluated with the B-Spline interpolation
+spline npoints: 500
+
+# number of the control points
+number of control points: 10
+
+# Y-deformations of the control points.
+control points Y-deformations =  0.0
+                                 0.0
+                                 0.0
+                                 0.0
+                                 0.0
+                                 0.0
+                                 0.0
+                                 0.0
+                                 0.0
+                                 0.0

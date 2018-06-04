@@ -1,0 +1,163 @@
+# Corruption: Radii column has extra element
+
+[Original parameters]
+# This section describes the radial distributions of the parameters:
+# "chord lengths", "pitch", "rake", "skew angles", and "camber"
+# at given radial sections.
+
+Radial sections =  0.3
+                   0.4
+                   0.5
+                   0.6
+                   0.7
+                   0.8
+                   0.9
+                   1.0
+		   1.5
+
+Radial distribution of chord =  0.18
+                                0.2
+                                0.3
+                                0.37
+                                0.41
+                                0.42
+                                0.41
+                                0.1
+
+Radial distribution of pitch =  1.4
+                                1.5
+                                1.58
+                                1.6
+                                1.64
+                                1.61
+                                1.5
+                                1.3
+
+Radial distribution of rake =   0.0
+                                0.005
+                                0.013
+                                0.02
+                                0.03
+                                0.029
+                                0.022
+                                0.01
+
+Radial distribution of skew =   3.6
+                                -4.4
+                                -7.4
+                                -7.4
+                                -5.0
+                                -1.3
+                                4.1
+                                11.4
+
+Radial distribution of camber = 0.015
+                                0.024
+                                0.029
+                                0.03
+                                0.03
+                                0.028
+                                0.025
+                                0.02
+
+
+[Chord B-Spline]
+# This section describes the B-Spline construction of the RADII -- CHORD curve.
+
+# degree of the B-Spline curve
+spline degree: 3
+
+# number of points to be evaluated with the B-Spline interpolation
+spline npoints: 500
+
+# number of the control points
+number of control points: 5
+
+# Y-deformations of the control points.
+control points Y-deformations =  1.0
+                                 2.0
+                                 3.0
+                                 4.0
+                                 5.0
+
+
+[Pitch B-Spline]
+# This section describes the B-Spline construction of the RADII -- PITCH curve.
+
+# degree of the B-Spline curve
+spline degree: 5
+
+# number of points to be evaluated with the B-Spline interpolation
+spline npoints: 400
+
+# number of the control points
+number of control points: 6
+
+# Y-deformations of the control points.
+control points Y-deformations =  1.0
+                                 2.0
+                                 3.0
+                                 4.0
+                                 5.0
+                                 6.0
+
+
+[Rake B-Spline]
+# This section describes the B-Spline construction of the RADII -- RAKE curve.
+
+# degree of the B-Spline curve
+spline degree: 4
+
+# number of points to be evaluated with the B-Spline interpolation
+spline npoints: 300
+
+# number of the control points
+number of control points: 4
+
+# Y-deformations of the control points.
+control points Y-deformations =  1.0
+                                 2.0
+                                 3.0
+                                 4.0
+
+
+[Skew B-Spline]
+# This section describes the B-Spline construction of the RADII -- SKEW curve.
+
+# degree of the B-Spline curve
+spline degree: 3
+
+# number of points to be evaluated with the B-Spline interpolation
+spline npoints: 200
+
+# number of the control points
+number of control points: 7
+
+# Y-deformations of the control points.
+control points Y-deformations =  7.0
+                                 6.0
+                                 5.0
+                                 4.0
+                                 3.0
+                                 2.0
+                                 1.0
+
+
+[Camber B-Spline]
+# This section describes the B-Spline construction of the RADII -- CAMBER curve.
+
+# degree of the B-Spline curve
+spline degree: 2
+
+# number of points to be evaluated with the B-Spline interpolation
+spline npoints: 100
+
+# number of the control points
+number of control points: 5
+
+# Y-deformations of the control points.
+control points Y-deformations =  5.0
+                                 4.0
+                                 3.0
+                                 2.0
+                                 1.0

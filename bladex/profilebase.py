@@ -83,11 +83,12 @@ class ProfileBase(object):
         The interpolation applies the Radial Basis Function (RBF) method,
         to construct approximations of the two functions that correspond to the
         airfoil upper half and lower half coordinates. The RBF implementation
-        is present in :doc:`/utils/rbf`.
+        is present in :ref:`RBF ndinterpolator <ndinterpolator-label>`.
 
         References:
+
         Buhmann, Martin D. (2003), Radial Basis Functions: Theory
-            and Implementations.
+        and Implementations.
         http://www.cs.bham.ac.uk/~jxb/NN/l12.pdf
         https://www.cc.gatech.edu/~isbell/tutorials/rbf-intro.pdf
 
@@ -219,9 +220,10 @@ class ProfileBase(object):
         maximum camber. Also reconstructs the deformed airfoil's coordinates.
 
         The percentage of change is defined as follows:
+
         .. math::
             \\frac{new magnitude of max camber - old magnitude of maximum \
-             camber}{old magnitude of maximum camber} * 100
+            camber}{old magnitude of maximum camber} * 100
 
         A positive percentage means the new camber is larger than the max
         camber value, while a negative percentage indicates the new value
@@ -304,18 +306,23 @@ class ProfileBase(object):
 
         Thickness is defined as the distnace between the upper and lower
         surfaces of the airfoil, and can be measured in two different ways:
-            - American convention: measures along the line perpendicular to
-              the mean camber line.
-            - British convention: measures along the line perpendicular to
-              the chord line.
+
+            - American convention: measures along the line perpendicular to \
+                the mean camber line.
+
+            - British convention: measures along the line perpendicular to \
+                the chord line.
+        
         In this implementation, the british convention is used to evaluate
-            the maximum thickness.
+        the maximum thickness.
 
         References:
-            Phillips, Warren F. (2010). Mechanics of Flight (2nd ed.).
+
+            Phillips, Warren F. (2010). Mechanics of Flight (2nd ed.). \
                 Wiley & Sons. p. 27. ISBN 978-0-470-53975-0.
-            Bertin, John J.; Cummings, Russel M. (2009). Pearson Prentice Hall,
-                ed. Aerodynamics for Engineers (5th ed.).
+
+            Bertin, John J.; Cummings, Russel M. (2009). Pearson Prentice Hall, \
+                ed. Aerodynamics for Engineers (5th ed.). \
                 p. 199. ISBN 978-0-13-227268-1.
 
         :param bool interpolate: if True, the interpolated coordinates are used
@@ -398,13 +405,16 @@ class ProfileBase(object):
         the leading edge.
 
         :math:`R(\\theta)` is defined by:
+
         .. math::
              \\left(\\begin{matrix} cos (\\theta) & - sin (\\theta) \\
             sin (\\theta) & cos (\\theta) \\end{matrix}\\right)
 
-        Given the coordinates of point :math:`(P) =
-            \\left(\\begin{matrix} x \\ y \\end{matrix}\\right)`,
-        the rotated coordinates will be: .. math::
+        Given the coordinates of point
+        :math:`(P) = \\left(\\begin{matrix} x \\ y \\end{matrix}\\right)`,
+        the rotated coordinates will be:
+
+        .. math::
             P^{'} = \\left(\\begin{matrix} x^{'} \\ y^{'} \\end{matrix}\\right)
                   = R (\\theta) \\cdot P`
 
