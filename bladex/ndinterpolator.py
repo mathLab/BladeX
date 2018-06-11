@@ -1,9 +1,15 @@
 import numpy as np
 from scipy.spatial.distance import cdist
+from scipy.interpolate import splev
 
 
 class RBF(object):
     """
+    .. _ndinterpolator-label:
+
+    RBF ndinterpolator
+    ======================
+
     Module focused on the implementation of the Radial Basis Functions
     interpolation technique.  This technique is still based on the use of
     a set of parameters, the so-called control points, as for FFD, but RBF
@@ -245,3 +251,22 @@ def reconstruct_f(original_input, original_output, rbf_input, rbf_output, basis,
     for i in range(rbf_input.shape[0]):
         for j in range(original_input.shape[0]):
             rbf_output[i] += weights_coeff[j] * weights_rbf[i][j]
+
+
+def scipy_bspline(cv, npoints, degree):
+    """
+    Construct B-Spline curve via the control points.
+
+    :param array_like cv: control points vector (spline coefficients).
+    :param int npoints: number of points on the curve.
+    :param int degree: BSpline degree.
+    """
+    c = cv.shape[0]
+    # calculating BSpline knots
+    kv = np.clip(np.arange(c+degree+1)-degree, 0, c-degree)
+    # u is the array of points at which to return the value of the smoothed spline
+    u  = np.linspace(0, c-degree, npoints)
+    # Calculate resulting spline
+    # splev requires u, and a tuple which is a sequence of length 3 containing
+    # the knots, coefficients, and degree of the spline.
+    return np.array(splev(u, (kv, cv.T, degree))).T

@@ -11,6 +11,9 @@ ProfileBase
 
 	ProfileBase._update_edges
 	ProfileBase.chord_length
+	ProfileBase.compute_camber_line
+	ProfileBase.compute_chord_line
+	ProfileBase.deform_camber_line
 	ProfileBase.flip
 	ProfileBase.interpolate_coordinates
 	ProfileBase.max_camber
@@ -20,7 +23,7 @@ ProfileBase
 	ProfileBase.rotate
 	ProfileBase.scale
 	ProfileBase.translate
-	
+
 
 .. autoclass:: ProfileBase
 	:members:
