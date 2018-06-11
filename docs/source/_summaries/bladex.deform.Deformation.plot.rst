@@ -1,5 +1,5 @@
 bladex.deform.Deformation.plot
-========================================
+==============================
 
 .. currentmodule:: bladex.deform
 

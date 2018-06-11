@@ -1,5 +1,5 @@
-bladex.blade.ParamFile.__str__
-========================================
+bladex.params.ParamFile.__str__
+===============================
 
 .. currentmodule:: bladex.params
 

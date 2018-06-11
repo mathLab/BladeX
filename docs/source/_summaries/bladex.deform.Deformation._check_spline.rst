@@ -1,5 +1,5 @@
 bladex.deform.Deformation._check_spline
-========================================
+=======================================
 
 .. currentmodule:: bladex.deform
 

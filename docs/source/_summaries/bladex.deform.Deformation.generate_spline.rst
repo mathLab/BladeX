@@ -1,5 +1,5 @@
-bladex.deform.Deformation._check_control_points
-========================================
+bladex.deform.Deformation.generate_spline
+=========================================
 
 .. currentmodule:: bladex.deform
 

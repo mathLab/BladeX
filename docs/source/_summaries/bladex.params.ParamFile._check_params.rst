@@ -1,5 +1,5 @@
-bladex.blade.ParamFile._check_params
-========================================
+bladex.params.ParamFile._check_params
+=====================================
 
 .. currentmodule:: bladex.params
 
