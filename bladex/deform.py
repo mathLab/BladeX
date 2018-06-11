@@ -145,9 +145,9 @@ class Deformation(object):
         # x and y of the ctrl points with constrained least square.
         # we subtract the contribution of the first and last basis function
         cvt_x = np.linalg.lstsq(
-            At, X - A[:, 0] * X[0] - A[:, -1] * X[-1], rcond=None)[0]
+            At, X - A[:, 0] * X[0] - A[:, -1] * X[-1])[0]
         cvt_y = np.linalg.lstsq(
-            At, Y - A[:, 0] * Y[0] - A[:, -1] * Y[-1], rcond=None)[0]
+            At, Y - A[:, 0] * Y[0] - A[:, -1] * Y[-1])[0]
 
         # fill with the constraints the first and last point
         opt_ctrl = np.zeros((nbasis, 2))

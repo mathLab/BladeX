@@ -1,4 +1,4 @@
-bladex.blade.ParamFile.write_parameters
+bladex.params.ParamFile.write_parameters
 ========================================
 
 .. currentmodule:: bladex.params

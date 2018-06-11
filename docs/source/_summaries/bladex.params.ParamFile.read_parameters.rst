@@ -1,5 +1,5 @@
-bladex.blade.ParamFile.read_parameters
-========================================
+bladex.params.ParamFile.read_parameters
+=======================================
 
 .. currentmodule:: bladex.params
 
