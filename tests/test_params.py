@@ -508,9 +508,9 @@ class TestParam(TestCase):
         string += '\nradii = {}\n'.format(prm.radii)
         params = ['chord', 'pitch', 'rake', 'skew', 'camber']
         for par in params:
-            string += '\n' + par + ' = {}\n'.format(prm.parameters[par])
-            string += '\n\n' + par + ' degree = {}\n'.format(prm.degree[par])
-            string += '\n\n' + par + ' npoints = {}\n'.format(prm.npoints[par])
+            string += '\n\n' + par + ' = {}\n'.format(prm.parameters[par])
+            string += '\n' + par + ' degree = {}\n'.format(prm.degree[par])
+            string += par + ' npoints = {}\n'.format(prm.npoints[par])
             string += par + ' nbasis = {}\n'.format(prm.nbasis[par])
             string += par + ' control points deformations =\n'
             string += '{}\n'.format(prm.deformations[par])

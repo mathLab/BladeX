@@ -235,8 +235,8 @@ class Blade(object):
             y_section_up = radius * np.sin(theta_up)
             y_section_down = radius * np.sin(theta_down)
 
-            z_section_up = -radius * np.cos(theta_up)
-            z_section_down = -radius * np.cos(theta_down)
+            z_section_up = radius * np.cos(theta_up)
+            z_section_down = radius * np.cos(theta_down)
 
             self.blade_coordinates_up.append(
                 np.array([section.xup_coordinates, y_section_up, z_section_up]))
@@ -473,6 +473,6 @@ class Blade(object):
                   ' (in degrees) = {}\n'.format(self.skew_angles)
         string += '\nComputed pitch angles (in radians) for the blade'\
                   ' sections = {}\n'.format(self.pitch_angles)
-        string += '\nComputed induced rake from skew (in unit length),'\
+        string += '\nComputed induced rake from skew (in unit length)'\
                   ' for the blade sections = {}\n'.format(self.induced_rake)
         return string

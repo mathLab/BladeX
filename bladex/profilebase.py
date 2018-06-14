@@ -442,10 +442,10 @@ class ProfileBase(object):
             raise ValueError(
                 'You have to pass either the angle in radians or in degrees,' \
                 ' not both.')
-        if rad_angle:
+        if rad_angle is not None:
             cosine = np.cos(rad_angle)
             sine = np.sin(rad_angle)
-        elif deg_angle:
+        elif deg_angle is not None:
             cosine = np.cos(np.radians(deg_angle))
             sine = np.sin(np.radians(deg_angle))
         else:

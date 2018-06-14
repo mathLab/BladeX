@@ -72,6 +72,13 @@ class Deformation(object):
             'skew': np.zeros(self.param.radii.size),
             'camber': np.zeros(self.param.radii.size)
         }
+        # self.deformed_parameters = {
+        #     'chord': self.param.parameters['chord'],
+        #     'pitch': self.param.parameters['pitch'],
+        #     'rake': self.param.parameters['rake'],
+        #     'skew': self.param.parameters['skew'],
+        #     'camber': self.param.parameters['camber']
+        # }
         self.control_points = {
             'chord': None,
             'pitch': None,
@@ -471,7 +478,14 @@ class Deformation(object):
         prm.radii = self.param.radii
         params = ['chord', 'pitch', 'rake', 'skew', 'camber']
         for param in params:
-            prm.parameters[param] = self.deformed_parameters[param]
+            # If the original parameter file specifies zero deformations for
+            # some parameter, then the method writes out deformed parameters
+            # a with radial distributionfrom the original parameter file;
+            # otherwise it writes out the computed deformed parameters
+            if np.all(self.param.deformations[param] == 0):
+                prm.parameters[param] = self.param.parameters[param]
+            else:
+                prm.parameters[param] = self.deformed_parameters[param]
             prm.nbasis[param] = self.param.nbasis[param]
             prm.degree[param] = self.param.nbasis[param]
             prm.npoints[param] = self.param.npoints[param]

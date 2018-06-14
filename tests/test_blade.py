@@ -387,7 +387,7 @@ class TestBlade(TestCase):
                   ' (in degrees) = {}\n'.format(blade.skew_angles)
         string += '\nComputed pitch angles (in radians) for the blade'\
                   ' sections = {}\n'.format(blade.pitch_angles)
-        string += '\nComputed induced rake from skew (in unit length),'\
+        string += '\nComputed induced rake from skew (in unit length)'\
                   ' for the blade sections = {}\n'.format(blade.induced_rake)
 
         assert blade.__str__() == string
