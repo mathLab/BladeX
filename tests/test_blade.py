@@ -263,33 +263,33 @@ class TestBlade(TestCase):
         np.testing.assert_almost_equal(blade.blade_coordinates_down,
                                        blade_coordinates_down_expected)
 
-    def test_transformations_flip_blade_up(self):
+    def test_transformations_reflect_blade_up(self):
         blade = create_sample_blade_NACA()
-        blade.apply_transformations(flip=True)
+        blade.apply_transformations(reflect=True)
         blade_coordinates_up_expected = np.load(
             'tests/test_datasets/blade_up_after_transformation_flip.npy')
         np.testing.assert_almost_equal(blade.blade_coordinates_up,
                                        blade_coordinates_up_expected)
 
-    def test_transformations_flip_blade_down(self):
+    def test_transformations_reflect_blade_down(self):
         blade = create_sample_blade_NACA()
-        blade.apply_transformations(flip=True)
+        blade.apply_transformations(reflect=True)
         blade_coordinates_down_expected = np.load(
             'tests/test_datasets/blade_down_after_transformation_flip.npy')
         np.testing.assert_almost_equal(blade.blade_coordinates_down,
                                        blade_coordinates_down_expected)
 
-    def test_transformations_no_flip_blade_up(self):
+    def test_transformations_no_reflect_blade_up(self):
         blade = create_sample_blade_NACA()
-        blade.apply_transformations(flip=False)
+        blade.apply_transformations(reflect=False)
         blade_coordinates_up_expected = np.load(
             'tests/test_datasets/blade_up_after_transformation_no_flip.npy')
         np.testing.assert_almost_equal(blade.blade_coordinates_up,
                                        blade_coordinates_up_expected)
 
-    def test_transformations_no_flip_blade_down(self):
+    def test_transformations_no_reflect_blade_down(self):
         blade = create_sample_blade_NACA()
-        blade.apply_transformations(flip=False)
+        blade.apply_transformations(reflect=False)
         blade_coordinates_down_expected = np.load(
             'tests/test_datasets/blade_down_after_transformation_no_flip.npy')
         np.testing.assert_almost_equal(blade.blade_coordinates_down,
@@ -371,3 +371,23 @@ class TestBlade(TestCase):
             n_blades=5)
         self.assertTrue(os.path.isfile('tests/test_datasets/data_out.ppg'))
         self.addCleanup(os.remove, 'tests/test_datasets/data_out.ppg')
+
+    def test_blade_str_method(self):
+        blade = create_sample_blade_NACA()
+        string = ''
+        string += 'Blade number of sections = {}\n'.format(blade.n_sections)
+        string += '\nBlade radii sections = {}\n'.format(blade.radii)
+        string += '\nChord lengths of the blade sectional profiles'\
+                  ' = {}\n'.format(blade.chord_lengths)
+        string += '\nRadial distribution of the blade pitch (in unit lengths)'\
+                  ' = {}\n'.format(blade.pitch)
+        string += '\nRadial distribution of the blade rake (in unit length)'\
+                  ' = {}\n'.format(blade.rake)
+        string += '\nRadial distribution of the blade skew angles'\
+                  ' (in degrees) = {}\n'.format(blade.skew_angles)
+        string += '\nComputed pitch angles (in radians) for the blade'\
+                  ' sections = {}\n'.format(blade.pitch_angles)
+        string += '\nComputed induced rake from skew (in unit length),'\
+                  ' for the blade sections = {}\n'.format(blade.induced_rake)
+
+        assert blade.__str__() == string
