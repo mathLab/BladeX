@@ -397,30 +397,30 @@ class TestProfileBase(TestCase):
         np.testing.assert_equal(profile.ydown_coordinates,
                                 translated_ydown_coordinates)
 
-    def test_flip_xup(self):
+    def test_reflect_xup(self):
         profile = create_sample_profile()
-        profile.flip()
+        profile.reflect()
         flipped_xup_coordinates = np.array([1.0, 0.5, 0.0, -0.5, -1.0])
         np.testing.assert_equal(profile.xup_coordinates,
                                 flipped_xup_coordinates)
 
-    def test_flip_yup(self):
+    def test_reflect_yup(self):
         profile = create_sample_profile()
-        profile.flip()
+        profile.reflect()
         flipped_yup_coordinates = np.array([0.0, -0.75, -1.0, -0.75, 0.0])
         np.testing.assert_equal(profile.yup_coordinates,
                                 flipped_yup_coordinates)
 
-    def test_flip_xdown(self):
+    def test_reflect_xdown(self):
         profile = create_sample_profile()
-        profile.flip()
+        profile.reflect()
         flipped_xdown_coordinates = np.array([1.0, 0.5, 0.0, -0.5, -1.0])
         np.testing.assert_equal(profile.xdown_coordinates,
                                 flipped_xdown_coordinates)
 
-    def test_flip_ydown(self):
+    def test_reflect_ydown(self):
         profile = create_sample_profile()
-        profile.flip()
+        profile.reflect()
         flipped_ydown_coordinates = np.array([0.0, 0.0, 0.0, 0.0, 0.0])
         np.testing.assert_equal(profile.ydown_coordinates,
                                 flipped_ydown_coordinates)
@@ -461,9 +461,72 @@ class TestProfileBase(TestCase):
         with self.assertRaises(ValueError):
             profile.plot(outfile=1.2)
 
-    def test_plot(self):
+    def test_plot_no_coordinates(self):
         profile = create_sample_profile()
-        profile.plot()
+        profile.xup_coordinates = None
+        with self.assertRaises(ValueError):
+            profile.plot()
+
+    def test_plot_profile(self):
+        profile = create_sample_profile()
+        profile.plot(
+            profile=True,
+            chord_line=False,
+            camber_line=False,
+            ref_point=False,
+            outfile=None)
+        plt.close()
+
+    def test_plot_chord_exception(self):
+        profile = create_sample_profile()
+        with self.assertRaises(ValueError):
+            profile.plot(
+                profile=True,
+                chord_line=True,
+                camber_line=False,
+                ref_point=False,
+                outfile=None)
+
+    def test_plot_chord_line(self):
+        profile = create_sample_profile()
+        profile.compute_chord_line()
+        profile.plot(
+            profile=True,
+            chord_line=True,
+            camber_line=False,
+            ref_point=False,
+            outfile=None)
+        plt.close()
+
+    def test_plot_camber_exception(self):
+        profile = create_sample_profile()
+        with self.assertRaises(ValueError):
+            profile.plot(
+                profile=True,
+                chord_line=False,
+                camber_line=True,
+                ref_point=False,
+                outfile=None)
+
+    def test_plot_camber_line(self):
+        profile = create_sample_profile()
+        profile.compute_camber_line()
+        profile.plot(
+            profile=True,
+            chord_line=False,
+            camber_line=True,
+            ref_point=False,
+            outfile=None)
+        plt.close()
+
+    def test_plot_ref_point(self):
+        profile = create_sample_profile()
+        profile.plot(
+            profile=True,
+            chord_line=False,
+            camber_line=False,
+            ref_point=True,
+            outfile=None)
         plt.close()
 
     def test_plot_save(self):

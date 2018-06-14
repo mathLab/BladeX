@@ -5,6 +5,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 
+
 class Blade(object):
     """
     Bottom-up parametrized blade construction.
@@ -185,8 +186,8 @@ class Blade(object):
         if not (self.sections.shape == self.radii.shape ==
                 self.chord_lengths.shape == self.pitch.shape == self.rake.shape
                 == self.skew_angles.shape):
-            raise ValueError('Arrays {sections, radii, chord_lengths, pitch, \
-            rake, skew_angles} do not have the same shape.')
+            raise ValueError('Arrays {sections, radii, chord_lengths, pitch, '\
+            'rake, skew_angles} do not have the same shape.')
 
     def _compute_pitch_angle(self):
         """
@@ -244,7 +245,7 @@ class Blade(object):
                     [section.xdown_coordinates, y_section_down,
                      z_section_down]))
 
-    def apply_transformations(self, flip=True):
+    def apply_transformations(self, reflect=True):
         """
         Generate a bottom-up constructed propeller blade based on the airfoil
         transformations, see :ref:`mytransformation_operations`.
@@ -254,7 +255,7 @@ class Blade(object):
             1. Translate airfoils by reference points into origin.
 
             2. Scale X, Y coordinates by a factor of the chord length. Also
-               flip the airfoils if necessary.
+               reflect the airfoils if necessary.
 
             3. Rotate the airfoils counter-clockwise according to the local
                pitch angles. Beware of the orientation system.
@@ -268,15 +269,15 @@ class Blade(object):
                each foil on a cylinder of radius equals to the section radius,
                and the cylinder axis is the propeller axis of rotation.
 
-        :param bool flip: if true, then flip the coordinates of all the airfoils
+        :param bool reflect: if true, then reflect the coordinates of all the airfoils
             about both X-axis and Y-axis. Default value is True.
         """
         for i in range(self.n_sections):
             # Translate reference point into origin
             self.sections[i].translate(-self.sections[i].reference_point)
 
-            if flip:
-                self.sections[i].flip()
+            if reflect:
+                self.sections[i].reflect()
 
             # Scale the unit chord to actual length.
             self.sections[i].scale(self.chord_lengths[i])
@@ -286,7 +287,8 @@ class Blade(object):
             # left-handed Cartesian orientation system, where Y-axis points
             # downwards and X-axis points to the right), the standard rotation
             # matrix yields clockwise rotation.
-            self.sections[i].rotate(rad_angle=np.pi/2.0 - self.pitch_angles[i])
+            self.sections[i].rotate(
+                rad_angle=np.pi / 2.0 - self.pitch_angles[i])
 
             # Translation due to skew.
             self.sections[i].translate(
@@ -404,8 +406,9 @@ class Blade(object):
         output_string += 'number of sectional profiles      = ' + str(
             self.n_sections) + '\n'
         output_string += 'description of sectional profiles = BNF\n'
-        output_string += '            r/R            c/D      skew[deg]        \
-                         rake/D            P/D            t/C            f/C\n'
+        output_string += '            r/R            c/D      skew[deg]'\
+                         '         rake/D            P/D            t/C'\
+                         '            f/C\n'
         for i in range(self.n_sections):
             output_string += ' ' + str("%.8e" % self.radii[i]) + ' ' + str(
                 "%.8e" % self.chord_lengths[i]) + ' ' + str(
@@ -451,3 +454,25 @@ class Blade(object):
         if params_normalized is False:
             # Revert back normalized parameters into actual values.
             self._norm_to_abs(D_prop=D_prop)
+
+    def __str__(self):
+        """
+        This method prints all the parameters on the screen. Its purpose is
+        for debugging.
+        """
+        string = ''
+        string += 'Blade number of sections = {}\n'.format(self.n_sections)
+        string += '\nBlade radii sections = {}\n'.format(self.radii)
+        string += '\nChord lengths of the blade sectional profiles'\
+                  ' = {}\n'.format(self.chord_lengths)
+        string += '\nRadial distribution of the blade pitch (in unit lengths)'\
+                  ' = {}\n'.format(self.pitch)
+        string += '\nRadial distribution of the blade rake (in unit length)'\
+                  ' = {}\n'.format(self.rake)
+        string += '\nRadial distribution of the blade skew angles'\
+                  ' (in degrees) = {}\n'.format(self.skew_angles)
+        string += '\nComputed pitch angles (in radians) for the blade'\
+                  ' sections = {}\n'.format(self.pitch_angles)
+        string += '\nComputed induced rake from skew (in unit length),'\
+                  ' for the blade sections = {}\n'.format(self.induced_rake)
+        return string
