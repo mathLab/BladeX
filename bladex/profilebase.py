@@ -58,12 +58,13 @@ class ProfileBase(object):
         trailing edge, hence both the leading and the trailing edges are always
         unique.
         """
-        if self.xup_coordinates[0] != self.xdown_coordinates[0]:
-            raise ValueError('Airfoils must have xup_coordinates[0] \
-                            == xdown_coordinates[0]')
-        if self.xup_coordinates[-1] != self.xdown_coordinates[-1]:
-            raise ValueError('Airfoils must have xup_coordinates[-1] \
-                                == xdown_coordinates[-1]')
+        if np.fabs(self.xup_coordinates[0] - self.xdown_coordinates[0]) > 1e-4:
+            raise ValueError('Airfoils must have xup_coordinates[0] '\
+                            'almost equal to xdown_coordinates[0]')
+        if np.fabs(
+                self.xup_coordinates[-1] - self.xdown_coordinates[-1]) > 1e-4:
+            raise ValueError('Airfoils must have xup_coordinates[-1] '\
+                             'almost equal to xdown_coordinates[-1]')
 
         self.leading_edge[0] = self.xup_coordinates[0]
         self.leading_edge[1] = self.yup_coordinates[0]
@@ -153,7 +154,7 @@ class ProfileBase(object):
         aratio = ((self.trailing_edge[1] - self.leading_edge[1]) /
                   (self.trailing_edge[0] - self.leading_edge[0]))
         if not (self.xup_coordinates == self.xdown_coordinates
-               ).all() and n_interpolated_points is None:
+                ).all() and n_interpolated_points is None:
             # If x_up != x_down element-wise, then the corresponding y_up and
             # y_down can not be comparable, hence a uniform interpolation is
             # required. Also in case the interpolated_points is None,
@@ -196,7 +197,7 @@ class ProfileBase(object):
         inaccurate measurements for obtaining the camber line.
         """
         if not (self.xup_coordinates == self.xdown_coordinates
-               ).all() and n_interpolated_points is None:
+                ).all() and n_interpolated_points is None:
             # If x_up != x_down element-wise, then the corresponding y_up and
             # y_down can not be comparable, hence a uniform interpolation is
             # required. Also in case the interpolated_points is None,
@@ -222,8 +223,8 @@ class ProfileBase(object):
         The percentage of change is defined as follows:
 
         .. math::
-            \\frac{new magnitude of max camber - old magnitude of maximum \
-            camber}{old magnitude of maximum camber} * 100
+            \\frac{\\text{new magnitude of max camber - old magnitude of maximum \
+            camber}}{\\text{old magnitude of maximum camber}} * 100
 
         A positive percentage means the new camber is larger than the max
         camber value, while a negative percentage indicates the new value
@@ -253,7 +254,7 @@ class ProfileBase(object):
         self.camber_line[1] *= scaling_factor
 
         if not (self.xup_coordinates == self.xdown_coordinates
-               ).all() and n_interpolated_points is None:
+                ).all() and n_interpolated_points is None:
             # If x_up != x_down element-wise, then the corresponding y_up and
             # y_down can not be comparable, hence a uniform interpolation is
             # required. Also in case the interpolated_points is None,
@@ -265,7 +266,7 @@ class ProfileBase(object):
         if n_interpolated_points:
             (self.xup_coordinates, self.xdown_coordinates, self.yup_coordinates,
              self.ydown_coordinates
-            ) = self.interpolate_coordinates(num=n_interpolated_points)
+             ) = self.interpolate_coordinates(num=n_interpolated_points)
 
         half_thickness = 0.5 * np.fabs(
             self.yup_coordinates - self.ydown_coordinates)
@@ -276,7 +277,7 @@ class ProfileBase(object):
     @property
     def reference_point(self):
         """
-        Return the coordinates of the airfoil's geometric center.
+        Return the coordinates of the chord's mid point.
 
         :return: reference point in 2D
         :rtype: numpy.ndarray
@@ -338,7 +339,7 @@ class ProfileBase(object):
         :rtype: float
         """
         if not (self.xup_coordinates == self.xdown_coordinates
-               ).all() and n_interpolated_points is None:
+                ).all() and n_interpolated_points is None:
             # If x_up != x_down element-wise, then the corresponding y_up and
             # y_down can not be comparable, hence a uniform interpolation is
             # required. Also in case the interpolated_points is None,
@@ -408,15 +409,23 @@ class ProfileBase(object):
 
         .. math::
              \\left(\\begin{matrix} cos (\\theta) & - sin (\\theta) \\
+
             sin (\\theta) & cos (\\theta) \\end{matrix}\\right)
 
-        Given the coordinates of point
-        :math:`(P) = \\left(\\begin{matrix} x \\ y \\end{matrix}\\right)`,
-        the rotated coordinates will be:
+        Given the coordinates of point :math:`P` such that
 
         .. math::
-            P^{'} = \\left(\\begin{matrix} x^{'} \\ y^{'} \\end{matrix}\\right)
-                  = R (\\theta) \\cdot P`
+            (P) = \\left(\\begin{matrix} x \\
+
+            y \\end{matrix}\\right),
+
+        Then, the rotated coordinates will be:
+
+        .. math::
+            P^{'} = \\left(\\begin{matrix} x^{'} \\
+
+                     y^{'} \\end{matrix}\\right)
+                  = R (\\theta) \\cdot P
 
         If a standard right-handed Cartesian coordinate system is used, with
         the X-axis to the right and the Y-axis up, the rotation
@@ -431,8 +440,8 @@ class ProfileBase(object):
         """
         if rad_angle is not None and deg_angle is not None:
             raise ValueError(
-                'You have to pass either the angle in radians or in degrees, \
-                not both.')
+                'You have to pass either the angle in radians or in degrees,' \
+                ' not both.')
         if rad_angle:
             cosine = np.cos(rad_angle)
             sine = np.sin(rad_angle)
@@ -475,9 +484,13 @@ class ProfileBase(object):
         self.yup_coordinates += translation[1]
         self.ydown_coordinates += translation[1]
 
-    def flip(self):
+    def reflect(self):
         """
-        Flip the airfoil coordinates about both the X-axis and the Y-axis.
+        Reflect the airfoil coordinates about the origin, i.e. a mirror
+        transformation is performed about both the X-axis and the Y-axis.
+
+        We note that if the foil is cenetered by its reference point at the
+        origin, then the reflection is just a simple flip.
         """
         self.xup_coordinates *= -1
         self.xdown_coordinates *= -1
@@ -504,17 +517,53 @@ class ProfileBase(object):
         self.ydown_coordinates *= factor
         self.translate(ref_point)
 
-    def plot(self, outfile=None):
+    def plot(self,
+             profile=True,
+             chord_line=False,
+             camber_line=False,
+             ref_point=False,
+             outfile=None):
         """
         Plot the airfoil coordinates.
 
-        :param string outfile: outfile name. If a string is provided then the
+        :param bool profile: if True, then plot the profile coordinates.
+            Default value is True
+        :param bool chord_line: if True, then plot the chord line. Default
+            value is False
+        :param bool camber_line: if True, then plot the camber line. Default
+            value is False
+        :param bool ref_point: if True, then scatter plot the reference point.
+            Default value is False
+        :param str outfile: outfile name. If a string is provided then the
             plot is saved with that name, otherwise the plot is not saved.
             Default value is None
         """
         plt.figure()
-        plt.plot(self.xup_coordinates, self.yup_coordinates)
-        plt.plot(self.xdown_coordinates, self.ydown_coordinates)
+
+        if (self.xup_coordinates is None or self.yup_coordinates is None
+                or self.xdown_coordinates is None
+                or self.ydown_coordinates is None):
+            raise ValueError('One or all the coordinates have None value.')
+
+        if profile:
+            plt.plot(self.xup_coordinates, self.yup_coordinates)
+            plt.plot(self.xdown_coordinates, self.ydown_coordinates)
+
+        if chord_line:
+            if self.chord_line is None:
+                raise ValueError(
+                    'Chord line is None. You must compute it first')
+            plt.plot(self.chord_line[0], self.chord_line[1])
+
+        if camber_line:
+            if self.camber_line is None:
+                raise ValueError(
+                    'Camber line is None. You must compute it first')
+            plt.plot(self.camber_line[0], self.camber_line[1])
+
+        if ref_point:
+            plt.scatter(self.reference_point[0], self.reference_point[1])
+
         plt.grid(linestyle='dotted')
         plt.axis('equal')
 
@@ -522,3 +571,5 @@ class ProfileBase(object):
             if not isinstance(outfile, str):
                 raise ValueError('Output file name must be string.')
             plt.savefig(outfile)
+        else:
+            plt.show()

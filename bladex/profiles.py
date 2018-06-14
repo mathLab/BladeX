@@ -145,7 +145,7 @@ class NacaProfile(ProfileBase):
     - Abbott, Ira (1959). Theory of Wing Sections: Including a Summary of
       Airfoil Data. New York: Dover Publications. p. 115. ISBN 978-0486605869.
 
-    :param string digits: 4 or 5 digits that describes the NACA profile
+    :param str digits: 4 or 5 digits that describes the NACA profile
     :param int n_points: number of discrete points that represents the
         airfoil profile. Default value is 240
     :param bool cosine_spacing: if True, then a cosine spacing is used for the
@@ -205,8 +205,7 @@ class NacaProfile(ProfileBase):
 
             if p == 0:
                 # Symmetric foil
-                self.xup_coordinates = np.linspace(
-                    0.0, 1.0, num=self.n_points)
+                self.xup_coordinates = np.linspace(0.0, 1.0, num=self.n_points)
                 self.yup_coordinates = yt
                 self.xdown_coordinates = np.linspace(
                     0.0, 1.0, num=self.n_points)
@@ -267,8 +266,7 @@ class NacaProfile(ProfileBase):
 
             if p == 0:
                 # Symmetric foil
-                self.xup_coordinates = np.linspace(
-                    0.0, 1.0, num=self.n_points)
+                self.xup_coordinates = np.linspace(0.0, 1.0, num=self.n_points)
                 self.yup_coordinates = yt
                 self.xdown_coordinates = np.linspace(
                     0.0, 1.0, num=self.n_points)
