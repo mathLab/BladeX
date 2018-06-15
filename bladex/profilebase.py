@@ -408,22 +408,19 @@ class ProfileBase(object):
         :math:`R(\\theta)` is defined by:
 
         .. math::
-             \\left(\\begin{matrix} cos (\\theta) & - sin (\\theta) \\
-
+             \\left(\\begin{matrix} cos (\\theta) & - sin (\\theta) \\\\
             sin (\\theta) & cos (\\theta) \\end{matrix}\\right)
 
         Given the coordinates of point :math:`P` such that
 
         .. math::
-            (P) = \\left(\\begin{matrix} x \\
-
+            P = \\left(\\begin{matrix} x \\\\
             y \\end{matrix}\\right),
 
         Then, the rotated coordinates will be:
 
         .. math::
-            P^{'} = \\left(\\begin{matrix} x^{'} \\
-
+            P^{'} = \\left(\\begin{matrix} x^{'} \\\\
                      y^{'} \\end{matrix}\\right)
                   = R (\\theta) \\cdot P
 
@@ -488,9 +485,6 @@ class ProfileBase(object):
         """
         Reflect the airfoil coordinates about the origin, i.e. a mirror
         transformation is performed about both the X-axis and the Y-axis.
-
-        We note that if the foil is cenetered by its reference point at the
-        origin, then the reflection is just a simple flip.
         """
         self.xup_coordinates *= -1
         self.xdown_coordinates *= -1
