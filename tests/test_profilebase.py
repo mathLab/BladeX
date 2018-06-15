@@ -529,6 +529,18 @@ class TestProfileBase(TestCase):
             outfile=None)
         plt.close()
 
+    def test_plot_all(self):
+        profile = create_sample_profile()
+        profile.compute_camber_line()
+        profile.compute_chord_line()
+        profile.plot(
+            profile=True,
+            chord_line=True,
+            camber_line=True,
+            ref_point=True,
+            outfile=None)
+        plt.close()
+
     def test_plot_save(self):
         profile = create_sample_profile()
         profile.plot(outfile='tests/test_datasets/test_plot.png')
