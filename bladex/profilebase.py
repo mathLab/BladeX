@@ -540,26 +540,27 @@ class ProfileBase(object):
             raise ValueError('One or all the coordinates have None value.')
 
         if profile:
-            plt.plot(self.xup_coordinates, self.yup_coordinates)
-            plt.plot(self.xdown_coordinates, self.ydown_coordinates)
+            plt.plot(self.xup_coordinates, self.yup_coordinates, label='Upper profile')
+            plt.plot(self.xdown_coordinates, self.ydown_coordinates, label='Lower profile')
 
         if chord_line:
             if self.chord_line is None:
                 raise ValueError(
                     'Chord line is None. You must compute it first')
-            plt.plot(self.chord_line[0], self.chord_line[1])
+            plt.plot(self.chord_line[0], self.chord_line[1], label='Chord line')
 
         if camber_line:
             if self.camber_line is None:
                 raise ValueError(
                     'Camber line is None. You must compute it first')
-            plt.plot(self.camber_line[0], self.camber_line[1])
+            plt.plot(self.camber_line[0], self.camber_line[1], label='Camber line')
 
         if ref_point:
-            plt.scatter(self.reference_point[0], self.reference_point[1])
+            plt.scatter(self.reference_point[0], self.reference_point[1], s=15, label='Reference point')
 
         plt.grid(linestyle='dotted')
         plt.axis('equal')
+        plt.legend()
 
         if outfile:
             if not isinstance(outfile, str):
