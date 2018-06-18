@@ -235,8 +235,8 @@ class Blade(object):
             y_section_up = radius * np.sin(theta_up)
             y_section_down = radius * np.sin(theta_down)
 
-            z_section_up = -radius * np.cos(theta_up)
-            z_section_down = -radius * np.cos(theta_down)
+            z_section_up = radius * np.cos(theta_up)
+            z_section_down = radius * np.cos(theta_down)
 
             self.blade_coordinates_up.append(
                 np.array([section.xup_coordinates, y_section_up, z_section_up]))
