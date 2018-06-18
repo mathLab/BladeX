@@ -363,7 +363,7 @@ class Deformation(object):
             self.generate_spline(param=param)
             self.compute_deformed_parameters(param=param, tol=tols[param])
 
-    def _plot(self, param, original, ctrl_points, spline, rbf, rbf_points,
+    def _plot_parametric_curve(self, param, original, ctrl_points, spline, rbf, rbf_points,
               deformed, outfile):
         """
         Private method to plot the parametric curve. Several options
@@ -486,8 +486,11 @@ class Deformation(object):
             with that name. If the value is None, then the plot is shown on
             the screen. Default value is None
         """
+        if not isinstance(param, (list, tuple, np.ndarray)):
+            param = [param]
+
         for par in param:
-            self._plot(
+            self._plot_parametric_curve(
                 param=par,
                 original=original,
                 ctrl_points=ctrl_points,

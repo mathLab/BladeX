@@ -266,7 +266,7 @@ class TestDeformation(TestCase):
 
     def test_plot_chord_original_points(self):
         deform = dfm.Deformation('tests/test_datasets/parameters.prm')
-        deform._plot(
+        deform._plot_parametric_curve(
             param='chord',
             original=True,
             ctrl_points=False,
@@ -280,7 +280,7 @@ class TestDeformation(TestCase):
     def test_plot_pitch_control_points_exception(self):
         deform = dfm.Deformation('tests/test_datasets/parameters.prm')
         with self.assertRaises(ValueError):
-            deform._plot(
+            deform._plot_parametric_curve(
                 param='pitch',
                 original=False,
                 ctrl_points=True,
@@ -293,7 +293,7 @@ class TestDeformation(TestCase):
     def test_plot_pitch_control_points(self):
         deform = dfm.Deformation('tests/test_datasets/parameters.prm')
         deform.compute_control_points(param='pitch')
-        deform._plot(
+        deform._plot_parametric_curve(
             param='pitch',
             original=False,
             ctrl_points=True,
@@ -307,7 +307,7 @@ class TestDeformation(TestCase):
     def test_plot_rake_spline_exception(self):
         deform = dfm.Deformation('tests/test_datasets/parameters.prm')
         with self.assertRaises(ValueError):
-            deform._plot(
+            deform._plot_parametric_curve(
                 param='rake',
                 original=False,
                 ctrl_points=False,
@@ -322,7 +322,7 @@ class TestDeformation(TestCase):
         deform.param.degree['rake'] = 3
         deform.compute_control_points(param='rake')
         deform.generate_spline(param='rake')
-        deform._plot(
+        deform._plot_parametric_curve(
             param='rake',
             original=False,
             ctrl_points=False,
@@ -335,7 +335,7 @@ class TestDeformation(TestCase):
 
     def test_plot_skew_rbf(self):
         deform = dfm.Deformation('tests/test_datasets/parameters.prm')
-        deform._plot(
+        deform._plot_parametric_curve(
             param='skew',
             original=False,
             ctrl_points=False,
@@ -349,7 +349,7 @@ class TestDeformation(TestCase):
     def test_plot_deformed_camber_exception(self):
         deform = dfm.Deformation('tests/test_datasets/parameters.prm')
         with self.assertRaises(ValueError):
-            deform._plot(
+            deform._plot_parametric_curve(
                 param='camber',
                 original=False,
                 ctrl_points=False,
@@ -365,7 +365,7 @@ class TestDeformation(TestCase):
         deform.update_control_points(param='camber')
         deform.generate_spline(param='camber')
         deform.compute_deformed_parameters(param='camber', tol=1e-2)
-        deform._plot(
+        deform._plot_parametric_curve(
             param='camber',
             original=False,
             ctrl_points=False,
@@ -380,7 +380,7 @@ class TestDeformation(TestCase):
         deform = dfm.Deformation('tests/test_datasets/parameters.prm')
         outfile = 5
         with self.assertRaises(ValueError):
-            deform._plot(
+            deform._plot_parametric_curve(
                 param='chord',
                 original=True,
                 ctrl_points=False,
@@ -393,7 +393,7 @@ class TestDeformation(TestCase):
     def test_plot_save(self):
         deform = dfm.Deformation('tests/test_datasets/parameters.prm')
         outfile = 'tests/test_datasets/test_plot_temp.png'
-        deform._plot(
+        deform._plot_parametric_curve(
             param='chord',
             original=True,
             ctrl_points=False,
@@ -424,6 +424,39 @@ class TestDeformation(TestCase):
             outfile=None)
         plt.close()
 
+    def test_plot_only_one_list(self):
+        deform = dfm.Deformation('tests/test_datasets/parameters.prm')
+        params = ['chord']
+        for param in params:
+            deform.compute_control_points(param=param, rbf_points=1000)
+            deform.update_control_points(param=param)
+            deform.generate_spline(param=param)
+            deform.compute_deformed_parameters(param=param, tol=1e-2)
+        deform.plot(
+            param=params,
+            original=True,
+            ctrl_points=True,
+            spline=True,
+            rbf=False,
+            rbf_points=500,
+            deformed=True,
+            outfile=None)
+        plt.close()
+
+    def test_plot_only_one_not_list(self):
+        deform = dfm.Deformation('tests/test_datasets/parameters.prm')
+        params = 'chord'
+        deform.plot(
+            param=params,
+            original=True,
+            ctrl_points=False,
+            spline=False,
+            rbf=False,
+            rbf_points=500,
+            deformed=False,
+            outfile=None)
+        plt.close()
+
     def test_export_param_file(self):
         deform = dfm.Deformation('tests/test_datasets/parameters.prm')
         deform.compute_control_points(param='camber', rbf_points=1000)
@@ -432,5 +465,20 @@ class TestDeformation(TestCase):
         deform.compute_deformed_parameters(param='camber', tol=1e-2)
         outfile = 'tests/test_datasets/parameters_mod.prm'
         deform.export_param_file(outfile=outfile)
+        self.assertTrue(os.path.isfile(outfile))
+        self.addCleanup(os.remove, outfile)
+
+    def test_export_param_file_default_parameters(self):
+        deform = dfm.Deformation('tests/test_datasets/parameters.prm')
+        deform.compute_control_points(param='camber', rbf_points=1000)
+        deform.update_control_points(param='camber')
+        deform.generate_spline(param='camber')
+        deform.compute_deformed_parameters(param='camber', tol=1e-2)
+        deform.param.deformations['chord'] = np.zeros(deform.param.radii.size)
+        outfile = 'tests/test_datasets/parameters_mod.prm'
+        deform.export_param_file(outfile=outfile)
+        prm = par.ParamFile()
+        prm.read_parameters(outfile)
+        assert prm.parameters['chord'][1] == deform.param.parameters['chord'][1]
         self.assertTrue(os.path.isfile(outfile))
         self.addCleanup(os.remove, outfile)
