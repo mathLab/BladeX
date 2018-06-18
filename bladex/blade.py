@@ -461,18 +461,18 @@ class Blade(object):
         for debugging.
         """
         string = ''
-        string += 'Blade number of sections = {}\n'.format(self.n_sections)
-        string += '\nBlade radii sections = {}\n'.format(self.radii)
-        string += '\nChord lengths of the blade sectional profiles'\
-                  ' = {}\n'.format(self.chord_lengths)
-        string += '\nRadial distribution of the blade pitch (in unit lengths)'\
-                  ' = {}\n'.format(self.pitch)
-        string += '\nRadial distribution of the blade rake (in unit length)'\
-                  ' = {}\n'.format(self.rake)
-        string += '\nRadial distribution of the blade skew angles'\
-                  ' (in degrees) = {}\n'.format(self.skew_angles)
-        string += '\nComputed pitch angles (in radians) for the blade'\
-                  ' sections = {}\n'.format(self.pitch_angles)
-        string += '\nComputed induced rake from skew (in unit length)'\
-                  ' for the blade sections = {}\n'.format(self.induced_rake)
+        string += 'Blade number of sections = {}'.format(self.n_sections)
+        string += '\nBlade radii sections = {}'.format(self.radii)
+        string += '\nChord lengths of the sectional profiles'\
+                  ' = {}'.format(self.chord_lengths)
+        string += '\nRadial distribution of the pitch (in unit lengths)'\
+                  ' = {}'.format(self.pitch)
+        string += '\nRadial distribution of the rake (in unit length)'\
+                  ' = {}'.format(self.rake)
+        string += '\nRadial distribution of the skew angles'\
+                  ' (in degrees) = {}'.format(self.skew_angles)
+        string += '\nPitch angles (in radians) for the'\
+                  ' sections = {}'.format(self.pitch_angles)
+        string += '\nInduced rake from skew (in unit length)'\
+                  ' for the sections = {}'.format(self.induced_rake)
         return string

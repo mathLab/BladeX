@@ -276,15 +276,15 @@ class ParamFile(object):
         for debugging.
         """
         string = ''
-        string += '\nradii = {}\n'.format(self.radii)
+        string += 'radii = {}'.format(self.radii)
         params = ['chord', 'pitch', 'rake', 'skew', 'camber']
         for param in params:
-            string += '\n\n' + param + ' = {}\n'.format(self.parameters[param])
-            string += '\n' + param + ' degree = {}\n'.format(
+            string += '\n\n' + param + ' = {}'.format(self.parameters[param])
+            string += '\n' + param + ' degree = {}'.format(
                 self.degree[param])
-            string += param + ' npoints = {}\n'.format(
+            string += '\n' + param + ' npoints = {}'.format(
                 self.npoints[param])
-            string += param + ' nbasis = {}\n'.format(self.nbasis[param])
-            string += param + ' control points deformations =\n'
-            string += '{}\n'.format(self.deformations[param])
+            string += '\n' + param + ' nbasis = {}'.format(self.nbasis[param])
+            string += '\n' + param + ' control points deformations = '
+            string += '{}'.format(self.deformations[param])
         return string

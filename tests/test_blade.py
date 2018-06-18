@@ -375,6 +375,7 @@ class TestBlade(TestCase):
     def test_blade_str_method(self):
         blade = create_sample_blade_NACA()
         string = ''
+<<<<<<< HEAD
         string += 'Blade number of sections = {}\n'.format(blade.n_sections)
         string += '\nBlade radii sections = {}\n'.format(blade.radii)
         string += '\nChord lengths of the blade sectional profiles'\
@@ -390,4 +391,20 @@ class TestBlade(TestCase):
         string += '\nComputed induced rake from skew (in unit length)'\
                   ' for the blade sections = {}\n'.format(blade.induced_rake)
 
+=======
+        string += 'Blade number of sections = {}'.format(blade.n_sections)
+        string += '\nBlade radii sections = {}'.format(blade.radii)
+        string += '\nChord lengths of the sectional profiles'\
+                  ' = {}'.format(blade.chord_lengths)
+        string += '\nRadial distribution of the pitch (in unit lengths)'\
+                  ' = {}'.format(blade.pitch)
+        string += '\nRadial distribution of the rake (in unit length)'\
+                  ' = {}'.format(blade.rake)
+        string += '\nRadial distribution of the skew angles'\
+                  ' (in degrees) = {}'.format(blade.skew_angles)
+        string += '\nPitch angles (in radians) for the'\
+                  ' sections = {}'.format(blade.pitch_angles)
+        string += '\nInduced rake from skew (in unit length)'\
+                  ' for the sections = {}'.format(blade.induced_rake)
+>>>>>>> ad276de23265cad8e58e8a3fdcca6278da766692
         assert blade.__str__() == string

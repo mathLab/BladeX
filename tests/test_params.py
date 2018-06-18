@@ -505,14 +505,23 @@ class TestParam(TestCase):
         prm = param.ParamFile()
         prm.read_parameters('tests/test_datasets/temp_parameters.prm')
         string = ''
-        string += '\nradii = {}\n'.format(prm.radii)
+        string += 'radii = {}'.format(prm.radii)
         params = ['chord', 'pitch', 'rake', 'skew', 'camber']
         for par in params:
+<<<<<<< HEAD
             string += '\n\n' + par + ' = {}\n'.format(prm.parameters[par])
             string += '\n' + par + ' degree = {}\n'.format(prm.degree[par])
             string += par + ' npoints = {}\n'.format(prm.npoints[par])
             string += par + ' nbasis = {}\n'.format(prm.nbasis[par])
             string += par + ' control points deformations =\n'
             string += '{}\n'.format(prm.deformations[par])
+=======
+            string += '\n\n' + par + ' = {}'.format(prm.parameters[par])
+            string += '\n' + par + ' degree = {}'.format(prm.degree[par])
+            string += '\n' + par + ' npoints = {}'.format(prm.npoints[par])
+            string += '\n' + par + ' nbasis = {}'.format(prm.nbasis[par])
+            string += '\n' + par + ' control points deformations = '
+            string += '{}'.format(prm.deformations[par])
+>>>>>>> ad276de23265cad8e58e8a3fdcca6278da766692
         assert prm.__str__() == string
         self.addCleanup(os.remove, 'tests/test_datasets/temp_parameters.prm')
