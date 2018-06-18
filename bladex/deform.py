@@ -145,9 +145,9 @@ class Deformation(object):
         # x and y of the ctrl points with constrained least square.
         # we subtract the contribution of the first and last basis function
         cvt_x = np.linalg.lstsq(
-            At, X - A[:, 0] * X[0] - A[:, -1] * X[-1])[0]
+            At, X - A[:, 0] * X[0] - A[:, -1] * X[-1], rcond=-1)[0]
         cvt_y = np.linalg.lstsq(
-            At, Y - A[:, 0] * Y[0] - A[:, -1] * Y[-1])[0]
+            At, Y - A[:, 0] * Y[0] - A[:, -1] * Y[-1], rcond=-1)[0]
 
         # fill with the constraints the first and last point
         opt_ctrl = np.zeros((nbasis, 2))
@@ -251,8 +251,7 @@ class Deformation(object):
         if not self.control_points[param].shape[0] == len(
                 self.param.deformations[param]):
             raise ValueError(
-                'array of deformations must equal to number of control points'
-            )
+                'array of deformations must equal to number of control points')
 
         for i in range(self.control_points[param].shape[0]):
             self.control_points[param][i, 1] += self.param.deformations[param][
@@ -364,40 +363,34 @@ class Deformation(object):
             self.generate_spline(param=param)
             self.compute_deformed_parameters(param=param, tol=tols[param])
 
-    def plot(self,
-             param,
-             original=True,
-             ctrl_points=True,
-             spline=True,
-             rbf=False,
-             rbf_points=500,
-             deformed=False,
-             outfile=None):
+    def _plot(self, param, original, ctrl_points, spline, rbf, rbf_points,
+              deformed, outfile):
         """
-        Plot the parametric curve. Several options can be specified.
+        Private method to plot the parametric curve. Several options
+        can be specified.
 
         :param str param: parameter corresponding to the parametric curve
             needs to be plotted. possible values are `chord`, `pitch`, `rake`,
             `skew`, `camber`
         :param bool original: if True, then plot the original points of the
-            parameter at the radii sections. Default value is True
+            parameter at the radii sections.
         :param bool ctrl_points: if True, then plot the control points of
-            that parametric curve. Default value is True
+            that parametric curve.
         :param bool spline: If True, then plot the B-spline interpolation of
-            the parametric curve. Default value is True
+            the parametric curve.
         :param bool rbf: if True, then plot the radial basis functions
-            interpolation of the parametric curve. Default value is True
+            interpolation of the parametric curve.
         :param int rbf_points: number of points used for the rbf interpolation,
             if the flag `rbf` is set True. Beware that this argument does not
             have the same function of that when computing the control points,
             although both uses the radial basis function interpolation with
-            the Wendland basis. Default value is 500
+            the Wendland basis.
         :param bool deformed: if True, then plot the deformed points of the
             parameter radial distribution, estimated using the B-spline
-            interpolations within a given tolerance. Default value is False
+            interpolations within a given tolerance.
         :param str outfile: if string is passed, then the plot is saved
             with that name. If the value is None, then the plot is shown on
-            the screen. Default value is None
+            the screen.
         """
         self._check_param(param=param)
 
@@ -457,6 +450,53 @@ class Deformation(object):
         else:
             plt.show()
 
+    def plot(self,
+             param,
+             original=True,
+             ctrl_points=True,
+             spline=True,
+             rbf=False,
+             rbf_points=500,
+             deformed=False,
+             outfile=None):
+        """
+        Plot the parametric curve. Several options
+        can be specified.
+
+        :param array_like param: array_like of strings corresponding to the
+            parametric curve that needs to be plotted. possible values are
+            `chord`, `pitch`, `rake`, `skew`, `camber`
+        :param bool original: if True, then plot the original points of the
+            parameter at the radii sections. Default value is True
+        :param bool ctrl_points: if True, then plot the control points of
+            that parametric curve. Default value is True
+        :param bool spline: If True, then plot the B-spline interpolation of
+            the parametric curve. Default value is True
+        :param bool rbf: if True, then plot the radial basis functions
+            interpolation of the parametric curve. Default value is True
+        :param int rbf_points: number of points used for the rbf interpolation,
+            if the flag `rbf` is set True. Beware that this argument does not
+            have the same function of that when computing the control points,
+            although both uses the radial basis function interpolation with
+            the Wendland basis. Default value is 500
+        :param bool deformed: if True, then plot the deformed points of the
+            parameter radial distribution, estimated using the B-spline
+            interpolations within a given tolerance. Default value is False
+        :param str outfile: if string is passed, then the plot is saved
+            with that name. If the value is None, then the plot is shown on
+            the screen. Default value is None
+        """
+        for par in param:
+            self._plot(
+                param=par,
+                original=original,
+                ctrl_points=ctrl_points,
+                spline=spline,
+                rbf=rbf,
+                rbf_points=rbf_points,
+                deformed=deformed,
+                outfile=outfile)
+
     def export_param_file(self, outfile='parameters_mod.prm'):
         """
         Export a new parameter file with the new deformed parameters, while
@@ -471,7 +511,10 @@ class Deformation(object):
         prm.radii = self.param.radii
         params = ['chord', 'pitch', 'rake', 'skew', 'camber']
         for param in params:
-            prm.parameters[param] = self.deformed_parameters[param]
+            if np.all(self.param.deformations[param] == 0):
+                prm.parameters[param] = self.param.parameters[param]
+            else:
+                prm.parameters[param] = self.deformed_parameters[param]
             prm.nbasis[param] = self.param.nbasis[param]
             prm.degree[param] = self.param.nbasis[param]
             prm.npoints[param] = self.param.npoints[param]
