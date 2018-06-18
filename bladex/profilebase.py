@@ -408,22 +408,19 @@ class ProfileBase(object):
         :math:`R(\\theta)` is defined by:
 
         .. math::
-             \\left(\\begin{matrix} cos (\\theta) & - sin (\\theta) \\
-
+             \\left(\\begin{matrix} cos (\\theta) & - sin (\\theta) \\\\
             sin (\\theta) & cos (\\theta) \\end{matrix}\\right)
 
         Given the coordinates of point :math:`P` such that
 
         .. math::
-            (P) = \\left(\\begin{matrix} x \\
-
+            P = \\left(\\begin{matrix} x \\\\
             y \\end{matrix}\\right),
 
         Then, the rotated coordinates will be:
 
         .. math::
-            P^{'} = \\left(\\begin{matrix} x^{'} \\
-
+            P^{'} = \\left(\\begin{matrix} x^{'} \\\\
                      y^{'} \\end{matrix}\\right)
                   = R (\\theta) \\cdot P
 
@@ -488,9 +485,6 @@ class ProfileBase(object):
         """
         Reflect the airfoil coordinates about the origin, i.e. a mirror
         transformation is performed about both the X-axis and the Y-axis.
-
-        We note that if the foil is cenetered by its reference point at the
-        origin, then the reflection is just a simple flip.
         """
         self.xup_coordinates *= -1
         self.xdown_coordinates *= -1
@@ -546,26 +540,27 @@ class ProfileBase(object):
             raise ValueError('One or all the coordinates have None value.')
 
         if profile:
-            plt.plot(self.xup_coordinates, self.yup_coordinates)
-            plt.plot(self.xdown_coordinates, self.ydown_coordinates)
+            plt.plot(self.xup_coordinates, self.yup_coordinates, label='Upper profile')
+            plt.plot(self.xdown_coordinates, self.ydown_coordinates, label='Lower profile')
 
         if chord_line:
             if self.chord_line is None:
                 raise ValueError(
                     'Chord line is None. You must compute it first')
-            plt.plot(self.chord_line[0], self.chord_line[1])
+            plt.plot(self.chord_line[0], self.chord_line[1], label='Chord line')
 
         if camber_line:
             if self.camber_line is None:
                 raise ValueError(
                     'Camber line is None. You must compute it first')
-            plt.plot(self.camber_line[0], self.camber_line[1])
+            plt.plot(self.camber_line[0], self.camber_line[1], label='Camber line')
 
         if ref_point:
-            plt.scatter(self.reference_point[0], self.reference_point[1])
+            plt.scatter(self.reference_point[0], self.reference_point[1], s=15, label='Reference point')
 
         plt.grid(linestyle='dotted')
         plt.axis('equal')
+        plt.legend()
 
         if outfile:
             if not isinstance(outfile, str):
