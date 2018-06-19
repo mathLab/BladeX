@@ -439,10 +439,10 @@ class ProfileBase(object):
             raise ValueError(
                 'You have to pass either the angle in radians or in degrees,' \
                 ' not both.')
-        if rad_angle:
+        if rad_angle is not None:
             cosine = np.cos(rad_angle)
             sine = np.sin(rad_angle)
-        elif deg_angle:
+        elif deg_angle is not None:
             cosine = np.cos(np.radians(deg_angle))
             sine = np.sin(np.radians(deg_angle))
         else:
@@ -540,8 +540,14 @@ class ProfileBase(object):
             raise ValueError('One or all the coordinates have None value.')
 
         if profile:
-            plt.plot(self.xup_coordinates, self.yup_coordinates, label='Upper profile')
-            plt.plot(self.xdown_coordinates, self.ydown_coordinates, label='Lower profile')
+            plt.plot(
+                self.xup_coordinates,
+                self.yup_coordinates,
+                label='Upper profile')
+            plt.plot(
+                self.xdown_coordinates,
+                self.ydown_coordinates,
+                label='Lower profile')
 
         if chord_line:
             if self.chord_line is None:
@@ -553,10 +559,15 @@ class ProfileBase(object):
             if self.camber_line is None:
                 raise ValueError(
                     'Camber line is None. You must compute it first')
-            plt.plot(self.camber_line[0], self.camber_line[1], label='Camber line')
+            plt.plot(
+                self.camber_line[0], self.camber_line[1], label='Camber line')
 
         if ref_point:
-            plt.scatter(self.reference_point[0], self.reference_point[1], s=15, label='Reference point')
+            plt.scatter(
+                self.reference_point[0],
+                self.reference_point[1],
+                s=15,
+                label='Reference point')
 
         plt.grid(linestyle='dotted')
         plt.axis('equal')
