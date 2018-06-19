@@ -267,7 +267,7 @@ class TestBlade(TestCase):
         blade = create_sample_blade_NACA()
         blade.apply_transformations(reflect=True)
         blade_coordinates_up_expected = np.load(
-            'tests/test_datasets/blade_up_after_transformation_flip.npy')
+            'tests/test_datasets/blade_up_after_transformation_reflect.npy')
         np.testing.assert_almost_equal(blade.blade_coordinates_up,
                                        blade_coordinates_up_expected)
 
@@ -275,7 +275,7 @@ class TestBlade(TestCase):
         blade = create_sample_blade_NACA()
         blade.apply_transformations(reflect=True)
         blade_coordinates_down_expected = np.load(
-            'tests/test_datasets/blade_down_after_transformation_flip.npy')
+            'tests/test_datasets/blade_down_after_transformation_reflect.npy')
         np.testing.assert_almost_equal(blade.blade_coordinates_down,
                                        blade_coordinates_down_expected)
 
@@ -283,7 +283,7 @@ class TestBlade(TestCase):
         blade = create_sample_blade_NACA()
         blade.apply_transformations(reflect=False)
         blade_coordinates_up_expected = np.load(
-            'tests/test_datasets/blade_up_after_transformation_no_flip.npy')
+            'tests/test_datasets/blade_up_after_transformation_no_reflect.npy')
         np.testing.assert_almost_equal(blade.blade_coordinates_up,
                                        blade_coordinates_up_expected)
 
@@ -291,7 +291,8 @@ class TestBlade(TestCase):
         blade = create_sample_blade_NACA()
         blade.apply_transformations(reflect=False)
         blade_coordinates_down_expected = np.load(
-            'tests/test_datasets/blade_down_after_transformation_no_flip.npy')
+            'tests/test_datasets/blade_down_after_transformation_no_reflect.npy'
+        )
         np.testing.assert_almost_equal(blade.blade_coordinates_down,
                                        blade_coordinates_down_expected)
 

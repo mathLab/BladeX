@@ -1,19 +1,26 @@
-**BladeX**: Python Package for Blade Generation
+**BladeX**: Python Package for Blade Deformation
 
 <p align="center">
-    <a href="https://github.com/mathLab/BladeX/blob/master/LICENSE" target="_blank">
+  <a href="http://mathlab.github.io/BladeX/" target="_blank" >
+    <img alt="Python Package for Blade Deformation" src="docs/source/_static/logo_bladex.png" width="200" />
+  </a>
+</p>
+<p align="center">
+    <a href="LICENSE.rst" target="_blank">
         <img alt="Software License" src="https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square">
     </a>
     <a href="https://travis-ci.org/mathLab/BladeX" target="_blank">
         <img alt="Build Status" src="https://travis-ci.org/mathLab/BladeX.svg">
     </a>
-    <a href="https://coveralls.io/github/mathLab/BladeX" target="_blank">
-        <img alt="Coverage Status" src="https://coveralls.io/repos/github/mathLab/BladeX/badge.svg">
+    <a href="https://coveralls.io/github/mathLab/BladeX?branch=master" target="_blank">
+        <img alt="Coverage Status" src="https://coveralls.io/repos/github/mathLab/BladeX/badge.svg?branch=master">
     </a>
     <a href="https://www.codacy.com/app/mathLab/BladeX?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=mathLab/BladeX&amp;utm_campaign=Badge_Grade" target="_blank">
         <img alt="Codacy Badge" src="https://api.codacy.com/project/badge/Grade/75f02cdeed684c25a273eaffb0d89880">
     </a>
 </p>
+
+[BladeX](http://mathlab.github.io/BladeX/) (Python Blade Deformation) is a Python package for geometrical parametrization and bottom-up construction of propeller blades. It allows to generate and deform a blade based on the radial distribution of its parameters.
 
 ## Table of contents
 * [Description](#description)
@@ -21,14 +28,16 @@
 	* [Installing from source](#installing-from-source)
 * [Documentation](#documentation)
 * [Testing](#testing)
+* [Examples](#examples)
 * [Authors and contributors](#authors-and-contributors)
 * [How to contribute](#how-to-contribute)
 	* [Submitting a patch](#submitting-a-patch) 
 * [License](#license)
 
 ## Description
-**BladeX** is a Python package for blade generation.
+**BladeX** is a Python package for geometrical parametrization and bottom-up construction of propeller blades. It allows to generate and deform a blade based on the radial distribution of its parameters such as `pitch`, `rake`, `skew`, and the sectional foils' parameters such as `chord` and `camber`. The package is ideally suited for parametric simulations on large number of blade deformations. It provides an automated procedure for the CAD generation, hence reducing the time and effort required for modelling. The main scope of BladeX is to deal with propeller blades, however it can be flexible to be applied on further applications with analogous geometrical structures such as aircraft wings, turbomachinery, or wind turbine blades.
 
+See the [**Examples**](#examples) section below and the [**Tutorials**](tutorials/README.md) to have an idea of the potential of this package.
 
 ## Dependencies and installation
 **BladeX** requires requires `numpy`, `scipy`, `matplotlib`, and `sphinx` (for the documentation). The code is compatible with Python 2.7 and Python 3.6. It can be installed using `pip` or directly from the source code.
@@ -73,13 +82,24 @@ To run tests locally:
 > python test.py
 ```
 
+## Examples
+You can find useful tutorials on how to use the package in the [tutorials](tutorials/README.md) folder.
+Here we show a bottom-up parametrized construction of the [Potsdam Propeller Test Case (PPTC)](https://www.sva-potsdam.de/pptc-smp11-workshop) provided the sectional profiles as well as the radial distribution of the `pitch`, `rake`, `skew`. The blade is generated and exported to .iges and .stl formats.
+
+<p align="center">
+<img src="readme/PPTC.png" alt>
+</p>
+<p align="center">
+<em>PPTC blade generation according to the radial distribution of the pitch, rake, skew. The generated blade is then exported to .iges and .stl formats.</em>
+</p>
+
 
 ## Authors and contributors
 **BladeX** is currently developed and mantained at [SISSA mathLab](http://mathlab.sissa.it/) by
+* [Mahmoud Gadalla](mailto:gadalla.mah@gmail.com)
 * [Marco Tezzele](mailto:marcotez@gmail.com)
-* [Mahmoud Gadalla](mailto:mgadalla@sissa.it)
 
-under the supervision of [Prof. Gianluigi Rozza](mailto:gianluigi.rozza@sissa.it).
+under the supervision of [Dr. Andrea Mola](mailto:andrea.mola@sissa.it) and [Prof. Gianluigi Rozza](mailto:gianluigi.rozza@sissa.it).
 
 Contact us by email for further information or questions about **BladeX**, or suggest pull requests. Contributions improving either the code or the documentation are welcome!
 
