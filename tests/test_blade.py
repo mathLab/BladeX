@@ -302,6 +302,30 @@ class TestBlade(TestCase):
         blade.plot()
         plt.close()
 
+    def test_plot_view_elev_init(self):
+        blade = create_sample_blade_NACA()
+        blade.apply_transformations()
+        blade.plot(elev=None)
+        plt.close()
+
+    def test_plot_view_elev(self):
+        blade = create_sample_blade_NACA()
+        blade.apply_transformations()
+        blade.plot(elev=45)
+        plt.close()
+
+    def test_plot_view_azim_init(self):
+        blade = create_sample_blade_NACA()
+        blade.apply_transformations()
+        blade.plot(azim=None)
+        plt.close()
+
+    def test_plot_view_azim(self):
+        blade = create_sample_blade_NACA()
+        blade.apply_transformations()
+        blade.plot(azim=-90)
+        plt.close()
+
     def test_plot_save(self):
         blade = create_sample_blade_NACA()
         blade.apply_transformations()

@@ -300,10 +300,20 @@ class Blade(object):
 
         self._planar_to_cylindrical()
 
-    def plot(self, outfile=None):
+    def plot(self, elev=None, azim=None, outfile=None):
         """
         Plot the generated blade sections.
 
+        :param int elev: Set the view elevation of the axes. This can be used
+            to rotate the axes programatically. 'elev' stores the elevation
+            angle in the z plane. If elev is None, then the initial value is
+            used which was specified in the mplot3d.Axes3D constructor. Default
+            value is None
+        :param int azim: Set the view azimuth angle of the axes. This can be
+            used to rotate the axes programatically. 'azim' stores the azimuth
+            angle in the x,y plane. If azim is None, then the initial value is
+            used which was specified in the mplot3d.Axes3D constructor. Default
+            value is None
         :param string outfile: save the plot if a filename string is provided.
             Default value is None.
         """
@@ -329,6 +339,7 @@ class Blade(object):
         ax.xaxis.label.set_color('red')
         ax.yaxis.label.set_color('red')
         ax.zaxis.label.set_color('red')
+        ax.view_init(elev=elev, azim=azim)
 
         if outfile:
             plt.savefig(outfile)
