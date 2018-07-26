@@ -1,0 +1,262 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>bladex.blade.Blade.apply_transformations &mdash; BladeX 0.0.1 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+    <link rel="top" title="BladeX 0.0.1 documentation" href="../index.html"/>
+        <link rel="up" title="Blade" href="../blade.html"/>
+        <link rel="next" title="bladex.blade.Blade.plot" href="bladex.blade.Blade.plot.html"/>
+        <link rel="prev" title="bladex.blade.Blade._planar_to_cylindrical" href="bladex.blade.Blade._planar_to_cylindrical.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> BladeX
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../code.html">Code Documentation</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="../blade.html">Blade</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="bladex.blade.Blade._abs_to_norm.html">bladex.blade.Blade._abs_to_norm</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bladex.blade.Blade._check_params.html">bladex.blade.Blade._check_params</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bladex.blade.Blade._compute_pitch_angle.html">bladex.blade.Blade._compute_pitch_angle</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bladex.blade.Blade._induced_rake_from_skew.html">bladex.blade.Blade._induced_rake_from_skew</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bladex.blade.Blade._norm_to_abs.html">bladex.blade.Blade._norm_to_abs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bladex.blade.Blade._planar_to_cylindrical.html">bladex.blade.Blade._planar_to_cylindrical</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">bladex.blade.Blade.apply_transformations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bladex.blade.Blade.plot.html">bladex.blade.Blade.plot</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bladex.blade.Blade.export_ppg.html">bladex.blade.Blade.export_ppg</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../deform.html">Deformation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../ndinterpolator.html">Ndinterpolator</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../profilebase.html">ProfileBase</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../params.html">ParamFile</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../profiles.html">Profiles</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../contact.html">Contact</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html">How to contribute</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../LICENSE.html">License</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../index.html">BladeX</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../code.html">Code Documentation</a> &raquo;</li>
+      
+          <li><a href="../blade.html">Blade</a> &raquo;</li>
+      
+    <li>bladex.blade.Blade.apply_transformations</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/_summaries/bladex.blade.Blade.apply_transformations.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="bladex-blade-blade-apply-transformations">
+<h1>bladex.blade.Blade.apply_transformations<a class="headerlink" href="#bladex-blade-blade-apply-transformations" title="Permalink to this headline">¶</a></h1>
+<dl class="method">
+<dt id="bladex.blade.Blade.apply_transformations">
+<code class="descclassname">Blade.</code><code class="descname">apply_transformations</code><span class="sig-paren">(</span><em>reflect=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/bladex/blade.html#Blade.apply_transformations"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bladex.blade.Blade.apply_transformations" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate a bottom-up constructed propeller blade based on the airfoil
+transformations, see <span class="xref std std-ref">mytransformation_operations</span>.</p>
+<p>The order of the transformation operations is as follows:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li>Translate airfoils by reference points into origin.</li>
+<li>Scale X, Y coordinates by a factor of the chord length. Also
+reflect the airfoils if necessary.</li>
+<li>Rotate the airfoils counter-clockwise according to the local
+pitch angles. Beware of the orientation system.</li>
+<li>Translate airfoils along X-axis by a magnitude of the local
+rake. Perform another translation for the skew-induced rake.</li>
+<li>Translate airfoils along Y-axis by a magnitude of the skewness.</li>
+<li>Transform the 2D airfoils into cylindrical sections, by laying
+each foil on a cylinder of radius equals to the section radius,
+and the cylinder axis is the propeller axis of rotation.</li>
+</ol>
+</div></blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>reflect</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a>) &#8211; if true, then reflect the coordinates of all the airfoils
+about both X-axis and Y-axis. Default value is True.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="bladex.blade.Blade.plot.html" class="btn btn-neutral float-right" title="bladex.blade.Blade.plot" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="bladex.blade.Blade._planar_to_cylindrical.html" class="btn btn-neutral" title="bladex.blade.Blade._planar_to_cylindrical" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, BladeX contributors.
+      Last updated on Jul 26, 2018.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'0.0.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

@@ -1,0 +1,683 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>bladex.blade &mdash; BladeX 0.0.1 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+    <link rel="top" title="BladeX 0.0.1 documentation" href="../../index.html"/>
+        <link rel="up" title="Module code" href="../index.html"/> 
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> BladeX
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../code.html">Code Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contact.html">Contact</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing.html">How to contribute</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../LICENSE.html">License</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../../index.html">BladeX</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+      
+    <li>bladex.blade</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for bladex.blade</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Module for the blade bottom-up parametrized construction.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
+<span class="kn">from</span> <span class="nn">mpl_toolkits.mplot3d</span> <span class="kn">import</span> <span class="n">Axes3D</span>
+
+
+<div class="viewcode-block" id="Blade"><a class="viewcode-back" href="../../blade.html#bladex.blade.Blade">[docs]</a><span class="k">class</span> <span class="nc">Blade</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Bottom-up parametrized blade construction.</span>
+
+<span class="sd">    Given the following parameters of a propeller blade:</span>
+
+<span class="sd">        - :math:`(X, Y)` coordinates of the blade cylindrical sections after</span>
+<span class="sd">          being expanded in 2D to create airfoils.</span>
+
+<span class="sd">        - Radial distance :math:`(r_i)` from the propeller axis of rotation</span>
+<span class="sd">          to each cylindrical section.</span>
+
+<span class="sd">        - Pitch angle :math:`(\\varphi)`, for each cylindrical section.</span>
+
+<span class="sd">        - Rake :math:`(k)`, in distance units, for each cylindrical section.</span>
+
+<span class="sd">        - Skew angle :math:`(\\theta_s)`, for each cylindrical section.</span>
+
+<span class="sd">    then, a bottom-up construction procedure is performed by applying series of</span>
+<span class="sd">    transformation operations on the airfoils according to the provided</span>
+<span class="sd">    parameters, to end up with a 3D CAD model of the blade, which can be</span>
+<span class="sd">    exported into IGES format. Also surface or volume meshes can be obtained.</span>
+
+<span class="sd">    Useful definitions on the propeller geometry:</span>
+
+<span class="sd">        - Blade cylindrical section: the cross section of a blade cut by a</span>
+<span class="sd">          cylinder whose centerline is the propeller axis of rotation.</span>
+<span class="sd">          We may also refer as &quot;radial section&quot;.</span>
+
+<span class="sd">        - Pitch :math:`(P)`: the linear distance that a propeller would move in</span>
+<span class="sd">          one revolution with no slippage. The geometric pitch angle</span>
+<span class="sd">          :math:`(\\varphi)` is the angle between the pitch reference line</span>
+<span class="sd">          and a line perpendicular to the propeller axis of rotation.</span>
+
+<span class="sd">        .. math::</span>
+<span class="sd">            tan (\\varphi) = \\frac{\\text{pitch}}</span>
+<span class="sd">            {\\text{propeller circumference}} = \\frac{P}{2 \\pi r}</span>
+
+<span class="sd">        - Rake: the fore or aft slant of the blade with respect to a line</span>
+<span class="sd">          perpendicular to the propeller axis of rotation.</span>
+
+<span class="sd">        - Skew: the transverse sweeping of a blade such that viewing the blades</span>
+<span class="sd">          from fore or aft would show an asymmetrical shape.</span>
+
+<span class="sd">    References:</span>
+
+<span class="sd">    - Carlton, J. Marine propellers and propulsion. Butterworth-Heinemann, 2012.</span>
+<span class="sd">      http://navalex.com/downloads/Michigan_Wheel_Propeller_Geometry.pdf</span>
+
+<span class="sd">    - J. Babicz. Wartsila Encyclopedia of Ship Technology. 2nd ed. Wartsila</span>
+<span class="sd">      Corporation. 2015.</span>
+
+<span class="sd">    .. _transformation_operations:</span>
+
+<span class="sd">    Transformation operations according to the provided parameters:</span>
+
+<span class="sd">    .. figure:: ../../readme/transformations.png</span>
+<span class="sd">       :scale: 75 %</span>
+<span class="sd">       :alt: transformations</span>
+
+<span class="sd">       Airfoil 2D transformations corresponding to the pitch, rake, and skew of</span>
+<span class="sd">       the blade expanded cylindrical section.</span>
+
+<span class="sd">    --------------------------</span>
+
+<span class="sd">    :param array_like sections: 1D array, each element is an object of the</span>
+<span class="sd">        BaseProfile class at specific radial section.</span>
+<span class="sd">    :param array_like radii: 1D array, contains the radii values of the</span>
+<span class="sd">        sectional profiles.</span>
+<span class="sd">    :param array_like chord_lengths: 1D array, contains the value of the</span>
+<span class="sd">        airfoil&#39;s chord length for each radial section of the blade.</span>
+<span class="sd">    :param array_like pitch: 1D array, contains the local pitch values</span>
+<span class="sd">        (in unit length) for each radial section of the blade.</span>
+<span class="sd">    :param array_like rake: 1D array, contains the local rake values for each</span>
+<span class="sd">        radial section of the blade.</span>
+<span class="sd">    :param array_like skew_angles: 1D array, contains the skew angles</span>
+<span class="sd">        (in degrees) for each radial section of the blade.</span>
+
+<span class="sd">    Note that, each of the previous array_like parameters must be consistent</span>
+<span class="sd">    with the other parameters in terms of the radial ordering of the blade</span>
+<span class="sd">    sections. In particular, an array_like elements must follow the radial</span>
+<span class="sd">    distribution of the blade sections starting from the blade root and ends up</span>
+<span class="sd">    with the blade tip since the blade surface generator depends on that order.</span>
+
+<span class="sd">    Finally, beware that the profiles class objects in the array &#39;sections&#39;</span>
+<span class="sd">    undergo several transformations that affect their coordinates. Therefore</span>
+<span class="sd">    the array must be specific to each blade class instance. For example, if</span>
+<span class="sd">    we generate 12 sectional profiles using NACA airfoils and we need to use</span>
+<span class="sd">    them in two different blade classes, then we should instantiate two class</span>
+<span class="sd">    objects for the profiles, as well as the blade. The following example</span>
+<span class="sd">    explains the fault and the correct implementations (assuming assuming we</span>
+<span class="sd">    already have the arrays radii, chord, pitch, rake, skew):</span>
+
+<span class="sd">    INCORRECT IMPLEMENTATION:</span>
+
+<span class="sd">    &gt;&gt;&gt; sections = [bladex.profiles.NacaProfile(digits=&#39;0012&#39;, n_points=240,</span>
+<span class="sd">                    cosine_spacing=True) for i in range(12)]</span>
+<span class="sd">    &gt;&gt;&gt; blade_1 = Blade(</span>
+<span class="sd">                    sections=sections,</span>
+<span class="sd">                    radii=radii,</span>
+<span class="sd">                    chord_lengths=chord,</span>
+<span class="sd">                    pitch=pitch,</span>
+<span class="sd">                    rake=rake,</span>
+<span class="sd">                    skew_angles=skew)</span>
+<span class="sd">    &gt;&gt;&gt; blade_1.apply_transformations()</span>
+<span class="sd">    &gt;&gt;&gt; blade_2 = Blade(</span>
+<span class="sd">                    sections=sections,</span>
+<span class="sd">                    radii=radii,</span>
+<span class="sd">                    chord_lengths=chord,</span>
+<span class="sd">                    pitch=pitch,</span>
+<span class="sd">                    rake=rake,</span>
+<span class="sd">                    skew_angles=skew)</span>
+<span class="sd">    &gt;&gt;&gt; blade_2.apply_transformations()</span>
+
+<span class="sd">    The previous implementation would lead into erroneous blade coordinates due</span>
+<span class="sd">    to the transformed data in the array sections</span>
+
+<span class="sd">    CORRECT IMPLEMENTATION:</span>
+
+<span class="sd">    &gt;&gt;&gt; sections_1 = [bladex.profiles.NacaProfile(digits=&#39;0012&#39;, n_points=240,</span>
+<span class="sd">                      cosine_spacing=True) for i in range(12)]</span>
+<span class="sd">    &gt;&gt;&gt; sections_2 = [bladex.profiles.NacaProfile(digits=&#39;0012&#39;, n_points=240,</span>
+<span class="sd">                      cosine_spacing=True) for i in range(12)]</span>
+<span class="sd">    &gt;&gt;&gt; blade_1 = Blade(</span>
+<span class="sd">                    sections=sections_1,</span>
+<span class="sd">                    radii=radii,</span>
+<span class="sd">                    chord_lengths=chord,</span>
+<span class="sd">                    pitch=pitch,</span>
+<span class="sd">                    rake=rake,</span>
+<span class="sd">                    skew_angles=skew)</span>
+<span class="sd">    &gt;&gt;&gt; blade_1.apply_transformations()</span>
+<span class="sd">    &gt;&gt;&gt; blade_2 = Blade(</span>
+<span class="sd">                    sections=sections_2,</span>
+<span class="sd">                    radii=radii,</span>
+<span class="sd">                    chord_lengths=chord,</span>
+<span class="sd">                    pitch=pitch,</span>
+<span class="sd">                    rake=rake,</span>
+<span class="sd">                    skew_angles=skew)</span>
+<span class="sd">    &gt;&gt;&gt; blade_2.apply_transformations()</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sections</span><span class="p">,</span> <span class="n">radii</span><span class="p">,</span> <span class="n">chord_lengths</span><span class="p">,</span> <span class="n">pitch</span><span class="p">,</span> <span class="n">rake</span><span class="p">,</span>
+                 <span class="n">skew_angles</span><span class="p">):</span>
+        <span class="c1"># Data are given in absolute values</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sections</span> <span class="o">=</span> <span class="n">sections</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_sections</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">sections</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">radii</span> <span class="o">=</span> <span class="n">radii</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">chord_lengths</span> <span class="o">=</span> <span class="n">chord_lengths</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pitch</span> <span class="o">=</span> <span class="n">pitch</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rake</span> <span class="o">=</span> <span class="n">rake</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">skew_angles</span> <span class="o">=</span> <span class="n">skew_angles</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_check_params</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">pitch_angles</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compute_pitch_angle</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">induced_rake</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_induced_rake_from_skew</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">blade_coordinates_up</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">blade_coordinates_down</span> <span class="o">=</span> <span class="p">[]</span>
+
+<div class="viewcode-block" id="Blade._check_params"><a class="viewcode-back" href="../../blade.html#bladex.blade.Blade._check_params">[docs]</a>    <span class="k">def</span> <span class="nf">_check_params</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Private method to check if all the blade arguments are numpy.ndarrays</span>
+<span class="sd">        with the same shape.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sections</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sections</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sections</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">radii</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">radii</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">radii</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">chord_lengths</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">chord_lengths</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">chord_lengths</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pitch</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pitch</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pitch</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rake</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">rake</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rake</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">skew_angles</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">skew_angles</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">skew_angles</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sections</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">radii</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">chord_lengths</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">pitch</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">rake</span><span class="o">.</span><span class="n">shape</span>
+                <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">skew_angles</span><span class="o">.</span><span class="n">shape</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Arrays {sections, radii, chord_lengths, pitch, &#39;</span>\
+            <span class="s1">&#39;rake, skew_angles} do not have the same shape.&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Blade._compute_pitch_angle"><a class="viewcode-back" href="../../blade.html#bladex.blade.Blade._compute_pitch_angle">[docs]</a>    <span class="k">def</span> <span class="nf">_compute_pitch_angle</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Private method that computes the pitch angle from the linear pitch for</span>
+<span class="sd">        all blade sections.</span>
+
+<span class="sd">        :return: pitch angle in radians</span>
+<span class="sd">        :rtype: numpy.ndarray</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">arctan</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pitch</span> <span class="o">/</span> <span class="p">(</span><span class="mf">2.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">radii</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="Blade._induced_rake_from_skew"><a class="viewcode-back" href="../../blade.html#bladex.blade.Blade._induced_rake_from_skew">[docs]</a>    <span class="k">def</span> <span class="nf">_induced_rake_from_skew</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Private method that computes the induced rake from skew for all the</span>
+<span class="sd">        blade sections, according to :ref:`mytransformation_operations`.</span>
+
+<span class="sd">        :return: induced rake from skew</span>
+<span class="sd">        :rtype: numpy.ndarray</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">radii</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">skew_angles</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">tan</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pitch_angles</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Blade._planar_to_cylindrical"><a class="viewcode-back" href="../../blade.html#bladex.blade.Blade._planar_to_cylindrical">[docs]</a>    <span class="k">def</span> <span class="nf">_planar_to_cylindrical</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Private method that transforms the 2D planar airfoils into 3D</span>
+<span class="sd">        cylindrical sections.</span>
+
+<span class="sd">        The cylindrical transformation is defined by the following formulas:</span>
+
+<span class="sd">            - :math:`x = x_{i} \\qquad \\forall x_i \\in X`</span>
+
+<span class="sd">            - :math:`y = r \\sin\\left( \\frac{y_i}{r} \\right) \\qquad</span>
+<span class="sd">              \\forall y_i \\in Y`</span>
+
+<span class="sd">            - :math:`z = -r \\cos\\left( \\frac{y_i}{r} \\right) \\qquad</span>
+<span class="sd">              \\forall y_i \\in Y`</span>
+
+<span class="sd">        After transformation, the method also fills the numpy.ndarray</span>
+<span class="sd">        &quot;blade_coordinates&quot; with the new :math:`(X, Y, Z)` coordinates.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">section</span><span class="p">,</span> <span class="n">radius</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sections</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">radii</span><span class="p">):</span>
+            <span class="n">theta_up</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">yup_coordinates</span> <span class="o">/</span> <span class="n">radius</span>
+            <span class="n">theta_down</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">ydown_coordinates</span> <span class="o">/</span> <span class="n">radius</span>
+
+            <span class="n">y_section_up</span> <span class="o">=</span> <span class="n">radius</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">theta_up</span><span class="p">)</span>
+            <span class="n">y_section_down</span> <span class="o">=</span> <span class="n">radius</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">theta_down</span><span class="p">)</span>
+
+            <span class="n">z_section_up</span> <span class="o">=</span> <span class="n">radius</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">theta_up</span><span class="p">)</span>
+            <span class="n">z_section_down</span> <span class="o">=</span> <span class="n">radius</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">theta_down</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">blade_coordinates_up</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">section</span><span class="o">.</span><span class="n">xup_coordinates</span><span class="p">,</span> <span class="n">y_section_up</span><span class="p">,</span> <span class="n">z_section_up</span><span class="p">]))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">blade_coordinates_down</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+                    <span class="p">[</span><span class="n">section</span><span class="o">.</span><span class="n">xdown_coordinates</span><span class="p">,</span> <span class="n">y_section_down</span><span class="p">,</span>
+                     <span class="n">z_section_down</span><span class="p">]))</span></div>
+
+<div class="viewcode-block" id="Blade.apply_transformations"><a class="viewcode-back" href="../../blade.html#bladex.blade.Blade.apply_transformations">[docs]</a>    <span class="k">def</span> <span class="nf">apply_transformations</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reflect</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generate a bottom-up constructed propeller blade based on the airfoil</span>
+<span class="sd">        transformations, see :ref:`mytransformation_operations`.</span>
+
+<span class="sd">        The order of the transformation operations is as follows:</span>
+
+<span class="sd">            1. Translate airfoils by reference points into origin.</span>
+
+<span class="sd">            2. Scale X, Y coordinates by a factor of the chord length. Also</span>
+<span class="sd">               reflect the airfoils if necessary.</span>
+
+<span class="sd">            3. Rotate the airfoils counter-clockwise according to the local</span>
+<span class="sd">               pitch angles. Beware of the orientation system.</span>
+
+<span class="sd">            4. Translate airfoils along X-axis by a magnitude of the local</span>
+<span class="sd">               rake. Perform another translation for the skew-induced rake.</span>
+
+<span class="sd">            5. Translate airfoils along Y-axis by a magnitude of the skewness.</span>
+
+<span class="sd">            6. Transform the 2D airfoils into cylindrical sections, by laying</span>
+<span class="sd">               each foil on a cylinder of radius equals to the section radius,</span>
+<span class="sd">               and the cylinder axis is the propeller axis of rotation.</span>
+
+<span class="sd">        :param bool reflect: if true, then reflect the coordinates of all the airfoils</span>
+<span class="sd">            about both X-axis and Y-axis. Default value is True.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_sections</span><span class="p">):</span>
+            <span class="c1"># Translate reference point into origin</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sections</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">translate</span><span class="p">(</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">sections</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">reference_point</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">reflect</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">sections</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">reflect</span><span class="p">()</span>
+
+            <span class="c1"># Scale the unit chord to actual length.</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sections</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">scale</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">chord_lengths</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+
+            <span class="c1"># Rotate according to the pitch angle.</span>
+            <span class="c1"># Since the current orientation system is not standard (It is</span>
+            <span class="c1"># left-handed Cartesian orientation system, where Y-axis points</span>
+            <span class="c1"># downwards and X-axis points to the right), the standard rotation</span>
+            <span class="c1"># matrix yields clockwise rotation.</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sections</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">rotate</span><span class="p">(</span>
+                <span class="n">rad_angle</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mf">2.0</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">pitch_angles</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+
+            <span class="c1"># Translation due to skew.</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sections</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">translate</span><span class="p">(</span>
+                <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">radii</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">skew_angles</span><span class="p">[</span><span class="n">i</span><span class="p">])])</span>
+
+            <span class="c1"># Translate due to total rake.</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sections</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">translate</span><span class="p">(</span>
+                <span class="p">[</span><span class="o">-</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rake</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">induced_rake</span><span class="p">[</span><span class="n">i</span><span class="p">]),</span> <span class="mi">0</span><span class="p">])</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_planar_to_cylindrical</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Blade.plot"><a class="viewcode-back" href="../../blade.html#bladex.blade.Blade.plot">[docs]</a>    <span class="k">def</span> <span class="nf">plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">elev</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">azim</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">outfile</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Plot the generated blade sections.</span>
+
+<span class="sd">        :param int elev: Set the view elevation of the axes. This can be used</span>
+<span class="sd">            to rotate the axes programatically. &#39;elev&#39; stores the elevation</span>
+<span class="sd">            angle in the z plane. If elev is None, then the initial value is</span>
+<span class="sd">            used which was specified in the mplot3d.Axes3D constructor. Default</span>
+<span class="sd">            value is None</span>
+<span class="sd">        :param int azim: Set the view azimuth angle of the axes. This can be</span>
+<span class="sd">            used to rotate the axes programatically. &#39;azim&#39; stores the azimuth</span>
+<span class="sd">            angle in the x,y plane. If azim is None, then the initial value is</span>
+<span class="sd">            used which was specified in the mplot3d.Axes3D constructor. Default</span>
+<span class="sd">            value is None</span>
+<span class="sd">        :param string outfile: save the plot if a filename string is provided.</span>
+<span class="sd">            Default value is None.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">blade_coordinates_up</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;You must apply transformations before plotting.&#39;</span><span class="p">)</span>
+
+        <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+        <span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">gca</span><span class="p">(</span><span class="n">projection</span><span class="o">=</span><span class="n">Axes3D</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_aspect</span><span class="p">(</span><span class="s1">&#39;equal&#39;</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_sections</span><span class="p">):</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">blade_coordinates_up</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">blade_coordinates_up</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">blade_coordinates_up</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">2</span><span class="p">])</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">blade_coordinates_down</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">blade_coordinates_down</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">blade_coordinates_down</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">2</span><span class="p">])</span>
+
+        <span class="n">plt</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s1">&#39;equal&#39;</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;X axis&#39;</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Y axis&#39;</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_zlabel</span><span class="p">(</span><span class="s1">&#39;radii axis&#39;</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">xaxis</span><span class="o">.</span><span class="n">label</span><span class="o">.</span><span class="n">set_color</span><span class="p">(</span><span class="s1">&#39;red&#39;</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">label</span><span class="o">.</span><span class="n">set_color</span><span class="p">(</span><span class="s1">&#39;red&#39;</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">zaxis</span><span class="o">.</span><span class="n">label</span><span class="o">.</span><span class="n">set_color</span><span class="p">(</span><span class="s1">&#39;red&#39;</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">view_init</span><span class="p">(</span><span class="n">elev</span><span class="o">=</span><span class="n">elev</span><span class="p">,</span> <span class="n">azim</span><span class="o">=</span><span class="n">azim</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">outfile</span><span class="p">:</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">outfile</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Blade._abs_to_norm"><a class="viewcode-back" href="../../blade.html#bladex.blade.Blade._abs_to_norm">[docs]</a>    <span class="k">def</span> <span class="nf">_abs_to_norm</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">D_prop</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Private method to normalize the blade parameters.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">radii</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">radii</span> <span class="o">*</span> <span class="mf">2.</span> <span class="o">/</span> <span class="n">D_prop</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">chord_lengths</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">chord_lengths</span> <span class="o">/</span> <span class="n">D_prop</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pitch</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pitch</span> <span class="o">/</span> <span class="n">D_prop</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rake</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rake</span> <span class="o">/</span> <span class="n">D_prop</span></div>
+
+<div class="viewcode-block" id="Blade._norm_to_abs"><a class="viewcode-back" href="../../blade.html#bladex.blade.Blade._norm_to_abs">[docs]</a>    <span class="k">def</span> <span class="nf">_norm_to_abs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">D_prop</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Private method that converts the normalized blade parameters into the</span>
+<span class="sd">        actual values.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">radii</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">radii</span> <span class="o">*</span> <span class="n">D_prop</span> <span class="o">/</span> <span class="mf">2.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">chord_lengths</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">chord_lengths</span> <span class="o">*</span> <span class="n">D_prop</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pitch</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pitch</span> <span class="o">*</span> <span class="n">D_prop</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rake</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rake</span> <span class="o">*</span> <span class="n">D_prop</span></div>
+
+<div class="viewcode-block" id="Blade.export_ppg"><a class="viewcode-back" href="../../blade.html#bladex.blade.Blade.export_ppg">[docs]</a>    <span class="k">def</span> <span class="nf">export_ppg</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                   <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;data_out.ppg&#39;</span><span class="p">,</span>
+                   <span class="n">D_prop</span><span class="o">=</span><span class="mf">0.25</span><span class="p">,</span>
+                   <span class="n">D_hub</span><span class="o">=</span><span class="mf">0.075</span><span class="p">,</span>
+                   <span class="n">n_blades</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+                   <span class="n">params_normalized</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Export the generated blade parameters and sectional profiles into</span>
+<span class="sd">        .ppg format.</span>
+
+<span class="sd">        :param string filename: name of the exported file. Default is</span>
+<span class="sd">            &#39;data/data_out.ppg&#39;</span>
+<span class="sd">        :param float D_prop: propeller diameter</span>
+<span class="sd">        :param float D_hub: hub diameter</span>
+<span class="sd">        :param float n_blades: number of blades</span>
+<span class="sd">        :param bool params_normalized: since the standard .ppg format contains</span>
+<span class="sd">            the blade parameters in the normalized form, therefore the user</span>
+<span class="sd">            needs to inform whether the provided parameters (from the class</span>
+<span class="sd">            Blade) are normalized or not. By default the argument is set to</span>
+<span class="sd">            False, which assumes the user provides the blade parameters in</span>
+<span class="sd">            their actual values, i.e. not normalized, hence a normalization</span>
+<span class="sd">            operation needs to be applied so as to follow the .ppg standard</span>
+<span class="sd">            format.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">thickness</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_sections</span><span class="p">)</span>
+        <span class="n">camber</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_sections</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">section</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sections</span><span class="p">):</span>
+            <span class="c1"># Evaluate maximum profile thickness and camber for each section.</span>
+            <span class="c1"># We assume at the current step, that sectional profiles already</span>
+            <span class="c1"># have the coordinates (x_up,x_down) normalized by chord length (C)</span>
+            <span class="c1"># and subsequently (y_up,y_down) are also scaled. This implies that</span>
+            <span class="c1"># the computed thickness and camber are given in their normalized</span>
+            <span class="c1"># form, i.e. thickness=t/C and camber=f/C.</span>
+            <span class="n">thickness</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">max_thickness</span><span class="p">()</span>
+            <span class="n">camber</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">max_camber</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">params_normalized</span> <span class="ow">is</span> <span class="bp">False</span><span class="p">:</span>
+            <span class="c1"># Put the parameters (radii, chord, pitch, rake) in the normalized</span>
+            <span class="c1"># form.</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_abs_to_norm</span><span class="p">(</span><span class="n">D_prop</span><span class="o">=</span><span class="n">D_prop</span><span class="p">)</span>
+
+        <span class="n">output_string</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="n">output_string</span> <span class="o">+=</span> <span class="s1">&#39;propeller id       = SVA</span><span class="se">\n</span><span class="s1">&#39;</span>
+        <span class="n">output_string</span> <span class="o">+=</span> <span class="s1">&#39;propeller diameter = &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">D_prop</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span>
+        <span class="n">output_string</span> <span class="o">+=</span> <span class="s1">&#39;hub diameter       = &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">D_hub</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span>
+        <span class="n">output_string</span> <span class="o">+=</span> <span class="s1">&#39;number of blades   = &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">n_blades</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span>
+        <span class="n">output_string</span> <span class="o">+=</span> <span class="s2">&quot;&#39;Elica PPTC workshop&#39;</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="n">output_string</span> <span class="o">+=</span> <span class="s1">&#39;number of radial sections         = &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">n_sections</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span>
+        <span class="n">output_string</span> <span class="o">+=</span> <span class="s1">&#39;number of radial sections         = &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">n_sections</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span>
+        <span class="n">output_string</span> <span class="o">+=</span> <span class="s1">&#39;number of sectional profiles      = &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">n_sections</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span>
+        <span class="n">output_string</span> <span class="o">+=</span> <span class="s1">&#39;description of sectional profiles = BNF</span><span class="se">\n</span><span class="s1">&#39;</span>
+        <span class="n">output_string</span> <span class="o">+=</span> <span class="s1">&#39;            r/R            c/D      skew[deg]&#39;</span>\
+                         <span class="s1">&#39;         rake/D            P/D            t/C&#39;</span>\
+                         <span class="s1">&#39;            f/C</span><span class="se">\n</span><span class="s1">&#39;</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_sections</span><span class="p">):</span>
+            <span class="n">output_string</span> <span class="o">+=</span> <span class="s1">&#39; &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%.8e</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">radii</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="o">+</span> <span class="s1">&#39; &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span>
+                <span class="s2">&quot;</span><span class="si">%.8e</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">chord_lengths</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="o">+</span> <span class="s1">&#39; &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span>
+                    <span class="s2">&quot;</span><span class="si">%.8e</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">skew_angles</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="o">+</span> <span class="s1">&#39; &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span>
+                        <span class="s2">&quot;</span><span class="si">%.8e</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">rake</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+            <span class="n">output_string</span> <span class="o">+=</span> <span class="s1">&#39; &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%.8e</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">pitch</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="o">+</span> <span class="s1">&#39; &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span>
+                <span class="s2">&quot;</span><span class="si">%.8e</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">thickness</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="o">+</span> <span class="s1">&#39; &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%.8e</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">camber</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span>
+
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_sections</span><span class="p">):</span>
+            <span class="n">output_string</span> <span class="o">+=</span> <span class="nb">str</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%.8e</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">radii</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="o">+</span> <span class="s1">&#39;  &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span>
+                <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sections</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">xup_coordinates</span><span class="p">))</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span>
+
+            <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">sections</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">xup_coordinates</span><span class="p">:</span>
+                <span class="n">output_string</span> <span class="o">+=</span> <span class="s1">&#39; &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%.8e</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">value</span><span class="p">)</span>
+            <span class="n">output_string</span> <span class="o">+=</span> <span class="s1">&#39; </span><span class="se">\n</span><span class="s1">&#39;</span>
+            <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">sections</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">yup_coordinates</span><span class="p">:</span>
+                <span class="n">output_string</span> <span class="o">+=</span> <span class="s1">&#39; &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%.8e</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">value</span><span class="p">)</span>
+            <span class="n">output_string</span> <span class="o">+=</span> <span class="s1">&#39; </span><span class="se">\n</span><span class="s1">&#39;</span>
+            <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">sections</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">ydown_coordinates</span><span class="p">:</span>
+                <span class="n">output_string</span> <span class="o">+=</span> <span class="s1">&#39; &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%.8e</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">value</span><span class="p">)</span>
+            <span class="n">output_string</span> <span class="o">+=</span> <span class="s1">&#39; </span><span class="se">\n</span><span class="s1">&#39;</span>
+
+        <span class="n">hub_offsets</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span>
+            <span class="p">[[</span><span class="o">-</span><span class="mf">3.0</span><span class="p">,</span> <span class="mf">0.305</span><span class="p">],</span> <span class="p">[</span><span class="o">-</span><span class="mf">0.57</span><span class="p">,</span> <span class="mf">0.305</span><span class="p">],</span> <span class="p">[</span><span class="o">-</span><span class="mf">0.49</span><span class="p">,</span> <span class="mf">0.305</span><span class="p">],</span> <span class="p">[</span><span class="o">-</span><span class="mf">0.41</span><span class="p">,</span> <span class="mf">0.305</span><span class="p">],</span>
+             <span class="p">[</span><span class="o">-</span><span class="mf">0.33</span><span class="p">,</span> <span class="mf">0.305</span><span class="p">],</span> <span class="p">[</span><span class="o">-</span><span class="mf">0.25</span><span class="p">,</span> <span class="mf">0.305</span><span class="p">],</span> <span class="p">[</span><span class="o">-</span><span class="mf">0.17</span><span class="p">,</span> <span class="mf">0.305</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.23</span><span class="p">,</span> <span class="mf">0.305</span><span class="p">],</span>
+             <span class="p">[</span><span class="mf">0.31</span><span class="p">,</span> <span class="mf">0.285</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.39</span><span class="p">,</span> <span class="mf">0.2656</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.47</span><span class="p">,</span> <span class="mf">0.2432</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.55</span><span class="p">,</span> <span class="mf">0.2124</span><span class="p">],</span>
+             <span class="p">[</span><span class="mf">0.63</span><span class="p">,</span> <span class="mf">0.1684</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.71</span><span class="p">,</span> <span class="mf">0.108</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.79</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">]])</span>
+
+        <span class="n">output_string</span> <span class="o">+=</span> <span class="s1">&#39;number of Hub offsets = &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span>
+            <span class="nb">len</span><span class="p">(</span><span class="n">hub_offsets</span><span class="p">))</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span>
+
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">offset</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">hub_offsets</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">hub_offsets</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">output_string</span> <span class="o">+=</span> <span class="nb">str</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%.8e</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">offset</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">+</span> <span class="s1">&#39; &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span>
+                    <span class="s2">&quot;</span><span class="si">%.8e</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">hub_offsets</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span>
+                <span class="k">continue</span>
+            <span class="n">output_string</span> <span class="o">+=</span> <span class="nb">str</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%.8e</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">offset</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">+</span> <span class="s1">&#39; &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span>
+                <span class="s2">&quot;</span><span class="si">%.8e</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">offset</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span>
+
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">output_string</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">params_normalized</span> <span class="ow">is</span> <span class="bp">False</span><span class="p">:</span>
+            <span class="c1"># Revert back normalized parameters into actual values.</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_norm_to_abs</span><span class="p">(</span><span class="n">D_prop</span><span class="o">=</span><span class="n">D_prop</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This method prints all the parameters on the screen. Its purpose is</span>
+<span class="sd">        for debugging.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">string</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+        <span class="n">string</span> <span class="o">+=</span> <span class="s1">&#39;Blade number of sections = {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_sections</span><span class="p">)</span>
+        <span class="n">string</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">Blade radii sections = {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">radii</span><span class="p">)</span>
+        <span class="n">string</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">Chord lengths of the sectional profiles&#39;</span>\
+                  <span class="s1">&#39; = {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">chord_lengths</span><span class="p">)</span>
+        <span class="n">string</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">Radial distribution of the pitch (in unit lengths)&#39;</span>\
+                  <span class="s1">&#39; = {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pitch</span><span class="p">)</span>
+        <span class="n">string</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">Radial distribution of the rake (in unit length)&#39;</span>\
+                  <span class="s1">&#39; = {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rake</span><span class="p">)</span>
+        <span class="n">string</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">Radial distribution of the skew angles&#39;</span>\
+                  <span class="s1">&#39; (in degrees) = {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">skew_angles</span><span class="p">)</span>
+        <span class="n">string</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">Pitch angles (in radians) for the&#39;</span>\
+                  <span class="s1">&#39; sections = {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pitch_angles</span><span class="p">)</span>
+        <span class="n">string</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">Induced rake from skew (in unit length)&#39;</span>\
+                  <span class="s1">&#39; for the sections = {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">induced_rake</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">string</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, BladeX contributors.
+      Last updated on Jul 26, 2018.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../',
+            VERSION:'0.0.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

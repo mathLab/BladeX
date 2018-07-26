@@ -1,0 +1,279 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>bladex.profilebase.ProfileBase.rotate &mdash; BladeX 0.0.1 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+    <link rel="top" title="BladeX 0.0.1 documentation" href="../index.html"/>
+        <link rel="up" title="ProfileBase" href="../profilebase.html"/>
+        <link rel="next" title="bladex.profilebase.ProfileBase.scale" href="bladex.profilebase.ProfileBase.scale.html"/>
+        <link rel="prev" title="bladex.profilebase.ProfileBase.reflect" href="bladex.profilebase.ProfileBase.reflect.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> BladeX
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../code.html">Code Documentation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../blade.html">Blade</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../deform.html">Deformation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../ndinterpolator.html">Ndinterpolator</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../profilebase.html">ProfileBase</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="bladex.profilebase.ProfileBase._update_edges.html">bladex.profilebase.ProfileBase._update_edges</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bladex.profilebase.ProfileBase.chord_length.html">bladex.profilebase.ProfileBase.chord_length</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bladex.profilebase.ProfileBase.compute_camber_line.html">bladex.profilebase.ProfileBase.compute_camber_line</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bladex.profilebase.ProfileBase.compute_chord_line.html">bladex.profilebase.ProfileBase.compute_chord_line</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bladex.profilebase.ProfileBase.deform_camber_line.html">bladex.profilebase.ProfileBase.deform_camber_line</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bladex.profilebase.ProfileBase.interpolate_coordinates.html">bladex.profilebase.ProfileBase.interpolate_coordinates</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bladex.profilebase.ProfileBase.max_camber.html">bladex.profilebase.ProfileBase.max_camber</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bladex.profilebase.ProfileBase.max_thickness.html">bladex.profilebase.ProfileBase.max_thickness</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bladex.profilebase.ProfileBase.plot.html">bladex.profilebase.ProfileBase.plot</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bladex.profilebase.ProfileBase.reference_point.html">bladex.profilebase.ProfileBase.reference_point</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bladex.profilebase.ProfileBase.reflect.html">bladex.profilebase.ProfileBase.reflect</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">bladex.profilebase.ProfileBase.rotate</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bladex.profilebase.ProfileBase.scale.html">bladex.profilebase.ProfileBase.scale</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bladex.profilebase.ProfileBase.translate.html">bladex.profilebase.ProfileBase.translate</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../params.html">ParamFile</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../profiles.html">Profiles</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../contact.html">Contact</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html">How to contribute</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../LICENSE.html">License</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../index.html">BladeX</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../code.html">Code Documentation</a> &raquo;</li>
+      
+          <li><a href="../profilebase.html">ProfileBase</a> &raquo;</li>
+      
+    <li>bladex.profilebase.ProfileBase.rotate</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/_summaries/bladex.profilebase.ProfileBase.rotate.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="bladex-profilebase-profilebase-rotate">
+<h1>bladex.profilebase.ProfileBase.rotate<a class="headerlink" href="#bladex-profilebase-profilebase-rotate" title="Permalink to this headline">¶</a></h1>
+<dl class="method">
+<dt id="bladex.profilebase.ProfileBase.rotate">
+<code class="descclassname">ProfileBase.</code><code class="descname">rotate</code><span class="sig-paren">(</span><em>rad_angle=None</em>, <em>deg_angle=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/bladex/profilebase.html#ProfileBase.rotate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bladex.profilebase.ProfileBase.rotate" title="Permalink to this definition">¶</a></dt>
+<dd><p>2D counter clockwise rotation about the origin of the Cartesian
+coordinate system.</p>
+<p>The rotation matrix, <img class="math" src="../_images/math/cfe336ede8769c02efbc60461f331efcec155961.png" alt="R(\theta)"/>, is used to perform rotation
+in the 2D Euclidean space about the origin, which is &#8211; by default &#8211;
+the leading edge.</p>
+<p><img class="math" src="../_images/math/cfe336ede8769c02efbc60461f331efcec155961.png" alt="R(\theta)"/> is defined by:</p>
+<div class="math">
+<p><img src="../_images/math/06674415564207dfcafd647119d9d1ce584a9a34.png" alt="\left(\begin{matrix} cos (\theta) &amp; - sin (\theta) \\
+sin (\theta) &amp; cos (\theta) \end{matrix}\right)"/></p>
+</div><p>Given the coordinates of point <img class="math" src="../_images/math/9dcbbef8e0f76051d388013b90a95bec3069e484.png" alt="P"/> such that</p>
+<div class="math">
+<p><img src="../_images/math/5ce234001023809d7e5c7714fe5e7f59a46c2d04.png" alt="P = \left(\begin{matrix} x \\
+y \end{matrix}\right),"/></p>
+</div><p>Then, the rotated coordinates will be:</p>
+<div class="math">
+<p><img src="../_images/math/3d0c8181b10e011b0518993ed3a10a6f4ad1c82b.png" alt="P^{'} = \left(\begin{matrix} x^{'} \\
+         y^{'} \end{matrix}\right)
+      = R (\theta) \cdot P"/></p>
+</div><p>If a standard right-handed Cartesian coordinate system is used, with
+the X-axis to the right and the Y-axis up, the rotation
+<img class="math" src="../_images/math/0e2977f7d8604803c0ed7c3a91e3efde8b33a8fe.png" alt="R (\theta)"/> is counterclockwise. If a left-handed Cartesian
+coordinate system is used, with X-axis directed to the right and Y-axis
+directed down, <img class="math" src="../_images/math/0e2977f7d8604803c0ed7c3a91e3efde8b33a8fe.png" alt="R (\theta)"/> is clockwise.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>rad_angle</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#float" title="(in Python v2.7)"><em>float</em></a>) &#8211; angle in radians. Default value is None</li>
+<li><strong>deg_angle</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#float" title="(in Python v2.7)"><em>float</em></a>) &#8211; angle in degrees. Default value is None</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><strong>ValueError</strong> &#8211; if both rad_angle and deg_angle are inserted,
+or if neither is inserted</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="bladex.profilebase.ProfileBase.scale.html" class="btn btn-neutral float-right" title="bladex.profilebase.ProfileBase.scale" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="bladex.profilebase.ProfileBase.reflect.html" class="btn btn-neutral" title="bladex.profilebase.ProfileBase.reflect" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, BladeX contributors.
+      Last updated on Jul 26, 2018.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'0.0.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

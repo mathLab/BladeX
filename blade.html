@@ -1,0 +1,565 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Blade &mdash; BladeX 0.0.1 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+    <link rel="top" title="BladeX 0.0.1 documentation" href="index.html"/>
+        <link rel="up" title="Code Documentation" href="code.html"/>
+        <link rel="next" title="bladex.blade.Blade._abs_to_norm" href="_summaries/bladex.blade.Blade._abs_to_norm.html"/>
+        <link rel="prev" title="Code Documentation" href="code.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> BladeX
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="code.html">Code Documentation</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Blade</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="_summaries/bladex.blade.Blade._abs_to_norm.html">bladex.blade.Blade._abs_to_norm</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_summaries/bladex.blade.Blade._check_params.html">bladex.blade.Blade._check_params</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_summaries/bladex.blade.Blade._compute_pitch_angle.html">bladex.blade.Blade._compute_pitch_angle</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_summaries/bladex.blade.Blade._induced_rake_from_skew.html">bladex.blade.Blade._induced_rake_from_skew</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_summaries/bladex.blade.Blade._norm_to_abs.html">bladex.blade.Blade._norm_to_abs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_summaries/bladex.blade.Blade._planar_to_cylindrical.html">bladex.blade.Blade._planar_to_cylindrical</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_summaries/bladex.blade.Blade.apply_transformations.html">bladex.blade.Blade.apply_transformations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_summaries/bladex.blade.Blade.plot.html">bladex.blade.Blade.plot</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_summaries/bladex.blade.Blade.export_ppg.html">bladex.blade.Blade.export_ppg</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="deform.html">Deformation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ndinterpolator.html">Ndinterpolator</a></li>
+<li class="toctree-l2"><a class="reference internal" href="profilebase.html">ProfileBase</a></li>
+<li class="toctree-l2"><a class="reference internal" href="params.html">ParamFile</a></li>
+<li class="toctree-l2"><a class="reference internal" href="profiles.html">Profiles</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="contact.html">Contact</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">How to contribute</a></li>
+<li class="toctree-l1"><a class="reference internal" href="LICENSE.html">License</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">BladeX</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="code.html">Code Documentation</a> &raquo;</li>
+      
+    <li>Blade</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/blade.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-bladex.blade">
+<span id="blade"></span><h1>Blade<a class="headerlink" href="#module-bladex.blade" title="Permalink to this headline">¶</a></h1>
+<p>Module for the blade bottom-up parametrized construction.</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="_summaries/bladex.blade.Blade._abs_to_norm.html#bladex.blade.Blade._abs_to_norm" title="bladex.blade.Blade._abs_to_norm"><code class="xref py py-obj docutils literal"><span class="pre">Blade._abs_to_norm</span></code></a></td>
+<td>Private method to normalize the blade parameters.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="_summaries/bladex.blade.Blade._check_params.html#bladex.blade.Blade._check_params" title="bladex.blade.Blade._check_params"><code class="xref py py-obj docutils literal"><span class="pre">Blade._check_params</span></code></a></td>
+<td>Private method to check if all the blade arguments are numpy.ndarrays with the same shape.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="_summaries/bladex.blade.Blade._compute_pitch_angle.html#bladex.blade.Blade._compute_pitch_angle" title="bladex.blade.Blade._compute_pitch_angle"><code class="xref py py-obj docutils literal"><span class="pre">Blade._compute_pitch_angle</span></code></a></td>
+<td>Private method that computes the pitch angle from the linear pitch for all blade sections.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="_summaries/bladex.blade.Blade._induced_rake_from_skew.html#bladex.blade.Blade._induced_rake_from_skew" title="bladex.blade.Blade._induced_rake_from_skew"><code class="xref py py-obj docutils literal"><span class="pre">Blade._induced_rake_from_skew</span></code></a></td>
+<td>Private method that computes the induced rake from skew for all the blade sections, according to <span class="xref std std-ref">mytransformation_operations</span>.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="_summaries/bladex.blade.Blade._norm_to_abs.html#bladex.blade.Blade._norm_to_abs" title="bladex.blade.Blade._norm_to_abs"><code class="xref py py-obj docutils literal"><span class="pre">Blade._norm_to_abs</span></code></a></td>
+<td>Private method that converts the normalized blade parameters into the actual values.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="_summaries/bladex.blade.Blade._planar_to_cylindrical.html#bladex.blade.Blade._planar_to_cylindrical" title="bladex.blade.Blade._planar_to_cylindrical"><code class="xref py py-obj docutils literal"><span class="pre">Blade._planar_to_cylindrical</span></code></a></td>
+<td>Private method that transforms the 2D planar airfoils into 3D cylindrical sections.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="_summaries/bladex.blade.Blade.apply_transformations.html#bladex.blade.Blade.apply_transformations" title="bladex.blade.Blade.apply_transformations"><code class="xref py py-obj docutils literal"><span class="pre">Blade.apply_transformations</span></code></a></td>
+<td>Generate a bottom-up constructed propeller blade based on the airfoil transformations, see <span class="xref std std-ref">mytransformation_operations</span>.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="_summaries/bladex.blade.Blade.plot.html#bladex.blade.Blade.plot" title="bladex.blade.Blade.plot"><code class="xref py py-obj docutils literal"><span class="pre">Blade.plot</span></code></a></td>
+<td>Plot the generated blade sections.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="_summaries/bladex.blade.Blade.export_ppg.html#bladex.blade.Blade.export_ppg" title="bladex.blade.Blade.export_ppg"><code class="xref py py-obj docutils literal"><span class="pre">Blade.export_ppg</span></code></a></td>
+<td>Export the generated blade parameters and sectional profiles into .ppg format.</td>
+</tr>
+</tbody>
+</table>
+<dl class="class">
+<dt>
+<em class="property">class </em><code class="descname">Blade</code><span class="sig-paren">(</span><em>sections</em>, <em>radii</em>, <em>chord_lengths</em>, <em>pitch</em>, <em>rake</em>, <em>skew_angles</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bladex/blade.html#Blade"><span class="viewcode-link">[source]</span></a></dt>
+<dd><p>Bases: <a class="reference external" href="http://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<p>Bottom-up parametrized blade construction.</p>
+<p>Given the following parameters of a propeller blade:</p>
+<blockquote>
+<div><ul class="simple">
+<li><img class="math" src="_images/math/bfb2be9ba7b4f0f668e762c5121a72430d97570c.png" alt="(X, Y)"/> coordinates of the blade cylindrical sections after
+being expanded in 2D to create airfoils.</li>
+<li>Radial distance <img class="math" src="_images/math/123d83de8cbcc148dc258051d46ce2c495d8892c.png" alt="(r_i)"/> from the propeller axis of rotation
+to each cylindrical section.</li>
+<li>Pitch angle <img class="math" src="_images/math/d54a3ff1a87698bdbccb7e038ae981d1f43f3d3d.png" alt="(\varphi)"/>, for each cylindrical section.</li>
+<li>Rake <img class="math" src="_images/math/bbe9ddb8181d5b3f006f47e7c33c1a296d517598.png" alt="(k)"/>, in distance units, for each cylindrical section.</li>
+<li>Skew angle <img class="math" src="_images/math/ab345268cb5c5c528eab0ec30a93f105fa88e24a.png" alt="(\theta_s)"/>, for each cylindrical section.</li>
+</ul>
+</div></blockquote>
+<p>then, a bottom-up construction procedure is performed by applying series of
+transformation operations on the airfoils according to the provided
+parameters, to end up with a 3D CAD model of the blade, which can be
+exported into IGES format. Also surface or volume meshes can be obtained.</p>
+<p>Useful definitions on the propeller geometry:</p>
+<blockquote>
+<div><ul class="simple">
+<li>Blade cylindrical section: the cross section of a blade cut by a
+cylinder whose centerline is the propeller axis of rotation.
+We may also refer as &#8220;radial section&#8221;.</li>
+<li>Pitch <img class="math" src="_images/math/57cc08e8cd332371bdaab4e8f0524cd9edbe7a7d.png" alt="(P)"/>: the linear distance that a propeller would move in
+one revolution with no slippage. The geometric pitch angle
+<img class="math" src="_images/math/d54a3ff1a87698bdbccb7e038ae981d1f43f3d3d.png" alt="(\varphi)"/> is the angle between the pitch reference line
+and a line perpendicular to the propeller axis of rotation.</li>
+</ul>
+<div class="math">
+<p><img src="_images/math/0ad4ddce7481706da16d2747bfaf713e571acc23.png" alt="tan (\varphi) = \frac{\text{pitch}}
+{\text{propeller circumference}} = \frac{P}{2 \pi r}"/></p>
+</div><ul class="simple">
+<li>Rake: the fore or aft slant of the blade with respect to a line
+perpendicular to the propeller axis of rotation.</li>
+<li>Skew: the transverse sweeping of a blade such that viewing the blades
+from fore or aft would show an asymmetrical shape.</li>
+</ul>
+</div></blockquote>
+<p>References:</p>
+<ul class="simple">
+<li>Carlton, J. Marine propellers and propulsion. Butterworth-Heinemann, 2012.
+<a class="reference external" href="http://navalex.com/downloads/Michigan_Wheel_Propeller_Geometry.pdf">http://navalex.com/downloads/Michigan_Wheel_Propeller_Geometry.pdf</a></li>
+<li>J. Babicz. Wartsila Encyclopedia of Ship Technology. 2nd ed. Wartsila
+Corporation. 2015.</li>
+</ul>
+<p id="transformation-operations">Transformation operations according to the provided parameters:</p>
+<div class="figure" id="id1">
+<a class="reference internal image-reference" href="_images/transformations.png"><img alt="transformations" src="_images/transformations.png" style="width: 1107.75px; height: 640.5px;" /></a>
+<p class="caption"><span class="caption-text">Airfoil 2D transformations corresponding to the pitch, rake, and skew of
+the blade expanded cylindrical section.</span></p>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>sections</strong> (<em>array_like</em>) &#8211; 1D array, each element is an object of the
+BaseProfile class at specific radial section.</li>
+<li><strong>radii</strong> (<em>array_like</em>) &#8211; 1D array, contains the radii values of the
+sectional profiles.</li>
+<li><strong>chord_lengths</strong> (<em>array_like</em>) &#8211; 1D array, contains the value of the
+airfoil&#8217;s chord length for each radial section of the blade.</li>
+<li><strong>pitch</strong> (<em>array_like</em>) &#8211; 1D array, contains the local pitch values
+(in unit length) for each radial section of the blade.</li>
+<li><strong>rake</strong> (<em>array_like</em>) &#8211; 1D array, contains the local rake values for each
+radial section of the blade.</li>
+<li><strong>skew_angles</strong> (<em>array_like</em>) &#8211; 1D array, contains the skew angles
+(in degrees) for each radial section of the blade.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p>Note that, each of the previous array_like parameters must be consistent
+with the other parameters in terms of the radial ordering of the blade
+sections. In particular, an array_like elements must follow the radial
+distribution of the blade sections starting from the blade root and ends up
+with the blade tip since the blade surface generator depends on that order.</p>
+<p>Finally, beware that the profiles class objects in the array &#8216;sections&#8217;
+undergo several transformations that affect their coordinates. Therefore
+the array must be specific to each blade class instance. For example, if
+we generate 12 sectional profiles using NACA airfoils and we need to use
+them in two different blade classes, then we should instantiate two class
+objects for the profiles, as well as the blade. The following example
+explains the fault and the correct implementations (assuming assuming we
+already have the arrays radii, chord, pitch, rake, skew):</p>
+<p>INCORRECT IMPLEMENTATION:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">sections</span> <span class="o">=</span> <span class="p">[</span><span class="n">bladex</span><span class="o">.</span><span class="n">profiles</span><span class="o">.</span><span class="n">NacaProfile</span><span class="p">(</span><span class="n">digits</span><span class="o">=</span><span class="s1">&#39;0012&#39;</span><span class="p">,</span> <span class="n">n_points</span><span class="o">=</span><span class="mi">240</span><span class="p">,</span>
+<span class="go">                cosine_spacing=True) for i in range(12)]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">blade_1</span> <span class="o">=</span> <span class="n">Blade</span><span class="p">(</span>
+<span class="go">                sections=sections,</span>
+<span class="go">                radii=radii,</span>
+<span class="go">                chord_lengths=chord,</span>
+<span class="go">                pitch=pitch,</span>
+<span class="go">                rake=rake,</span>
+<span class="go">                skew_angles=skew)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">blade_1</span><span class="o">.</span><span class="n">apply_transformations</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">blade_2</span> <span class="o">=</span> <span class="n">Blade</span><span class="p">(</span>
+<span class="go">                sections=sections,</span>
+<span class="go">                radii=radii,</span>
+<span class="go">                chord_lengths=chord,</span>
+<span class="go">                pitch=pitch,</span>
+<span class="go">                rake=rake,</span>
+<span class="go">                skew_angles=skew)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">blade_2</span><span class="o">.</span><span class="n">apply_transformations</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>The previous implementation would lead into erroneous blade coordinates due
+to the transformed data in the array sections</p>
+<p>CORRECT IMPLEMENTATION:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">sections_1</span> <span class="o">=</span> <span class="p">[</span><span class="n">bladex</span><span class="o">.</span><span class="n">profiles</span><span class="o">.</span><span class="n">NacaProfile</span><span class="p">(</span><span class="n">digits</span><span class="o">=</span><span class="s1">&#39;0012&#39;</span><span class="p">,</span> <span class="n">n_points</span><span class="o">=</span><span class="mi">240</span><span class="p">,</span>
+<span class="go">                  cosine_spacing=True) for i in range(12)]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sections_2</span> <span class="o">=</span> <span class="p">[</span><span class="n">bladex</span><span class="o">.</span><span class="n">profiles</span><span class="o">.</span><span class="n">NacaProfile</span><span class="p">(</span><span class="n">digits</span><span class="o">=</span><span class="s1">&#39;0012&#39;</span><span class="p">,</span> <span class="n">n_points</span><span class="o">=</span><span class="mi">240</span><span class="p">,</span>
+<span class="go">                  cosine_spacing=True) for i in range(12)]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">blade_1</span> <span class="o">=</span> <span class="n">Blade</span><span class="p">(</span>
+<span class="go">                sections=sections_1,</span>
+<span class="go">                radii=radii,</span>
+<span class="go">                chord_lengths=chord,</span>
+<span class="go">                pitch=pitch,</span>
+<span class="go">                rake=rake,</span>
+<span class="go">                skew_angles=skew)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">blade_1</span><span class="o">.</span><span class="n">apply_transformations</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">blade_2</span> <span class="o">=</span> <span class="n">Blade</span><span class="p">(</span>
+<span class="go">                sections=sections_2,</span>
+<span class="go">                radii=radii,</span>
+<span class="go">                chord_lengths=chord,</span>
+<span class="go">                pitch=pitch,</span>
+<span class="go">                rake=rake,</span>
+<span class="go">                skew_angles=skew)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">blade_2</span><span class="o">.</span><span class="n">apply_transformations</span><span class="p">()</span>
+</pre></div>
+</div>
+<dl class="method">
+<dt>
+<code class="descname">_abs_to_norm</code><span class="sig-paren">(</span><em>D_prop</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bladex/blade.html#Blade._abs_to_norm"><span class="viewcode-link">[source]</span></a></dt>
+<dd><p>Private method to normalize the blade parameters.</p>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<code class="descname">_check_params</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/bladex/blade.html#Blade._check_params"><span class="viewcode-link">[source]</span></a></dt>
+<dd><p>Private method to check if all the blade arguments are numpy.ndarrays
+with the same shape.</p>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<code class="descname">_compute_pitch_angle</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/bladex/blade.html#Blade._compute_pitch_angle"><span class="viewcode-link">[source]</span></a></dt>
+<dd><p>Private method that computes the pitch angle from the linear pitch for
+all blade sections.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">pitch angle in radians</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="http://docs.scipy.org/doc/numpy/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.15)">numpy.ndarray</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<code class="descname">_induced_rake_from_skew</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/bladex/blade.html#Blade._induced_rake_from_skew"><span class="viewcode-link">[source]</span></a></dt>
+<dd><p>Private method that computes the induced rake from skew for all the
+blade sections, according to <span class="xref std std-ref">mytransformation_operations</span>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">induced rake from skew</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="http://docs.scipy.org/doc/numpy/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.15)">numpy.ndarray</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<code class="descname">_norm_to_abs</code><span class="sig-paren">(</span><em>D_prop</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bladex/blade.html#Blade._norm_to_abs"><span class="viewcode-link">[source]</span></a></dt>
+<dd><p>Private method that converts the normalized blade parameters into the
+actual values.</p>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<code class="descname">_planar_to_cylindrical</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/bladex/blade.html#Blade._planar_to_cylindrical"><span class="viewcode-link">[source]</span></a></dt>
+<dd><p>Private method that transforms the 2D planar airfoils into 3D
+cylindrical sections.</p>
+<p>The cylindrical transformation is defined by the following formulas:</p>
+<blockquote>
+<div><ul class="simple">
+<li><img class="math" src="_images/math/6761b422e5536ab9a92eaf52707c92076819b2a8.png" alt="x = x_{i} \qquad \forall x_i \in X"/></li>
+<li><img class="math" src="_images/math/1bc9f431f4f80227aa7027f1ff71fcaea3fa0a25.png" alt="y = r \sin\left( \frac{y_i}{r} \right) \qquad
+\forall y_i \in Y"/></li>
+<li><img class="math" src="_images/math/333eb798c920afae61f6917ffd0b4e0352856975.png" alt="z = -r \cos\left( \frac{y_i}{r} \right) \qquad
+\forall y_i \in Y"/></li>
+</ul>
+</div></blockquote>
+<p>After transformation, the method also fills the numpy.ndarray
+&#8220;blade_coordinates&#8221; with the new <img class="math" src="_images/math/f664f102404a0938b0d2fc21843059f059a9eeff.png" alt="(X, Y, Z)"/> coordinates.</p>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<code class="descname">apply_transformations</code><span class="sig-paren">(</span><em>reflect=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bladex/blade.html#Blade.apply_transformations"><span class="viewcode-link">[source]</span></a></dt>
+<dd><p>Generate a bottom-up constructed propeller blade based on the airfoil
+transformations, see <span class="xref std std-ref">mytransformation_operations</span>.</p>
+<p>The order of the transformation operations is as follows:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li>Translate airfoils by reference points into origin.</li>
+<li>Scale X, Y coordinates by a factor of the chord length. Also
+reflect the airfoils if necessary.</li>
+<li>Rotate the airfoils counter-clockwise according to the local
+pitch angles. Beware of the orientation system.</li>
+<li>Translate airfoils along X-axis by a magnitude of the local
+rake. Perform another translation for the skew-induced rake.</li>
+<li>Translate airfoils along Y-axis by a magnitude of the skewness.</li>
+<li>Transform the 2D airfoils into cylindrical sections, by laying
+each foil on a cylinder of radius equals to the section radius,
+and the cylinder axis is the propeller axis of rotation.</li>
+</ol>
+</div></blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>reflect</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a>) &#8211; if true, then reflect the coordinates of all the airfoils
+about both X-axis and Y-axis. Default value is True.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<code class="descname">export_ppg</code><span class="sig-paren">(</span><em>filename='data_out.ppg'</em>, <em>D_prop=0.25</em>, <em>D_hub=0.075</em>, <em>n_blades=5</em>, <em>params_normalized=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bladex/blade.html#Blade.export_ppg"><span class="viewcode-link">[source]</span></a></dt>
+<dd><p>Export the generated blade parameters and sectional profiles into
+.ppg format.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>filename</strong> (<a class="reference external" href="http://docs.python.org/2/library/string.html#module-string" title="(in Python v2.7)"><em>string</em></a>) &#8211; name of the exported file. Default is
+&#8216;data/data_out.ppg&#8217;</li>
+<li><strong>D_prop</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#float" title="(in Python v2.7)"><em>float</em></a>) &#8211; propeller diameter</li>
+<li><strong>D_hub</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#float" title="(in Python v2.7)"><em>float</em></a>) &#8211; hub diameter</li>
+<li><strong>n_blades</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#float" title="(in Python v2.7)"><em>float</em></a>) &#8211; number of blades</li>
+<li><strong>params_normalized</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a>) &#8211; since the standard .ppg format contains
+the blade parameters in the normalized form, therefore the user
+needs to inform whether the provided parameters (from the class
+Blade) are normalized or not. By default the argument is set to
+False, which assumes the user provides the blade parameters in
+their actual values, i.e. not normalized, hence a normalization
+operation needs to be applied so as to follow the .ppg standard
+format.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<code class="descname">plot</code><span class="sig-paren">(</span><em>elev=None</em>, <em>azim=None</em>, <em>outfile=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bladex/blade.html#Blade.plot"><span class="viewcode-link">[source]</span></a></dt>
+<dd><p>Plot the generated blade sections.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>elev</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; Set the view elevation of the axes. This can be used
+to rotate the axes programatically. &#8216;elev&#8217; stores the elevation
+angle in the z plane. If elev is None, then the initial value is
+used which was specified in the mplot3d.Axes3D constructor. Default
+value is None</li>
+<li><strong>azim</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; Set the view azimuth angle of the axes. This can be
+used to rotate the axes programatically. &#8216;azim&#8217; stores the azimuth
+angle in the x,y plane. If azim is None, then the initial value is
+used which was specified in the mplot3d.Axes3D constructor. Default
+value is None</li>
+<li><strong>outfile</strong> (<a class="reference external" href="http://docs.python.org/2/library/string.html#module-string" title="(in Python v2.7)"><em>string</em></a>) &#8211; save the plot if a filename string is provided.
+Default value is None.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="_summaries/bladex.blade.Blade._abs_to_norm.html" class="btn btn-neutral float-right" title="bladex.blade.Blade._abs_to_norm" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="code.html" class="btn btn-neutral" title="Code Documentation" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, BladeX contributors.
+      Last updated on Jul 26, 2018.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'0.0.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

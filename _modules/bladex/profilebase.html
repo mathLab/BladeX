@@ -1,0 +1,775 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>bladex.profilebase &mdash; BladeX 0.0.1 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+    <link rel="top" title="BladeX 0.0.1 documentation" href="../../index.html"/>
+        <link rel="up" title="Module code" href="../index.html"/> 
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> BladeX
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../code.html">Code Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contact.html">Contact</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing.html">How to contribute</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../LICENSE.html">License</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../../index.html">BladeX</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+      
+    <li>bladex.profilebase</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for bladex.profilebase</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Base module that provides essential tools and transformations on airfoils.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
+<span class="kn">from</span> <span class="nn">.ndinterpolator</span> <span class="kn">import</span> <span class="n">reconstruct_f</span>
+
+
+<div class="viewcode-block" id="ProfileBase"><a class="viewcode-back" href="../../profilebase.html#bladex.profilebase.ProfileBase">[docs]</a><span class="k">class</span> <span class="nc">ProfileBase</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Base sectional profile of the propeller blade.</span>
+
+<span class="sd">    Each sectional profile is a 2D airfoil that is split into two parts: the</span>
+<span class="sd">    upper and lower parts. The coordiates of each part is represented by two</span>
+<span class="sd">    arrays corresponding to the X and Y components in the 2D coordinate system.</span>
+<span class="sd">    Such coordinates can be either generated using NACA functions, or be</span>
+<span class="sd">    inserted directly by the user as custom profiles.</span>
+
+<span class="sd">    :param numpy.ndarray xup_coordinates: 1D array that contains the</span>
+<span class="sd">        X-components of the airfoil upper-half surface. Default value is None</span>
+<span class="sd">    :param numpy.ndarray xdown_coordinates: 1D array that contains the</span>
+<span class="sd">        X-components of the airfoil lower-half surface. Default value is None</span>
+<span class="sd">    :param numpy.ndarray yup_coordinates: 1D array that contains the</span>
+<span class="sd">        Y-components of the airfoil upper-half surface. Default value is None</span>
+<span class="sd">    :param numpy.ndarray ydown_coordinates: 1D array that contains the</span>
+<span class="sd">        Y-components of the airfoil lower-half surface. Default value is None</span>
+<span class="sd">    :param numpy.ndarray chord_line: contains the X and Y coordinates of the</span>
+<span class="sd">        straight line joining between the leading and trailing edges. Default</span>
+<span class="sd">        value is None</span>
+<span class="sd">    :param numpy.ndarray camber_line: contains the X and Y coordinates of the</span>
+<span class="sd">        curve passing through all the mid-points between the upper and lower</span>
+<span class="sd">        surfaces of the airfoil. Default value is None</span>
+<span class="sd">    :param numpy.ndarray leading_edge: 2D coordinates of the airfoil&#39;s</span>
+<span class="sd">        leading edge. Default values are zeros</span>
+<span class="sd">    :param numpy.ndarray trailing_edge: 2D coordinates of the airfoil&#39;s</span>
+<span class="sd">        trailing edge. Default values are zeros</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">xup_coordinates</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">xdown_coordinates</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">yup_coordinates</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ydown_coordinates</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">chord_line</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">camber_line</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">leading_edge</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">trailing_edge</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+
+<div class="viewcode-block" id="ProfileBase._update_edges"><a class="viewcode-back" href="../../profilebase.html#bladex.profilebase.ProfileBase._update_edges">[docs]</a>    <span class="k">def</span> <span class="nf">_update_edges</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Private method that identifies and updates the airfoil&#39;s leading and</span>
+<span class="sd">        trailing edges.</span>
+
+<span class="sd">        Given the airfoil coordinates from the leading to the trailing edge,</span>
+<span class="sd">        if the trailing edge has a non-zero thickness, then the average value</span>
+<span class="sd">        between the upper and lower trailing edges is taken as the true</span>
+<span class="sd">        trailing edge, hence both the leading and the trailing edges are always</span>
+<span class="sd">        unique.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">fabs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">xup_coordinates</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">xdown_coordinates</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mf">1e-4</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Airfoils must have xup_coordinates[0] &#39;</span>\
+                            <span class="s1">&#39;almost equal to xdown_coordinates[0]&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">fabs</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">xup_coordinates</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">xdown_coordinates</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mf">1e-4</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Airfoils must have xup_coordinates[-1] &#39;</span>\
+                             <span class="s1">&#39;almost equal to xdown_coordinates[-1]&#39;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">leading_edge</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">xup_coordinates</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">leading_edge</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">yup_coordinates</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">trailing_edge</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">xup_coordinates</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">yup_coordinates</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">ydown_coordinates</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">trailing_edge</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">yup_coordinates</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">trailing_edge</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">yup_coordinates</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">ydown_coordinates</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span></div>
+
+<div class="viewcode-block" id="ProfileBase.interpolate_coordinates"><a class="viewcode-back" href="../../profilebase.html#bladex.profilebase.ProfileBase.interpolate_coordinates">[docs]</a>    <span class="k">def</span> <span class="nf">interpolate_coordinates</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mf">1.0</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Interpolate the airfoil coordinates from the given data set of</span>
+<span class="sd">        discrete points.</span>
+
+<span class="sd">        The interpolation applies the Radial Basis Function (RBF) method,</span>
+<span class="sd">        to construct approximations of the two functions that correspond to the</span>
+<span class="sd">        airfoil upper half and lower half coordinates. The RBF implementation</span>
+<span class="sd">        is present in :ref:`RBF ndinterpolator &lt;ndinterpolator-label&gt;`.</span>
+
+<span class="sd">        References:</span>
+
+<span class="sd">        Buhmann, Martin D. (2003), Radial Basis Functions: Theory</span>
+<span class="sd">        and Implementations.</span>
+<span class="sd">        http://www.cs.bham.ac.uk/~jxb/NN/l12.pdf</span>
+<span class="sd">        https://www.cc.gatech.edu/~isbell/tutorials/rbf-intro.pdf</span>
+
+<span class="sd">        :param int num: number of interpolated points. Default value is 500</span>
+<span class="sd">        :param float radius: range of the cut-off radius necessary for the RBF</span>
+<span class="sd">            interpolation. Default value is 1.0. It is quite necessary to</span>
+<span class="sd">            adjust the value properly so as to ensure a smooth interpolation</span>
+<span class="sd">        :return: interpolation points for the airfoil upper half X-component,</span>
+<span class="sd">            interpolation points for the airfoil lower half X-component,</span>
+<span class="sd">            interpolation points for the airfoil upper half Y-component,</span>
+<span class="sd">            interpolation points for the airfoil lower half Y-component</span>
+<span class="sd">        :rtype: numpy.ndarray, numpy.ndarray, numpy.ndarray, numpy.ndarray</span>
+<span class="sd">        :raises TypeError: if num is not of type int</span>
+<span class="sd">        :raises ValueError: if num is not positive, or if radius is not</span>
+<span class="sd">            positive</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">num</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;Inserted value must be of type integer.&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">num</span> <span class="o">&lt;=</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">radius</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Inserted value must be positive.&#39;</span><span class="p">)</span>
+
+        <span class="n">xx_up</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">xup_coordinates</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">xup_coordinates</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">num</span><span class="o">=</span><span class="n">num</span><span class="p">)</span>
+        <span class="n">yy_up</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">num</span><span class="p">)</span>
+        <span class="n">reconstruct_f</span><span class="p">(</span>
+            <span class="n">basis</span><span class="o">=</span><span class="s1">&#39;beckert_wendland_c2_basis&#39;</span><span class="p">,</span>
+            <span class="n">radius</span><span class="o">=</span><span class="n">radius</span><span class="p">,</span>
+            <span class="n">original_input</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">xup_coordinates</span><span class="p">,</span>
+            <span class="n">original_output</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">yup_coordinates</span><span class="p">,</span>
+            <span class="n">rbf_input</span><span class="o">=</span><span class="n">xx_up</span><span class="p">,</span>
+            <span class="n">rbf_output</span><span class="o">=</span><span class="n">yy_up</span><span class="p">)</span>
+        <span class="n">xx_down</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">xdown_coordinates</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">xdown_coordinates</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">num</span><span class="o">=</span><span class="n">num</span><span class="p">)</span>
+        <span class="n">yy_down</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">num</span><span class="p">)</span>
+        <span class="n">reconstruct_f</span><span class="p">(</span>
+            <span class="n">basis</span><span class="o">=</span><span class="s1">&#39;beckert_wendland_c2_basis&#39;</span><span class="p">,</span>
+            <span class="n">radius</span><span class="o">=</span><span class="n">radius</span><span class="p">,</span>
+            <span class="n">original_input</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">xdown_coordinates</span><span class="p">,</span>
+            <span class="n">original_output</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ydown_coordinates</span><span class="p">,</span>
+            <span class="n">rbf_input</span><span class="o">=</span><span class="n">xx_down</span><span class="p">,</span>
+            <span class="n">rbf_output</span><span class="o">=</span><span class="n">yy_down</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">xx_up</span><span class="p">,</span> <span class="n">xx_down</span><span class="p">,</span> <span class="n">yy_up</span><span class="p">,</span> <span class="n">yy_down</span></div>
+
+<div class="viewcode-block" id="ProfileBase.compute_chord_line"><a class="viewcode-back" href="../../profilebase.html#bladex.profilebase.ProfileBase.compute_chord_line">[docs]</a>    <span class="k">def</span> <span class="nf">compute_chord_line</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n_interpolated_points</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Compute the 2D coordinates of the chord line. Also updates</span>
+<span class="sd">        the chord_line class member.</span>
+
+<span class="sd">        The chord line is the straight line that joins between the leading edge</span>
+<span class="sd">        and the trailing edge. It is simply computed from the equation of</span>
+<span class="sd">        a line passing through two points, the LE and TE.</span>
+
+<span class="sd">        :param int n_interpolated_points: number of points to be used for the</span>
+<span class="sd">            equally-spaced sample computations. If None then there is no</span>
+<span class="sd">            interpolation, unless the arrays x_up != x_down elementwise which</span>
+<span class="sd">            implies that the corresponding y_up and y_down can not be</span>
+<span class="sd">            comparable, hence a uniform interpolation is required. Default</span>
+<span class="sd">            value is None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_update_edges</span><span class="p">()</span>
+        <span class="n">aratio</span> <span class="o">=</span> <span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">trailing_edge</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">leading_edge</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">/</span>
+                  <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">trailing_edge</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">leading_edge</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">xup_coordinates</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">xdown_coordinates</span>
+                <span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span> <span class="ow">and</span> <span class="n">n_interpolated_points</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="c1"># If x_up != x_down element-wise, then the corresponding y_up and</span>
+            <span class="c1"># y_down can not be comparable, hence a uniform interpolation is</span>
+            <span class="c1"># required. Also in case the interpolated_points is None,</span>
+            <span class="c1"># then we assume a default number of interpolated points</span>
+            <span class="n">n_interpolated_points</span> <span class="o">=</span> <span class="mi">500</span>
+
+        <span class="k">if</span> <span class="n">n_interpolated_points</span><span class="p">:</span>
+            <span class="n">cl_x_coordinates</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">leading_edge</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">trailing_edge</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                <span class="n">num</span><span class="o">=</span><span class="n">n_interpolated_points</span><span class="p">)</span>
+            <span class="n">cl_y_coordinates</span> <span class="o">=</span> <span class="p">(</span><span class="n">aratio</span> <span class="o">*</span>
+                                <span class="p">(</span><span class="n">cl_x_coordinates</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">leading_edge</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">+</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">leading_edge</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">chord_line</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">cl_x_coordinates</span><span class="p">,</span> <span class="n">cl_y_coordinates</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">cl_y_coordinates</span> <span class="o">=</span> <span class="p">(</span><span class="n">aratio</span> <span class="o">*</span>
+                                <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">xup_coordinates</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">leading_edge</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">+</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">leading_edge</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">chord_line</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">xup_coordinates</span><span class="p">,</span> <span class="n">cl_y_coordinates</span><span class="p">])</span></div>
+
+<div class="viewcode-block" id="ProfileBase.compute_camber_line"><a class="viewcode-back" href="../../profilebase.html#bladex.profilebase.ProfileBase.compute_camber_line">[docs]</a>    <span class="k">def</span> <span class="nf">compute_camber_line</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n_interpolated_points</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Compute the 2D coordinates of the camber line. Also updates the</span>
+<span class="sd">        camber_line class member.</span>
+
+<span class="sd">        The camber line is defined by the curve passing through all the mid</span>
+<span class="sd">        points between the upper surface and the lower surface of the airfoil.</span>
+
+<span class="sd">        :param int n_interpolated_points: number of points to be used for the</span>
+<span class="sd">            equally-spaced sample computations. If None then there is no</span>
+<span class="sd">            interpolation, unless the arrays x_up != x_down elementwise which</span>
+<span class="sd">            implies that the corresponding y_up and y_down can not be</span>
+<span class="sd">            comparable, hence a uniform interpolation is required. Default</span>
+<span class="sd">            value is None</span>
+
+<span class="sd">        We note that a uniform interpolation becomes necessary for the cases</span>
+<span class="sd">        when the X-coordinates of the upper and lower surfaces do not</span>
+<span class="sd">        correspond to the same vertical sections, since this would imply</span>
+<span class="sd">        inaccurate measurements for obtaining the camber line.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">xup_coordinates</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">xdown_coordinates</span>
+                <span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span> <span class="ow">and</span> <span class="n">n_interpolated_points</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="c1"># If x_up != x_down element-wise, then the corresponding y_up and</span>
+            <span class="c1"># y_down can not be comparable, hence a uniform interpolation is</span>
+            <span class="c1"># required. Also in case the interpolated_points is None,</span>
+            <span class="c1"># then we assume a default number of interpolated points</span>
+            <span class="n">n_interpolated_points</span> <span class="o">=</span> <span class="mi">500</span>
+
+        <span class="k">if</span> <span class="n">n_interpolated_points</span><span class="p">:</span>
+            <span class="n">cl_x_coordinates</span><span class="p">,</span> <span class="n">yy_up</span><span class="p">,</span> <span class="n">yy_down</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">interpolate_coordinates</span><span class="p">(</span><span class="n">num</span><span class="o">=</span><span class="n">n_interpolated_points</span><span class="p">)[</span><span class="mi">1</span><span class="p">:])</span>
+            <span class="n">cl_y_coordinates</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">yy_up</span> <span class="o">+</span> <span class="n">yy_down</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">camber_line</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">cl_x_coordinates</span><span class="p">,</span> <span class="n">cl_y_coordinates</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">cl_y_coordinates</span> <span class="o">=</span> <span class="p">(</span><span class="mf">0.5</span> <span class="o">*</span>
+                                <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ydown_coordinates</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">yup_coordinates</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">camber_line</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+                <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">xup_coordinates</span><span class="p">,</span> <span class="n">cl_y_coordinates</span><span class="p">])</span></div>
+
+<div class="viewcode-block" id="ProfileBase.deform_camber_line"><a class="viewcode-back" href="../../profilebase.html#bladex.profilebase.ProfileBase.deform_camber_line">[docs]</a>    <span class="k">def</span> <span class="nf">deform_camber_line</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">percent_change</span><span class="p">,</span> <span class="n">n_interpolated_points</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Deform camber line according to a given percentage of change of the</span>
+<span class="sd">        maximum camber. Also reconstructs the deformed airfoil&#39;s coordinates.</span>
+
+<span class="sd">        The percentage of change is defined as follows:</span>
+
+<span class="sd">        .. math::</span>
+<span class="sd">            \\frac{\\text{new magnitude of max camber - old magnitude of maximum \</span>
+<span class="sd">            camber}}{\\text{old magnitude of maximum camber}} * 100</span>
+
+<span class="sd">        A positive percentage means the new camber is larger than the max</span>
+<span class="sd">        camber value, while a negative percentage indicates the new value</span>
+<span class="sd">        is smaller.</span>
+
+<span class="sd">        We note that the method works only for airfoils in the reference</span>
+<span class="sd">        position, i.e. chord line lies on the X-axis and the foil is not</span>
+<span class="sd">        rotated, since the measurements are based on the Y-values of the</span>
+<span class="sd">        airfoil coordinates, hence any measurements or scalings will be</span>
+<span class="sd">        inaccurate for the foils not in their reference position.</span>
+
+<span class="sd">        :param float percent_change: percentage of change of the</span>
+<span class="sd">            maximum camber. Default value is None</span>
+<span class="sd">        :param bool interpolate:  if True, the interpolated coordinates are</span>
+<span class="sd">            used to compute the camber line and foil&#39;s thickness, otherwise</span>
+<span class="sd">            the original discrete coordinates are used. Default value is False.</span>
+<span class="sd">        :param int n_interpolated_points: number of points to be used for the</span>
+<span class="sd">            equally-spaced sample computations. If None then there is no</span>
+<span class="sd">            interpolation, unless the arrays x_up != x_down elementwise which</span>
+<span class="sd">            implies that the corresponding y_up and y_down can not be</span>
+<span class="sd">            comparable, hence a uniform interpolation is required. Default</span>
+<span class="sd">            value is None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Updating camber line</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">compute_camber_line</span><span class="p">(</span><span class="n">n_interpolated_points</span><span class="o">=</span><span class="n">n_interpolated_points</span><span class="p">)</span>
+        <span class="n">scaling_factor</span> <span class="o">=</span> <span class="n">percent_change</span> <span class="o">/</span> <span class="mf">100.</span> <span class="o">+</span> <span class="mf">1.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">camber_line</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*=</span> <span class="n">scaling_factor</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">xup_coordinates</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">xdown_coordinates</span>
+                <span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span> <span class="ow">and</span> <span class="n">n_interpolated_points</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="c1"># If x_up != x_down element-wise, then the corresponding y_up and</span>
+            <span class="c1"># y_down can not be comparable, hence a uniform interpolation is</span>
+            <span class="c1"># required. Also in case the interpolated_points is None,</span>
+            <span class="c1"># then we assume a default number of interpolated points</span>
+            <span class="n">n_interpolated_points</span> <span class="o">=</span> <span class="mi">500</span>
+
+        <span class="c1"># Evaluating half-thickness of the undeformed airfoil,</span>
+        <span class="c1"># which should hold same values for the deformed foil.</span>
+        <span class="k">if</span> <span class="n">n_interpolated_points</span><span class="p">:</span>
+            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">xup_coordinates</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">xdown_coordinates</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">yup_coordinates</span><span class="p">,</span>
+             <span class="bp">self</span><span class="o">.</span><span class="n">ydown_coordinates</span>
+             <span class="p">)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">interpolate_coordinates</span><span class="p">(</span><span class="n">num</span><span class="o">=</span><span class="n">n_interpolated_points</span><span class="p">)</span>
+
+        <span class="n">half_thickness</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">fabs</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">yup_coordinates</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">ydown_coordinates</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">yup_coordinates</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">camber_line</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">half_thickness</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ydown_coordinates</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">camber_line</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">half_thickness</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">reference_point</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the coordinates of the chord&#39;s mid point.</span>
+
+<span class="sd">        :return: reference point in 2D</span>
+<span class="sd">        :rtype: numpy.ndarray</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_update_edges</span><span class="p">()</span>
+        <span class="n">reference_point</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">leading_edge</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">trailing_edge</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span>
+            <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">leading_edge</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">trailing_edge</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="p">]</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">reference_point</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">chord_length</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Measure the l2-norm (Euclidean distance) between the leading edge</span>
+<span class="sd">        and the trailing edge.</span>
+
+<span class="sd">        :return: chord length</span>
+<span class="sd">        :rtype: float</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_update_edges</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">leading_edge</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">trailing_edge</span><span class="p">)</span>
+
+<div class="viewcode-block" id="ProfileBase.max_thickness"><a class="viewcode-back" href="../../profilebase.html#bladex.profilebase.ProfileBase.max_thickness">[docs]</a>    <span class="k">def</span> <span class="nf">max_thickness</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n_interpolated_points</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the airfoil&#39;s maximum thickness.</span>
+
+<span class="sd">        Thickness is defined as the distnace between the upper and lower</span>
+<span class="sd">        surfaces of the airfoil, and can be measured in two different ways:</span>
+
+<span class="sd">            - American convention: measures along the line perpendicular to \</span>
+<span class="sd">                the mean camber line.</span>
+
+<span class="sd">            - British convention: measures along the line perpendicular to \</span>
+<span class="sd">                the chord line.</span>
+<span class="sd">        </span>
+<span class="sd">        In this implementation, the british convention is used to evaluate</span>
+<span class="sd">        the maximum thickness.</span>
+
+<span class="sd">        References:</span>
+
+<span class="sd">            Phillips, Warren F. (2010). Mechanics of Flight (2nd ed.). \</span>
+<span class="sd">                Wiley &amp; Sons. p. 27. ISBN 978-0-470-53975-0.</span>
+
+<span class="sd">            Bertin, John J.; Cummings, Russel M. (2009). Pearson Prentice Hall, \</span>
+<span class="sd">                ed. Aerodynamics for Engineers (5th ed.). \</span>
+<span class="sd">                p. 199. ISBN 978-0-13-227268-1.</span>
+
+<span class="sd">        :param bool interpolate: if True, the interpolated coordinates are used</span>
+<span class="sd">            to measure the thickness; otherwise, the original discrete</span>
+<span class="sd">            coordinates are used. Default value is False</span>
+<span class="sd">        :param int n_interpolated_points: number of points to be used for the</span>
+<span class="sd">            equally-spaced sample computations. If None then there is no</span>
+<span class="sd">            interpolation, unless the arrays x_up != x_down elementwise which</span>
+<span class="sd">            implies that the corresponding y_up and y_down can not be</span>
+<span class="sd">            comparable, hence a uniform interpolation is required. Default</span>
+<span class="sd">            value is None</span>
+<span class="sd">        :return: maximum thickness</span>
+<span class="sd">        :rtype: float</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">xup_coordinates</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">xdown_coordinates</span>
+                <span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span> <span class="ow">and</span> <span class="n">n_interpolated_points</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="c1"># If x_up != x_down element-wise, then the corresponding y_up and</span>
+            <span class="c1"># y_down can not be comparable, hence a uniform interpolation is</span>
+            <span class="c1"># required. Also in case the interpolated_points is None,</span>
+            <span class="c1"># then we assume a default number of interpolated points</span>
+            <span class="n">n_interpolated_points</span> <span class="o">=</span> <span class="mi">500</span>
+
+        <span class="k">if</span> <span class="n">n_interpolated_points</span><span class="p">:</span>
+            <span class="c1"># Evaluation of the thickness requires comparing both y_up and</span>
+            <span class="c1"># y_down for the same x-section, (i.e. same x_coordinate),</span>
+            <span class="c1"># according to british convention. If x_up != x_down element-wise,</span>
+            <span class="c1"># then the corresponding y_up and y_down can not be comparable,</span>
+            <span class="c1"># hence a uniform interpolation is required.</span>
+            <span class="n">yy_up</span><span class="p">,</span> <span class="n">yy_down</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">interpolate_coordinates</span><span class="p">(</span>
+                <span class="n">num</span><span class="o">=</span><span class="n">n_interpolated_points</span><span class="p">)[</span><span class="mi">2</span><span class="p">:]</span>
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">fabs</span><span class="p">(</span><span class="n">yy_up</span> <span class="o">-</span> <span class="n">yy_down</span><span class="p">)</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">fabs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">yup_coordinates</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">ydown_coordinates</span><span class="p">)</span><span class="o">.</span><span class="n">max</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="ProfileBase.max_camber"><a class="viewcode-back" href="../../profilebase.html#bladex.profilebase.ProfileBase.max_camber">[docs]</a>    <span class="k">def</span> <span class="nf">max_camber</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n_interpolated_points</span><span class="o">=</span><span class="mi">500</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the magnitude of the airfoil&#39;s maximum camber.</span>
+
+<span class="sd">        Camber is defined as the distance between the chord line and the mean</span>
+<span class="sd">        camber line, and is measured along the line perpendicular to the chord</span>
+<span class="sd">        line.</span>
+
+<span class="sd">        :param bool interpolate: if True, the interpolated coordinates are used</span>
+<span class="sd">            to measure the camber; otherwise, the original discrete coordinates</span>
+<span class="sd">            are used. Default value is False</span>
+<span class="sd">        :param int n_interpolated_points: number of points to be used for the</span>
+<span class="sd">            equally-spaced sample computations. If None then there is no</span>
+<span class="sd">            interpolation, unless the arrays x_up != x_down elementwise which</span>
+<span class="sd">            implies that the corresponding y_up and y_down can not be</span>
+<span class="sd">            comparable, hence a uniform interpolation is required. Default</span>
+<span class="sd">            value is None</span>
+<span class="sd">        :return: maximum camber</span>
+<span class="sd">        :rtype: float</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">compute_chord_line</span><span class="p">(</span><span class="n">n_interpolated_points</span><span class="o">=</span><span class="n">n_interpolated_points</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">compute_camber_line</span><span class="p">(</span><span class="n">n_interpolated_points</span><span class="o">=</span><span class="n">n_interpolated_points</span><span class="p">)</span>
+
+        <span class="n">n_points</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">camber_line</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">size</span>
+        <span class="n">camber</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">n_points</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_points</span><span class="p">):</span>
+            <span class="n">camber</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">chord_line</span><span class="p">[:,</span> <span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">camber_line</span><span class="p">[:,</span> <span class="n">i</span><span class="p">])</span>
+
+        <span class="n">max_camber</span> <span class="o">=</span> <span class="n">camber</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+        <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">camber_line</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="n">camber</span><span class="o">.</span><span class="n">argmax</span><span class="p">()]</span> <span class="o">&lt;</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">chord_line</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="n">camber</span><span class="o">.</span><span class="n">argmax</span><span class="p">()]):</span>
+            <span class="c1"># Camber line is below the chord line, at the point of max camber</span>
+            <span class="n">max_camber</span> <span class="o">*=</span> <span class="o">-</span><span class="mi">1</span>
+
+        <span class="k">return</span> <span class="n">max_camber</span></div>
+
+<div class="viewcode-block" id="ProfileBase.rotate"><a class="viewcode-back" href="../../profilebase.html#bladex.profilebase.ProfileBase.rotate">[docs]</a>    <span class="k">def</span> <span class="nf">rotate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rad_angle</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">deg_angle</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        2D counter clockwise rotation about the origin of the Cartesian</span>
+<span class="sd">        coordinate system.</span>
+<span class="sd">        </span>
+<span class="sd">        The rotation matrix, :math:`R(\\theta)`, is used to perform rotation</span>
+<span class="sd">        in the 2D Euclidean space about the origin, which is -- by default --</span>
+<span class="sd">        the leading edge.</span>
+
+<span class="sd">        :math:`R(\\theta)` is defined by:</span>
+
+<span class="sd">        .. math::</span>
+<span class="sd">             \\left(\\begin{matrix} cos (\\theta) &amp; - sin (\\theta) \\\\</span>
+<span class="sd">            sin (\\theta) &amp; cos (\\theta) \\end{matrix}\\right)</span>
+
+<span class="sd">        Given the coordinates of point :math:`P` such that</span>
+
+<span class="sd">        .. math::</span>
+<span class="sd">            P = \\left(\\begin{matrix} x \\\\</span>
+<span class="sd">            y \\end{matrix}\\right),</span>
+
+<span class="sd">        Then, the rotated coordinates will be:</span>
+
+<span class="sd">        .. math::</span>
+<span class="sd">            P^{&#39;} = \\left(\\begin{matrix} x^{&#39;} \\\\</span>
+<span class="sd">                     y^{&#39;} \\end{matrix}\\right)</span>
+<span class="sd">                  = R (\\theta) \\cdot P</span>
+
+<span class="sd">        If a standard right-handed Cartesian coordinate system is used, with</span>
+<span class="sd">        the X-axis to the right and the Y-axis up, the rotation</span>
+<span class="sd">        :math:`R (\\theta)` is counterclockwise. If a left-handed Cartesian</span>
+<span class="sd">        coordinate system is used, with X-axis directed to the right and Y-axis</span>
+<span class="sd">        directed down, :math:`R (\\theta)` is clockwise.</span>
+
+<span class="sd">        :param float rad_angle: angle in radians. Default value is None</span>
+<span class="sd">        :param float deg_angle: angle in degrees. Default value is None</span>
+<span class="sd">        :raises ValueError: if both rad_angle and deg_angle are inserted,</span>
+<span class="sd">            or if neither is inserted</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">rad_angle</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="ow">and</span> <span class="n">deg_angle</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s1">&#39;You have to pass either the angle in radians or in degrees,&#39;</span> \
+                <span class="s1">&#39; not both.&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">rad_angle</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">cosine</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">rad_angle</span><span class="p">)</span>
+            <span class="n">sine</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">rad_angle</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">deg_angle</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">cosine</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">deg_angle</span><span class="p">))</span>
+            <span class="n">sine</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">deg_angle</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s1">&#39;You have to pass either the angle in radians or in degrees.&#39;</span><span class="p">)</span>
+
+        <span class="n">rot_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">cosine</span><span class="p">,</span> <span class="o">-</span><span class="n">sine</span><span class="p">,</span> <span class="n">sine</span><span class="p">,</span> <span class="n">cosine</span><span class="p">])</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+
+        <span class="n">coord_matrix_up</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">xup_coordinates</span><span class="p">,</span>
+                                     <span class="bp">self</span><span class="o">.</span><span class="n">yup_coordinates</span><span class="p">))</span>
+        <span class="n">coord_matrix_down</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">xdown_coordinates</span><span class="p">,</span>
+                                       <span class="bp">self</span><span class="o">.</span><span class="n">ydown_coordinates</span><span class="p">))</span>
+
+        <span class="n">new_coord_matrix_up</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">coord_matrix_up</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+        <span class="n">new_coord_matrix_down</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">coord_matrix_down</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">xup_coordinates</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+            <span class="n">new_coord_matrix_up</span><span class="p">[:,</span> <span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">rot_matrix</span><span class="p">,</span>
+                                               <span class="n">coord_matrix_up</span><span class="p">[:,</span> <span class="n">i</span><span class="p">])</span>
+            <span class="n">new_coord_matrix_down</span><span class="p">[:,</span> <span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">rot_matrix</span><span class="p">,</span>
+                                                 <span class="n">coord_matrix_down</span><span class="p">[:,</span> <span class="n">i</span><span class="p">])</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">xup_coordinates</span> <span class="o">=</span> <span class="n">new_coord_matrix_up</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">xdown_coordinates</span> <span class="o">=</span> <span class="n">new_coord_matrix_down</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">yup_coordinates</span> <span class="o">=</span> <span class="n">new_coord_matrix_up</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ydown_coordinates</span> <span class="o">=</span> <span class="n">new_coord_matrix_down</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="ProfileBase.translate"><a class="viewcode-back" href="../../profilebase.html#bladex.profilebase.ProfileBase.translate">[docs]</a>    <span class="k">def</span> <span class="nf">translate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">translation</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Translate the airfoil coordinates according to a 2D translation vector.</span>
+<span class="sd">        </span>
+<span class="sd">        :param array_like translation: the translation vector in 2D</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">xup_coordinates</span> <span class="o">+=</span> <span class="n">translation</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">xdown_coordinates</span> <span class="o">+=</span> <span class="n">translation</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">yup_coordinates</span> <span class="o">+=</span> <span class="n">translation</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ydown_coordinates</span> <span class="o">+=</span> <span class="n">translation</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="ProfileBase.reflect"><a class="viewcode-back" href="../../profilebase.html#bladex.profilebase.ProfileBase.reflect">[docs]</a>    <span class="k">def</span> <span class="nf">reflect</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Reflect the airfoil coordinates about the origin, i.e. a mirror</span>
+<span class="sd">        transformation is performed about both the X-axis and the Y-axis.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">xup_coordinates</span> <span class="o">*=</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">xdown_coordinates</span> <span class="o">*=</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">yup_coordinates</span> <span class="o">*=</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ydown_coordinates</span> <span class="o">*=</span> <span class="o">-</span><span class="mi">1</span></div>
+
+<div class="viewcode-block" id="ProfileBase.scale"><a class="viewcode-back" href="../../profilebase.html#bladex.profilebase.ProfileBase.scale">[docs]</a>    <span class="k">def</span> <span class="nf">scale</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">factor</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Scale the airfoil coordinates according to a scaling factor.</span>
+
+<span class="sd">        In order to apply the scaling without affecting the position of the</span>
+<span class="sd">        reference point, the method translates the airfoil by its refernce</span>
+<span class="sd">        point to be centered in the origin, then the scaling is applied, and</span>
+<span class="sd">        finally the airfoil is translated back by its reference point to the</span>
+<span class="sd">        initial position.</span>
+
+<span class="sd">        :param float factor: the scaling factor</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">ref_point</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reference_point</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">translate</span><span class="p">(</span><span class="o">-</span><span class="n">ref_point</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">xup_coordinates</span> <span class="o">*=</span> <span class="n">factor</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">xdown_coordinates</span> <span class="o">*=</span> <span class="n">factor</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">yup_coordinates</span> <span class="o">*=</span> <span class="n">factor</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ydown_coordinates</span> <span class="o">*=</span> <span class="n">factor</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">translate</span><span class="p">(</span><span class="n">ref_point</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ProfileBase.plot"><a class="viewcode-back" href="../../profilebase.html#bladex.profilebase.ProfileBase.plot">[docs]</a>    <span class="k">def</span> <span class="nf">plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+             <span class="n">profile</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+             <span class="n">chord_line</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+             <span class="n">camber_line</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+             <span class="n">ref_point</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+             <span class="n">outfile</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Plot the airfoil coordinates.</span>
+
+<span class="sd">        :param bool profile: if True, then plot the profile coordinates.</span>
+<span class="sd">            Default value is True</span>
+<span class="sd">        :param bool chord_line: if True, then plot the chord line. Default</span>
+<span class="sd">            value is False</span>
+<span class="sd">        :param bool camber_line: if True, then plot the camber line. Default</span>
+<span class="sd">            value is False</span>
+<span class="sd">        :param bool ref_point: if True, then scatter plot the reference point.</span>
+<span class="sd">            Default value is False</span>
+<span class="sd">        :param str outfile: outfile name. If a string is provided then the</span>
+<span class="sd">            plot is saved with that name, otherwise the plot is not saved.</span>
+<span class="sd">            Default value is None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">xup_coordinates</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">yup_coordinates</span> <span class="ow">is</span> <span class="bp">None</span>
+                <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">xdown_coordinates</span> <span class="ow">is</span> <span class="bp">None</span>
+                <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">ydown_coordinates</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;One or all the coordinates have None value.&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">profile</span><span class="p">:</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">xup_coordinates</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">yup_coordinates</span><span class="p">,</span>
+                <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Upper profile&#39;</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">xdown_coordinates</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">ydown_coordinates</span><span class="p">,</span>
+                <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Lower profile&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">chord_line</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">chord_line</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s1">&#39;Chord line is None. You must compute it first&#39;</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">chord_line</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">chord_line</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Chord line&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">camber_line</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">camber_line</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s1">&#39;Camber line is None. You must compute it first&#39;</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">camber_line</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">camber_line</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Camber line&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">ref_point</span><span class="p">:</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">reference_point</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">reference_point</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+                <span class="n">s</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span>
+                <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Reference point&#39;</span><span class="p">)</span>
+
+        <span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;dotted&#39;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s1">&#39;equal&#39;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">outfile</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">outfile</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Output file name must be string.&#39;</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">outfile</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, BladeX contributors.
+      Last updated on Jul 26, 2018.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../',
+            VERSION:'0.0.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

@@ -1,0 +1,694 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>ProfileBase &mdash; BladeX 0.0.1 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+    <link rel="top" title="BladeX 0.0.1 documentation" href="index.html"/>
+        <link rel="up" title="Code Documentation" href="code.html"/>
+        <link rel="next" title="bladex.profilebase.ProfileBase._update_edges" href="_summaries/bladex.profilebase.ProfileBase._update_edges.html"/>
+        <link rel="prev" title="bladex.ndinterpolator.reconstruct_f" href="_summaries/bladex.ndinterpolator.reconstruct_f.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> BladeX
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="code.html">Code Documentation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="blade.html">Blade</a></li>
+<li class="toctree-l2"><a class="reference internal" href="deform.html">Deformation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ndinterpolator.html">Ndinterpolator</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">ProfileBase</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="_summaries/bladex.profilebase.ProfileBase._update_edges.html">bladex.profilebase.ProfileBase._update_edges</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_summaries/bladex.profilebase.ProfileBase.chord_length.html">bladex.profilebase.ProfileBase.chord_length</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_summaries/bladex.profilebase.ProfileBase.compute_camber_line.html">bladex.profilebase.ProfileBase.compute_camber_line</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_summaries/bladex.profilebase.ProfileBase.compute_chord_line.html">bladex.profilebase.ProfileBase.compute_chord_line</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_summaries/bladex.profilebase.ProfileBase.deform_camber_line.html">bladex.profilebase.ProfileBase.deform_camber_line</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_summaries/bladex.profilebase.ProfileBase.interpolate_coordinates.html">bladex.profilebase.ProfileBase.interpolate_coordinates</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_summaries/bladex.profilebase.ProfileBase.max_camber.html">bladex.profilebase.ProfileBase.max_camber</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_summaries/bladex.profilebase.ProfileBase.max_thickness.html">bladex.profilebase.ProfileBase.max_thickness</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_summaries/bladex.profilebase.ProfileBase.plot.html">bladex.profilebase.ProfileBase.plot</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_summaries/bladex.profilebase.ProfileBase.reference_point.html">bladex.profilebase.ProfileBase.reference_point</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_summaries/bladex.profilebase.ProfileBase.reflect.html">bladex.profilebase.ProfileBase.reflect</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_summaries/bladex.profilebase.ProfileBase.rotate.html">bladex.profilebase.ProfileBase.rotate</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_summaries/bladex.profilebase.ProfileBase.scale.html">bladex.profilebase.ProfileBase.scale</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_summaries/bladex.profilebase.ProfileBase.translate.html">bladex.profilebase.ProfileBase.translate</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="params.html">ParamFile</a></li>
+<li class="toctree-l2"><a class="reference internal" href="profiles.html">Profiles</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="contact.html">Contact</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">How to contribute</a></li>
+<li class="toctree-l1"><a class="reference internal" href="LICENSE.html">License</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">BladeX</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="code.html">Code Documentation</a> &raquo;</li>
+      
+    <li>ProfileBase</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/profilebase.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-bladex.profilebase">
+<span id="profilebase"></span><h1>ProfileBase<a class="headerlink" href="#module-bladex.profilebase" title="Permalink to this headline">¶</a></h1>
+<p>Base module that provides essential tools and transformations on airfoils.</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="_summaries/bladex.profilebase.ProfileBase._update_edges.html#bladex.profilebase.ProfileBase._update_edges" title="bladex.profilebase.ProfileBase._update_edges"><code class="xref py py-obj docutils literal"><span class="pre">ProfileBase._update_edges</span></code></a></td>
+<td>Private method that identifies and updates the airfoil&#8217;s leading and trailing edges.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="_summaries/bladex.profilebase.ProfileBase.chord_length.html#bladex.profilebase.ProfileBase.chord_length" title="bladex.profilebase.ProfileBase.chord_length"><code class="xref py py-obj docutils literal"><span class="pre">ProfileBase.chord_length</span></code></a></td>
+<td>Measure the l2-norm (Euclidean distance) between the leading edge and the trailing edge.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="_summaries/bladex.profilebase.ProfileBase.compute_camber_line.html#bladex.profilebase.ProfileBase.compute_camber_line" title="bladex.profilebase.ProfileBase.compute_camber_line"><code class="xref py py-obj docutils literal"><span class="pre">ProfileBase.compute_camber_line</span></code></a></td>
+<td>Compute the 2D coordinates of the camber line.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="_summaries/bladex.profilebase.ProfileBase.compute_chord_line.html#bladex.profilebase.ProfileBase.compute_chord_line" title="bladex.profilebase.ProfileBase.compute_chord_line"><code class="xref py py-obj docutils literal"><span class="pre">ProfileBase.compute_chord_line</span></code></a></td>
+<td>Compute the 2D coordinates of the chord line.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="_summaries/bladex.profilebase.ProfileBase.deform_camber_line.html#bladex.profilebase.ProfileBase.deform_camber_line" title="bladex.profilebase.ProfileBase.deform_camber_line"><code class="xref py py-obj docutils literal"><span class="pre">ProfileBase.deform_camber_line</span></code></a></td>
+<td>Deform camber line according to a given percentage of change of the maximum camber.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="_summaries/bladex.profilebase.ProfileBase.interpolate_coordinates.html#bladex.profilebase.ProfileBase.interpolate_coordinates" title="bladex.profilebase.ProfileBase.interpolate_coordinates"><code class="xref py py-obj docutils literal"><span class="pre">ProfileBase.interpolate_coordinates</span></code></a></td>
+<td>Interpolate the airfoil coordinates from the given data set of discrete points.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="_summaries/bladex.profilebase.ProfileBase.max_camber.html#bladex.profilebase.ProfileBase.max_camber" title="bladex.profilebase.ProfileBase.max_camber"><code class="xref py py-obj docutils literal"><span class="pre">ProfileBase.max_camber</span></code></a></td>
+<td>Return the magnitude of the airfoil&#8217;s maximum camber.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="_summaries/bladex.profilebase.ProfileBase.max_thickness.html#bladex.profilebase.ProfileBase.max_thickness" title="bladex.profilebase.ProfileBase.max_thickness"><code class="xref py py-obj docutils literal"><span class="pre">ProfileBase.max_thickness</span></code></a></td>
+<td>Return the airfoil&#8217;s maximum thickness.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="_summaries/bladex.profilebase.ProfileBase.plot.html#bladex.profilebase.ProfileBase.plot" title="bladex.profilebase.ProfileBase.plot"><code class="xref py py-obj docutils literal"><span class="pre">ProfileBase.plot</span></code></a></td>
+<td>Plot the airfoil coordinates.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="_summaries/bladex.profilebase.ProfileBase.reference_point.html#bladex.profilebase.ProfileBase.reference_point" title="bladex.profilebase.ProfileBase.reference_point"><code class="xref py py-obj docutils literal"><span class="pre">ProfileBase.reference_point</span></code></a></td>
+<td>Return the coordinates of the chord&#8217;s mid point.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="_summaries/bladex.profilebase.ProfileBase.reflect.html#bladex.profilebase.ProfileBase.reflect" title="bladex.profilebase.ProfileBase.reflect"><code class="xref py py-obj docutils literal"><span class="pre">ProfileBase.reflect</span></code></a></td>
+<td>Reflect the airfoil coordinates about the origin, i.e.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="_summaries/bladex.profilebase.ProfileBase.rotate.html#bladex.profilebase.ProfileBase.rotate" title="bladex.profilebase.ProfileBase.rotate"><code class="xref py py-obj docutils literal"><span class="pre">ProfileBase.rotate</span></code></a></td>
+<td>2D counter clockwise rotation about the origin of the Cartesian</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="_summaries/bladex.profilebase.ProfileBase.scale.html#bladex.profilebase.ProfileBase.scale" title="bladex.profilebase.ProfileBase.scale"><code class="xref py py-obj docutils literal"><span class="pre">ProfileBase.scale</span></code></a></td>
+<td>Scale the airfoil coordinates according to a scaling factor.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="_summaries/bladex.profilebase.ProfileBase.translate.html#bladex.profilebase.ProfileBase.translate" title="bladex.profilebase.ProfileBase.translate"><code class="xref py py-obj docutils literal"><span class="pre">ProfileBase.translate</span></code></a></td>
+<td>Translate the airfoil coordinates according to a 2D translation vector.</td>
+</tr>
+</tbody>
+</table>
+<dl class="class">
+<dt>
+<em class="property">class </em><code class="descname">ProfileBase</code><a class="reference internal" href="_modules/bladex/profilebase.html#ProfileBase"><span class="viewcode-link">[source]</span></a></dt>
+<dd><p>Bases: <a class="reference external" href="http://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<p>Base sectional profile of the propeller blade.</p>
+<p>Each sectional profile is a 2D airfoil that is split into two parts: the
+upper and lower parts. The coordiates of each part is represented by two
+arrays corresponding to the X and Y components in the 2D coordinate system.
+Such coordinates can be either generated using NACA functions, or be
+inserted directly by the user as custom profiles.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>xup_coordinates</strong> (<a class="reference external" href="http://docs.scipy.org/doc/numpy/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.15)"><em>numpy.ndarray</em></a>) &#8211; 1D array that contains the
+X-components of the airfoil upper-half surface. Default value is None</li>
+<li><strong>xdown_coordinates</strong> (<a class="reference external" href="http://docs.scipy.org/doc/numpy/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.15)"><em>numpy.ndarray</em></a>) &#8211; 1D array that contains the
+X-components of the airfoil lower-half surface. Default value is None</li>
+<li><strong>yup_coordinates</strong> (<a class="reference external" href="http://docs.scipy.org/doc/numpy/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.15)"><em>numpy.ndarray</em></a>) &#8211; 1D array that contains the
+Y-components of the airfoil upper-half surface. Default value is None</li>
+<li><strong>ydown_coordinates</strong> (<a class="reference external" href="http://docs.scipy.org/doc/numpy/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.15)"><em>numpy.ndarray</em></a>) &#8211; 1D array that contains the
+Y-components of the airfoil lower-half surface. Default value is None</li>
+<li><strong>chord_line</strong> (<a class="reference external" href="http://docs.scipy.org/doc/numpy/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.15)"><em>numpy.ndarray</em></a>) &#8211; contains the X and Y coordinates of the
+straight line joining between the leading and trailing edges. Default
+value is None</li>
+<li><strong>camber_line</strong> (<a class="reference external" href="http://docs.scipy.org/doc/numpy/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.15)"><em>numpy.ndarray</em></a>) &#8211; contains the X and Y coordinates of the
+curve passing through all the mid-points between the upper and lower
+surfaces of the airfoil. Default value is None</li>
+<li><strong>leading_edge</strong> (<a class="reference external" href="http://docs.scipy.org/doc/numpy/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.15)"><em>numpy.ndarray</em></a>) &#8211; 2D coordinates of the airfoil&#8217;s
+leading edge. Default values are zeros</li>
+<li><strong>trailing_edge</strong> (<a class="reference external" href="http://docs.scipy.org/doc/numpy/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.15)"><em>numpy.ndarray</em></a>) &#8211; 2D coordinates of the airfoil&#8217;s
+trailing edge. Default values are zeros</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt>
+<code class="descname">_update_edges</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/bladex/profilebase.html#ProfileBase._update_edges"><span class="viewcode-link">[source]</span></a></dt>
+<dd><p>Private method that identifies and updates the airfoil&#8217;s leading and
+trailing edges.</p>
+<p>Given the airfoil coordinates from the leading to the trailing edge,
+if the trailing edge has a non-zero thickness, then the average value
+between the upper and lower trailing edges is taken as the true
+trailing edge, hence both the leading and the trailing edges are always
+unique.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt>
+<code class="descname">chord_length</code></dt>
+<dd><p>Measure the l2-norm (Euclidean distance) between the leading edge
+and the trailing edge.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">chord length</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="http://docs.python.org/2/library/functions.html#float" title="(in Python v2.7)">float</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<code class="descname">compute_camber_line</code><span class="sig-paren">(</span><em>n_interpolated_points=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bladex/profilebase.html#ProfileBase.compute_camber_line"><span class="viewcode-link">[source]</span></a></dt>
+<dd><p>Compute the 2D coordinates of the camber line. Also updates the
+camber_line class member.</p>
+<p>The camber line is defined by the curve passing through all the mid
+points between the upper surface and the lower surface of the airfoil.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>n_interpolated_points</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; number of points to be used for the
+equally-spaced sample computations. If None then there is no
+interpolation, unless the arrays x_up != x_down elementwise which
+implies that the corresponding y_up and y_down can not be
+comparable, hence a uniform interpolation is required. Default
+value is None</td>
+</tr>
+</tbody>
+</table>
+<p>We note that a uniform interpolation becomes necessary for the cases
+when the X-coordinates of the upper and lower surfaces do not
+correspond to the same vertical sections, since this would imply
+inaccurate measurements for obtaining the camber line.</p>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<code class="descname">compute_chord_line</code><span class="sig-paren">(</span><em>n_interpolated_points=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bladex/profilebase.html#ProfileBase.compute_chord_line"><span class="viewcode-link">[source]</span></a></dt>
+<dd><p>Compute the 2D coordinates of the chord line. Also updates
+the chord_line class member.</p>
+<p>The chord line is the straight line that joins between the leading edge
+and the trailing edge. It is simply computed from the equation of
+a line passing through two points, the LE and TE.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>n_interpolated_points</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; number of points to be used for the
+equally-spaced sample computations. If None then there is no
+interpolation, unless the arrays x_up != x_down elementwise which
+implies that the corresponding y_up and y_down can not be
+comparable, hence a uniform interpolation is required. Default
+value is None</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<code class="descname">deform_camber_line</code><span class="sig-paren">(</span><em>percent_change</em>, <em>n_interpolated_points=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bladex/profilebase.html#ProfileBase.deform_camber_line"><span class="viewcode-link">[source]</span></a></dt>
+<dd><p>Deform camber line according to a given percentage of change of the
+maximum camber. Also reconstructs the deformed airfoil&#8217;s coordinates.</p>
+<p>The percentage of change is defined as follows:</p>
+<div class="math">
+<p><img src="_images/math/e642ffd6726d886833d89dc0683273e07f01d0e1.png" alt="\frac{\text{new magnitude of max camber - old magnitude of maximum             camber}}{\text{old magnitude of maximum camber}} * 100"/></p>
+</div><p>A positive percentage means the new camber is larger than the max
+camber value, while a negative percentage indicates the new value
+is smaller.</p>
+<p>We note that the method works only for airfoils in the reference
+position, i.e. chord line lies on the X-axis and the foil is not
+rotated, since the measurements are based on the Y-values of the
+airfoil coordinates, hence any measurements or scalings will be
+inaccurate for the foils not in their reference position.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>percent_change</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#float" title="(in Python v2.7)"><em>float</em></a>) &#8211; percentage of change of the
+maximum camber. Default value is None</li>
+<li><strong>interpolate</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a>) &#8211; if True, the interpolated coordinates are
+used to compute the camber line and foil&#8217;s thickness, otherwise
+the original discrete coordinates are used. Default value is False.</li>
+<li><strong>n_interpolated_points</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; number of points to be used for the
+equally-spaced sample computations. If None then there is no
+interpolation, unless the arrays x_up != x_down elementwise which
+implies that the corresponding y_up and y_down can not be
+comparable, hence a uniform interpolation is required. Default
+value is None</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<code class="descname">interpolate_coordinates</code><span class="sig-paren">(</span><em>num=500</em>, <em>radius=1.0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bladex/profilebase.html#ProfileBase.interpolate_coordinates"><span class="viewcode-link">[source]</span></a></dt>
+<dd><p>Interpolate the airfoil coordinates from the given data set of
+discrete points.</p>
+<p>The interpolation applies the Radial Basis Function (RBF) method,
+to construct approximations of the two functions that correspond to the
+airfoil upper half and lower half coordinates. The RBF implementation
+is present in <a class="reference internal" href="ndinterpolator.html#ndinterpolator-label"><span class="std std-ref">RBF ndinterpolator</span></a>.</p>
+<p>References:</p>
+<p>Buhmann, Martin D. (2003), Radial Basis Functions: Theory
+and Implementations.
+<a class="reference external" href="http://www.cs.bham.ac.uk/~jxb/NN/l12.pdf">http://www.cs.bham.ac.uk/~jxb/NN/l12.pdf</a>
+<a class="reference external" href="https://www.cc.gatech.edu/~isbell/tutorials/rbf-intro.pdf">https://www.cc.gatech.edu/~isbell/tutorials/rbf-intro.pdf</a></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>num</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; number of interpolated points. Default value is 500</li>
+<li><strong>radius</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#float" title="(in Python v2.7)"><em>float</em></a>) &#8211; range of the cut-off radius necessary for the RBF
+interpolation. Default value is 1.0. It is quite necessary to
+adjust the value properly so as to ensure a smooth interpolation</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">interpolation points for the airfoil upper half X-component,
+interpolation points for the airfoil lower half X-component,
+interpolation points for the airfoil upper half Y-component,
+interpolation points for the airfoil lower half Y-component</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first">numpy.ndarray, numpy.ndarray, numpy.ndarray, numpy.ndarray</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
+<li><strong>TypeError</strong> &#8211; if num is not of type int</li>
+<li><strong>ValueError</strong> &#8211; if num is not positive, or if radius is not
+positive</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<code class="descname">max_camber</code><span class="sig-paren">(</span><em>n_interpolated_points=500</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bladex/profilebase.html#ProfileBase.max_camber"><span class="viewcode-link">[source]</span></a></dt>
+<dd><p>Return the magnitude of the airfoil&#8217;s maximum camber.</p>
+<p>Camber is defined as the distance between the chord line and the mean
+camber line, and is measured along the line perpendicular to the chord
+line.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>interpolate</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a>) &#8211; if True, the interpolated coordinates are used
+to measure the camber; otherwise, the original discrete coordinates
+are used. Default value is False</li>
+<li><strong>n_interpolated_points</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; number of points to be used for the
+equally-spaced sample computations. If None then there is no
+interpolation, unless the arrays x_up != x_down elementwise which
+implies that the corresponding y_up and y_down can not be
+comparable, hence a uniform interpolation is required. Default
+value is None</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">maximum camber</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="http://docs.python.org/2/library/functions.html#float" title="(in Python v2.7)">float</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<code class="descname">max_thickness</code><span class="sig-paren">(</span><em>n_interpolated_points=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bladex/profilebase.html#ProfileBase.max_thickness"><span class="viewcode-link">[source]</span></a></dt>
+<dd><p>Return the airfoil&#8217;s maximum thickness.</p>
+<p>Thickness is defined as the distnace between the upper and lower
+surfaces of the airfoil, and can be measured in two different ways:</p>
+<blockquote>
+<div><ul class="simple">
+<li>American convention: measures along the line perpendicular to                 the mean camber line.</li>
+<li>British convention: measures along the line perpendicular to                 the chord line.</li>
+</ul>
+</div></blockquote>
+<p>In this implementation, the british convention is used to evaluate
+the maximum thickness.</p>
+<p>References:</p>
+<blockquote>
+<div><p>Phillips, Warren F. (2010). Mechanics of Flight (2nd ed.).                 Wiley &amp; Sons. p. 27. ISBN 978-0-470-53975-0.</p>
+<p>Bertin, John J.; Cummings, Russel M. (2009). Pearson Prentice Hall,                 ed. Aerodynamics for Engineers (5th ed.).                 p. 199. ISBN 978-0-13-227268-1.</p>
+</div></blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>interpolate</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a>) &#8211; if True, the interpolated coordinates are used
+to measure the thickness; otherwise, the original discrete
+coordinates are used. Default value is False</li>
+<li><strong>n_interpolated_points</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; number of points to be used for the
+equally-spaced sample computations. If None then there is no
+interpolation, unless the arrays x_up != x_down elementwise which
+implies that the corresponding y_up and y_down can not be
+comparable, hence a uniform interpolation is required. Default
+value is None</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">maximum thickness</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="http://docs.python.org/2/library/functions.html#float" title="(in Python v2.7)">float</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<code class="descname">plot</code><span class="sig-paren">(</span><em>profile=True</em>, <em>chord_line=False</em>, <em>camber_line=False</em>, <em>ref_point=False</em>, <em>outfile=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bladex/profilebase.html#ProfileBase.plot"><span class="viewcode-link">[source]</span></a></dt>
+<dd><p>Plot the airfoil coordinates.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>profile</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a>) &#8211; if True, then plot the profile coordinates.
+Default value is True</li>
+<li><strong>chord_line</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a>) &#8211; if True, then plot the chord line. Default
+value is False</li>
+<li><strong>camber_line</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a>) &#8211; if True, then plot the camber line. Default
+value is False</li>
+<li><strong>ref_point</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a>) &#8211; if True, then scatter plot the reference point.
+Default value is False</li>
+<li><strong>outfile</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; outfile name. If a string is provided then the
+plot is saved with that name, otherwise the plot is not saved.
+Default value is None</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt>
+<code class="descname">reference_point</code></dt>
+<dd><p>Return the coordinates of the chord&#8217;s mid point.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">reference point in 2D</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="http://docs.scipy.org/doc/numpy/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.15)">numpy.ndarray</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<code class="descname">reflect</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/bladex/profilebase.html#ProfileBase.reflect"><span class="viewcode-link">[source]</span></a></dt>
+<dd><p>Reflect the airfoil coordinates about the origin, i.e. a mirror
+transformation is performed about both the X-axis and the Y-axis.</p>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<code class="descname">rotate</code><span class="sig-paren">(</span><em>rad_angle=None</em>, <em>deg_angle=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bladex/profilebase.html#ProfileBase.rotate"><span class="viewcode-link">[source]</span></a></dt>
+<dd><p>2D counter clockwise rotation about the origin of the Cartesian
+coordinate system.</p>
+<p>The rotation matrix, <img class="math" src="_images/math/cfe336ede8769c02efbc60461f331efcec155961.png" alt="R(\theta)"/>, is used to perform rotation
+in the 2D Euclidean space about the origin, which is &#8211; by default &#8211;
+the leading edge.</p>
+<p><img class="math" src="_images/math/cfe336ede8769c02efbc60461f331efcec155961.png" alt="R(\theta)"/> is defined by:</p>
+<div class="math">
+<p><img src="_images/math/06674415564207dfcafd647119d9d1ce584a9a34.png" alt="\left(\begin{matrix} cos (\theta) &amp; - sin (\theta) \\
+sin (\theta) &amp; cos (\theta) \end{matrix}\right)"/></p>
+</div><p>Given the coordinates of point <img class="math" src="_images/math/9dcbbef8e0f76051d388013b90a95bec3069e484.png" alt="P"/> such that</p>
+<div class="math">
+<p><img src="_images/math/5ce234001023809d7e5c7714fe5e7f59a46c2d04.png" alt="P = \left(\begin{matrix} x \\
+y \end{matrix}\right),"/></p>
+</div><p>Then, the rotated coordinates will be:</p>
+<div class="math">
+<p><img src="_images/math/3d0c8181b10e011b0518993ed3a10a6f4ad1c82b.png" alt="P^{'} = \left(\begin{matrix} x^{'} \\
+         y^{'} \end{matrix}\right)
+      = R (\theta) \cdot P"/></p>
+</div><p>If a standard right-handed Cartesian coordinate system is used, with
+the X-axis to the right and the Y-axis up, the rotation
+<img class="math" src="_images/math/0e2977f7d8604803c0ed7c3a91e3efde8b33a8fe.png" alt="R (\theta)"/> is counterclockwise. If a left-handed Cartesian
+coordinate system is used, with X-axis directed to the right and Y-axis
+directed down, <img class="math" src="_images/math/0e2977f7d8604803c0ed7c3a91e3efde8b33a8fe.png" alt="R (\theta)"/> is clockwise.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>rad_angle</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#float" title="(in Python v2.7)"><em>float</em></a>) &#8211; angle in radians. Default value is None</li>
+<li><strong>deg_angle</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#float" title="(in Python v2.7)"><em>float</em></a>) &#8211; angle in degrees. Default value is None</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><strong>ValueError</strong> &#8211; if both rad_angle and deg_angle are inserted,
+or if neither is inserted</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<code class="descname">scale</code><span class="sig-paren">(</span><em>factor</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bladex/profilebase.html#ProfileBase.scale"><span class="viewcode-link">[source]</span></a></dt>
+<dd><p>Scale the airfoil coordinates according to a scaling factor.</p>
+<p>In order to apply the scaling without affecting the position of the
+reference point, the method translates the airfoil by its refernce
+point to be centered in the origin, then the scaling is applied, and
+finally the airfoil is translated back by its reference point to the
+initial position.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>factor</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#float" title="(in Python v2.7)"><em>float</em></a>) &#8211; the scaling factor</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<code class="descname">translate</code><span class="sig-paren">(</span><em>translation</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bladex/profilebase.html#ProfileBase.translate"><span class="viewcode-link">[source]</span></a></dt>
+<dd><p>Translate the airfoil coordinates according to a 2D translation vector.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>translation</strong> (<em>array_like</em>) &#8211; the translation vector in 2D</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="_summaries/bladex.profilebase.ProfileBase._update_edges.html" class="btn btn-neutral float-right" title="bladex.profilebase.ProfileBase._update_edges" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="_summaries/bladex.ndinterpolator.reconstruct_f.html" class="btn btn-neutral" title="bladex.ndinterpolator.reconstruct_f" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, BladeX contributors.
+      Last updated on Jul 26, 2018.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'0.0.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

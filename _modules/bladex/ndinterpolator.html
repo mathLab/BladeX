@@ -1,0 +1,466 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>bladex.ndinterpolator &mdash; BladeX 0.0.1 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+    <link rel="top" title="BladeX 0.0.1 documentation" href="../../index.html"/>
+        <link rel="up" title="Module code" href="../index.html"/> 
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> BladeX
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../code.html">Code Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contact.html">Contact</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing.html">How to contribute</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../LICENSE.html">License</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../../index.html">BladeX</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+      
+    <li>bladex.ndinterpolator</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for bladex.ndinterpolator</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">scipy.spatial.distance</span> <span class="kn">import</span> <span class="n">cdist</span>
+<span class="kn">from</span> <span class="nn">scipy.interpolate</span> <span class="kn">import</span> <span class="n">splev</span>
+
+
+<div class="viewcode-block" id="RBF"><a class="viewcode-back" href="../../ndinterpolator.html#bladex.ndinterpolator.RBF">[docs]</a><span class="k">class</span> <span class="nc">RBF</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    .. _ndinterpolator-label:</span>
+
+<span class="sd">    RBF ndinterpolator</span>
+<span class="sd">    ======================</span>
+
+<span class="sd">    Module focused on the implementation of the Radial Basis Functions</span>
+<span class="sd">    interpolation technique.  This technique is still based on the use of</span>
+<span class="sd">    a set of parameters, the so-called control points, as for FFD, but RBF</span>
+<span class="sd">    is interpolatory. Another important key point of RBF strategy relies in</span>
+<span class="sd">    the way we can locate the control points: in fact, instead of FFD where</span>
+<span class="sd">    control points need to be placed inside a regular lattice, with RBF we</span>
+<span class="sd">    havo no more limitations. So we have the possibility to perform localized</span>
+<span class="sd">    control points refiniments.</span>
+
+<span class="sd">    :Theoretical Insight:</span>
+<span class="sd">        As reference please consult M.D. Buhmann, Radial Basis Functions,</span>
+<span class="sd">        volume 12 of Cambridge monographs on applied and computational</span>
+<span class="sd">        mathematics. Cambridge University Press, UK, 2003.  This implementation</span>
+<span class="sd">        follows D. Forti and G. Rozza, Efficient geometrical parametrization</span>
+<span class="sd">        techniques of interfaces for reduced order modelling: application to</span>
+<span class="sd">        fluid-structure interaction coupling problems, International Journal</span>
+<span class="sd">        of Computational Fluid Dynamics.</span>
+<span class="sd">        </span>
+<span class="sd">        RBF shape parametrization technique is based on the definition of a map</span>
+<span class="sd">        :math:`\\mathcal{M}(\\boldsymbol{x}) : \\mathbb{R}^n \\rightarrow</span>
+<span class="sd">        \\mathbb{R}^n`, that allows the possibility of transferring data across</span>
+<span class="sd">        non-matching grids and facing the dynamic mesh handling. The map</span>
+<span class="sd">        introduced is defines as follows</span>
+<span class="sd">        </span>
+<span class="sd">        .. math::</span>
+<span class="sd">            \\mathcal{M}(\\boldsymbol{x}) = p(\\boldsymbol{x}) + </span>
+<span class="sd">            \\sum_{i=1}^{\\mathcal{N}_C} \\gamma_i</span>
+<span class="sd">            \\varphi(\\| \\boldsymbol{x} - \\boldsymbol{x_{C_i}} \\|)</span>
+<span class="sd">        </span>
+<span class="sd">        where :math:`p(\\boldsymbol{x})` is a low_degree polynomial term,</span>
+<span class="sd">        :math:`\\gamma_i` is the weight, corresponding to the a-priori selected</span>
+<span class="sd">        :math:`\\mathcal{N}_C` control points, associated to the :math:`i`-th</span>
+<span class="sd">        basis function, and :math:`\\varphi(\\| \\boldsymbol{x} -</span>
+<span class="sd">        \\boldsymbol{x_{C_i}} \\|)` a radial function based on the Euclidean</span>
+<span class="sd">        distance between the control points position :math:`\\boldsymbol{x_{C_i}}`</span>
+<span class="sd">        and :math:`\\boldsymbol{x}`. A radial basis function, generally, is a</span>
+<span class="sd">        real-valued function whose value depends only on the distance from the</span>
+<span class="sd">        origin, so that :math:`\\varphi(\\boldsymbol{x}) = \\tilde{\\varphi}(</span>
+<span class="sd">        \\|\\boldsymbol{x} \\|)`.</span>
+
+<span class="sd">        The matrix version of the formula above is:</span>
+<span class="sd">        </span>
+<span class="sd">        .. math::</span>
+<span class="sd">            \\mathcal{M}(\\boldsymbol{x}) = \\boldsymbol{c} +</span>
+<span class="sd">            \\boldsymbol{Q}\\boldsymbol{x} +</span>
+<span class="sd">            \\boldsymbol{W^T}\\boldsymbol{d}(\\boldsymbol{x})</span>
+<span class="sd">        </span>
+<span class="sd">        The idea is that after the computation of the weights and the</span>
+<span class="sd">        polynomial terms from the coordinates of the control points before and</span>
+<span class="sd">        after the deformation, we can deform all the points of the mesh</span>
+<span class="sd">        accordingly. Among the most common used radial basis functions for</span>
+<span class="sd">        modelling 2D and 3D shapes, we consider Gaussian splines, Multi-</span>
+<span class="sd">        uadratic biharmonic splines, Inverted multi-quadratic biharmonic</span>
+<span class="sd">        splines, Thin-plate splines, Beckert and Wendland :math:`C^2` basis all</span>
+<span class="sd">        defined and implemented below.</span>
+
+<span class="sd">    :param string basis: RBF basis function</span>
+<span class="sd">    :param float radius: cut-off radius</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">basis</span><span class="p">,</span> <span class="n">radius</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bases</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;gaussian_spline&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">gaussian_spline</span><span class="p">,</span>
+            <span class="s1">&#39;multi_quadratic_biharmonic_spline&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">multi_quadratic_biharmonic_spline</span><span class="p">,</span>
+            <span class="s1">&#39;inv_multi_quadratic_biharmonic_spline&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">inv_multi_quadratic_biharmonic_spline</span><span class="p">,</span>
+            <span class="s1">&#39;thin_plate_spline&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">thin_plate_spline</span><span class="p">,</span>
+            <span class="s1">&#39;beckert_wendland_c2_basis&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">beckert_wendland_c2_basis</span>
+        <span class="p">}</span>
+
+        <span class="k">if</span> <span class="n">basis</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">bases</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">basis</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bases</span><span class="p">[</span><span class="n">basis</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">NameError</span><span class="p">(</span>
+                <span class="sd">&quot;&quot;&quot;The name of the basis function is not correct. Check </span>
+<span class="sd">                the documentation for all the available functions.&quot;&quot;&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">radius</span> <span class="o">=</span> <span class="n">radius</span>
+
+    <span class="c1"># The following static methods are the implementations</span>
+    <span class="c1"># of the most common radial basis functions</span>
+    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="RBF.gaussian_spline"><a class="viewcode-back" href="../../ndinterpolator.html#bladex.ndinterpolator.RBF.gaussian_spline">[docs]</a>    <span class="k">def</span> <span class="nf">gaussian_spline</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">r</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        It implements the following formula:</span>
+
+<span class="sd">        .. math::</span>
+<span class="sd">            \\varphi(\\| \\boldsymbol{x} \\|) =</span>
+<span class="sd">            e^{-\\frac{\\| \\boldsymbol{x} \\|^2}{r^2}}</span>
+
+<span class="sd">        :param numpy.ndarray X: l2-norm between given inputs of a function</span>
+<span class="sd">            and the locations to perform rbf approximation to that function.</span>
+<span class="sd">        :param float r: smoothing length, also called the cut-off radius.</span>
+
+<span class="sd">        :return: result: the result of the formula above.</span>
+<span class="sd">        :rtype: float</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="p">(</span><span class="n">X</span> <span class="o">*</span> <span class="n">X</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">r</span> <span class="o">*</span> <span class="n">r</span><span class="p">))</span></div>
+
+    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="RBF.multi_quadratic_biharmonic_spline"><a class="viewcode-back" href="../../ndinterpolator.html#bladex.ndinterpolator.RBF.multi_quadratic_biharmonic_spline">[docs]</a>    <span class="k">def</span> <span class="nf">multi_quadratic_biharmonic_spline</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">r</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        It implements the following formula:</span>
+
+<span class="sd">        .. math::</span>
+<span class="sd">            \\varphi(\\| \\boldsymbol{x} \\|) =</span>
+<span class="sd">            \\sqrt{\\| \\boldsymbol{x} \\|^2 + r^2}</span>
+
+<span class="sd">        :param numpy.ndarray X: l2-norm between given inputs of a function</span>
+<span class="sd">            and the locations to perform rbf approximation to that function.</span>
+<span class="sd">        :param float r: smoothing length, also called the cut-off radius.</span>
+
+<span class="sd">        :return: result: the result of the formula above.</span>
+<span class="sd">        :rtype: float</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">((</span><span class="n">X</span> <span class="o">*</span> <span class="n">X</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="n">r</span> <span class="o">*</span> <span class="n">r</span><span class="p">))</span></div>
+
+    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="RBF.inv_multi_quadratic_biharmonic_spline"><a class="viewcode-back" href="../../ndinterpolator.html#bladex.ndinterpolator.RBF.inv_multi_quadratic_biharmonic_spline">[docs]</a>    <span class="k">def</span> <span class="nf">inv_multi_quadratic_biharmonic_spline</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">r</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        It implements the following formula:</span>
+
+<span class="sd">        .. math::</span>
+<span class="sd">            \\varphi(\\| \\boldsymbol{x} \\|) =</span>
+<span class="sd">            (\\| \\boldsymbol{x} \\|^2 + r^2 )^{-\\frac{1}{2}}</span>
+
+<span class="sd">        :param numpy.ndarray X: l2-norm between given inputs of a function</span>
+<span class="sd">            and the locations to perform rbf approximation to that function.</span>
+<span class="sd">        :param float r: smoothing length, also called the cut-off radius.</span>
+
+<span class="sd">        :return: result: the result of the formula above.</span>
+<span class="sd">        :rtype: float</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">((</span><span class="n">X</span> <span class="o">*</span> <span class="n">X</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="n">r</span> <span class="o">*</span> <span class="n">r</span><span class="p">)))</span></div>
+
+    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="RBF.thin_plate_spline"><a class="viewcode-back" href="../../ndinterpolator.html#bladex.ndinterpolator.RBF.thin_plate_spline">[docs]</a>    <span class="k">def</span> <span class="nf">thin_plate_spline</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">r</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        It implements the following formula:</span>
+
+<span class="sd">        .. math::</span>
+<span class="sd">            \\varphi(\\| \\boldsymbol{x} \\|) =</span>
+<span class="sd">            \\left\\| \\frac{\\boldsymbol{x} }{r} \\right\\|^2</span>
+<span class="sd">            \\ln \\left\\| \\frac{\\boldsymbol{x} }{r} \\right\\|</span>
+
+<span class="sd">        :param numpy.ndarray X: l2-norm between given inputs of a function</span>
+<span class="sd">            and the locations to perform rbf approximation to that function.</span>
+<span class="sd">        :param float r: smoothing length, also called the cut-off radius.</span>
+
+<span class="sd">        :return: result: the result of the formula above.</span>
+<span class="sd">        :rtype: float</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">arg</span> <span class="o">=</span> <span class="n">X</span> <span class="o">/</span> <span class="n">r</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">arg</span> <span class="o">*</span> <span class="n">arg</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">arg</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="n">result</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">arg</span><span class="p">),</span> <span class="n">result</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">result</span></div>
+
+    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="RBF.beckert_wendland_c2_basis"><a class="viewcode-back" href="../../ndinterpolator.html#bladex.ndinterpolator.RBF.beckert_wendland_c2_basis">[docs]</a>    <span class="k">def</span> <span class="nf">beckert_wendland_c2_basis</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">r</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        It implements the following formula:</span>
+
+<span class="sd">        .. math::</span>
+<span class="sd">            \\varphi(\\| \\boldsymbol{x} \\|) =</span>
+<span class="sd">            \\left( 1 - \\frac{\\| \\boldsymbol{x} \\|}{r} \\right)^4 +</span>
+<span class="sd">            \\left( 4 \\frac{\\| \\boldsymbol{x} \\|}{r} + 1 \\right)</span>
+
+<span class="sd">        :param numpy.ndarray X: l2-norm between given inputs of a function</span>
+<span class="sd">            and the locations to perform rbf approximation to that function.</span>
+<span class="sd">        :param float r: smoothing length, also called the cut-off radius.</span>
+
+<span class="sd">        :return: result: the result of the formula above.</span>
+<span class="sd">        :rtype: float</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">arg</span> <span class="o">=</span> <span class="n">X</span> <span class="o">/</span> <span class="n">r</span>
+        <span class="n">first</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">((</span><span class="mi">1</span> <span class="o">-</span> <span class="n">arg</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">((</span><span class="mi">1</span> <span class="o">-</span> <span class="n">arg</span><span class="p">),</span> <span class="mi">4</span><span class="p">),</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">second</span> <span class="o">=</span> <span class="p">(</span><span class="mi">4</span> <span class="o">*</span> <span class="n">arg</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="k">return</span> <span class="n">first</span> <span class="o">*</span> <span class="n">second</span></div>
+
+<div class="viewcode-block" id="RBF.weights_matrix"><a class="viewcode-back" href="../../ndinterpolator.html#bladex.ndinterpolator.RBF.weights_matrix">[docs]</a>    <span class="k">def</span> <span class="nf">weights_matrix</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X1</span><span class="p">,</span> <span class="n">X2</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This method returns the following matrix:</span>
+
+<span class="sd">        .. math::</span>
+<span class="sd">            \\boldsymbol{D_{ij}} = \\varphi(\\| \\boldsymbol{x_i} -</span>
+<span class="sd">            \\boldsymbol{y_j} \\|)</span>
+
+<span class="sd">        :param numpy.ndarray X1: the vector x in the formula above.</span>
+<span class="sd">        :param numpy.ndarray X2: the vector y in the formula above.</span>
+
+<span class="sd">        :return: matrix: the matrix D.</span>
+<span class="sd">        :rtype: numpy.ndarray</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">X1</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="n">X1</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+            <span class="n">X1</span> <span class="o">=</span> <span class="n">X1</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">X2</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="n">X2</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+            <span class="n">X2</span> <span class="o">=</span> <span class="n">X2</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">basis</span><span class="p">(</span><span class="n">cdist</span><span class="p">(</span><span class="n">X1</span><span class="p">,</span> <span class="n">X2</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">radius</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="reconstruct_f"><a class="viewcode-back" href="../../ndinterpolator.html#bladex.ndinterpolator.reconstruct_f">[docs]</a><span class="k">def</span> <span class="nf">reconstruct_f</span><span class="p">(</span><span class="n">original_input</span><span class="p">,</span> <span class="n">original_output</span><span class="p">,</span> <span class="n">rbf_input</span><span class="p">,</span> <span class="n">rbf_output</span><span class="p">,</span> <span class="n">basis</span><span class="p">,</span>
+                  <span class="n">radius</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Reconstruct a function by using the radial basis function approximations.</span>
+
+<span class="sd">    :param array_like original_input: the original values of function inputs.</span>
+<span class="sd">    :param array_like original_output: the original values of function output.</span>
+<span class="sd">    :param array_like rbf_input: the input data for RBF approximation.</span>
+<span class="sd">    :param array_like rbf_output: the array elements to be updated with the RBF</span>
+<span class="sd">        interpolated outputs after the approximation.</span>
+<span class="sd">    :param string basis: radial basis function.</span>
+<span class="sd">    :param float radius: smoothing length, also called the cut-off radius.</span>
+
+<span class="sd">    :Example:</span>
+<span class="sd">        &gt;&gt;&gt; import numpy as np</span>
+<span class="sd">        &gt;&gt;&gt; from bladex.ndinterpolator import reconstruct_f</span>
+<span class="sd">        &gt;&gt;&gt; x = np.arange(10)</span>
+<span class="sd">        &gt;&gt;&gt; y = np.square(x)</span>
+<span class="sd">        &gt;&gt;&gt; radius = 10</span>
+<span class="sd">        &gt;&gt;&gt; n_interp = 50</span>
+<span class="sd">        &gt;&gt;&gt; x_rbf = np.linspace(x[0], x[-1], num=n_interp)</span>
+<span class="sd">        &gt;&gt;&gt; y_rbf = np.zeros(n_interp)</span>
+<span class="sd">        &gt;&gt;&gt; reconstruct_f(original_input=x, original_output=y, rbf_input=x_rbf,</span>
+<span class="sd">            rbf_output=y_rbf, radius=radius, basis=&#39;beckert_wendland_c2_basis&#39;)</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">radial</span> <span class="o">=</span> <span class="n">RBF</span><span class="p">(</span><span class="n">basis</span><span class="o">=</span><span class="n">basis</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="n">radius</span><span class="p">)</span>
+
+    <span class="n">weights_coeff</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span>
+        <span class="n">radial</span><span class="o">.</span><span class="n">weights_matrix</span><span class="p">(</span><span class="n">original_input</span><span class="p">,</span> <span class="n">original_input</span><span class="p">),</span> <span class="n">original_output</span><span class="p">)</span>
+
+    <span class="n">weights_rbf</span> <span class="o">=</span> <span class="n">radial</span><span class="o">.</span><span class="n">weights_matrix</span><span class="p">(</span><span class="n">rbf_input</span><span class="p">,</span> <span class="n">original_input</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">rbf_input</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">original_input</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+            <span class="n">rbf_output</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+=</span> <span class="n">weights_coeff</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">*</span> <span class="n">weights_rbf</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="scipy_bspline"><a class="viewcode-back" href="../../ndinterpolator.html#bladex.ndinterpolator.scipy_bspline">[docs]</a><span class="k">def</span> <span class="nf">scipy_bspline</span><span class="p">(</span><span class="n">cv</span><span class="p">,</span> <span class="n">npoints</span><span class="p">,</span> <span class="n">degree</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Construct B-Spline curve via the control points.</span>
+
+<span class="sd">    :param array_like cv: control points vector (spline coefficients).</span>
+<span class="sd">    :param int npoints: number of points on the curve.</span>
+<span class="sd">    :param int degree: BSpline degree.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">c</span> <span class="o">=</span> <span class="n">cv</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="c1"># calculating BSpline knots</span>
+    <span class="n">kv</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">c</span><span class="o">+</span><span class="n">degree</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">-</span><span class="n">degree</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">c</span><span class="o">-</span><span class="n">degree</span><span class="p">)</span>
+    <span class="c1"># u is the array of points at which to return the value of the smoothed spline</span>
+    <span class="n">u</span>  <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">c</span><span class="o">-</span><span class="n">degree</span><span class="p">,</span> <span class="n">npoints</span><span class="p">)</span>
+    <span class="c1"># Calculate resulting spline</span>
+    <span class="c1"># splev requires u, and a tuple which is a sequence of length 3 containing</span>
+    <span class="c1"># the knots, coefficients, and degree of the spline.</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">splev</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="p">(</span><span class="n">kv</span><span class="p">,</span> <span class="n">cv</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">degree</span><span class="p">)))</span><span class="o">.</span><span class="n">T</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, BladeX contributors.
+      Last updated on Jul 26, 2018.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../',
+            VERSION:'0.0.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

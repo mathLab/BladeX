@@ -1,0 +1,681 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Deformation &mdash; BladeX 0.0.1 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+    <link rel="top" title="BladeX 0.0.1 documentation" href="index.html"/>
+        <link rel="up" title="Code Documentation" href="code.html"/>
+        <link rel="next" title="bladex.deform.Deformation._check_control_points" href="_summaries/bladex.deform.Deformation._check_control_points.html"/>
+        <link rel="prev" title="bladex.blade.Blade.export_ppg" href="_summaries/bladex.blade.Blade.export_ppg.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> BladeX
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="code.html">Code Documentation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="blade.html">Blade</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Deformation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="_summaries/bladex.deform.Deformation._check_control_points.html">bladex.deform.Deformation._check_control_points</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_summaries/bladex.deform.Deformation._check_deformed.html">bladex.deform.Deformation._check_deformed</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_summaries/bladex.deform.Deformation._check_param.html">bladex.deform.Deformation._check_param</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_summaries/bladex.deform.Deformation._check_spline.html">bladex.deform.Deformation._check_spline</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_summaries/bladex.deform.Deformation._optimum_control_points.html">bladex.deform.Deformation._optimum_control_points</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_summaries/bladex.deform.Deformation.compute_all.html">bladex.deform.Deformation.compute_all</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_summaries/bladex.deform.Deformation.compute_control_points.html">bladex.deform.Deformation.compute_control_points</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_summaries/bladex.deform.Deformation.compute_deformed_parameters.html">bladex.deform.Deformation.compute_deformed_parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_summaries/bladex.deform.Deformation.export_param_file.html">bladex.deform.Deformation.export_param_file</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_summaries/bladex.deform.Deformation.generate_spline.html">bladex.deform.Deformation.generate_spline</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_summaries/bladex.deform.Deformation.plot.html">bladex.deform.Deformation.plot</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_summaries/bladex.deform.Deformation.update_control_points.html">bladex.deform.Deformation.update_control_points</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="ndinterpolator.html">Ndinterpolator</a></li>
+<li class="toctree-l2"><a class="reference internal" href="profilebase.html">ProfileBase</a></li>
+<li class="toctree-l2"><a class="reference internal" href="params.html">ParamFile</a></li>
+<li class="toctree-l2"><a class="reference internal" href="profiles.html">Profiles</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="contact.html">Contact</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">How to contribute</a></li>
+<li class="toctree-l1"><a class="reference internal" href="LICENSE.html">License</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">BladeX</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="code.html">Code Documentation</a> &raquo;</li>
+      
+    <li>Deformation</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/deform.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-bladex.deform">
+<span id="deformation"></span><h1>Deformation<a class="headerlink" href="#module-bladex.deform" title="Permalink to this headline">¶</a></h1>
+<p>Module to deform blade&#8217;s parameters, based on a given parameter file.</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="_summaries/bladex.deform.Deformation._check_control_points.html#bladex.deform.Deformation._check_control_points" title="bladex.deform.Deformation._check_control_points"><code class="xref py py-obj docutils literal"><span class="pre">Deformation._check_control_points</span></code></a></td>
+<td>Private method to check if control points are computed.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="_summaries/bladex.deform.Deformation._check_deformed.html#bladex.deform.Deformation._check_deformed" title="bladex.deform.Deformation._check_deformed"><code class="xref py py-obj docutils literal"><span class="pre">Deformation._check_deformed</span></code></a></td>
+<td>Private method to check if the deformed parameters are computed.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="_summaries/bladex.deform.Deformation._check_param.html#bladex.deform.Deformation._check_param" title="bladex.deform.Deformation._check_param"><code class="xref py py-obj docutils literal"><span class="pre">Deformation._check_param</span></code></a></td>
+<td>Private static method that checks the passed parameter.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="_summaries/bladex.deform.Deformation._check_spline.html#bladex.deform.Deformation._check_spline" title="bladex.deform.Deformation._check_spline"><code class="xref py py-obj docutils literal"><span class="pre">Deformation._check_spline</span></code></a></td>
+<td>Private method to check if spline interpolation is computed.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="_summaries/bladex.deform.Deformation._optimum_control_points.html#bladex.deform.Deformation._optimum_control_points" title="bladex.deform.Deformation._optimum_control_points"><code class="xref py py-obj docutils literal"><span class="pre">Deformation._optimum_control_points</span></code></a></td>
+<td>Private static method that computes the optimum coordinates of the B-spline control points.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="_summaries/bladex.deform.Deformation.compute_all.html#bladex.deform.Deformation.compute_all" title="bladex.deform.Deformation.compute_all"><code class="xref py py-obj docutils literal"><span class="pre">Deformation.compute_all</span></code></a></td>
+<td>Computes everything:</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="_summaries/bladex.deform.Deformation.compute_control_points.html#bladex.deform.Deformation.compute_control_points" title="bladex.deform.Deformation.compute_control_points"><code class="xref py py-obj docutils literal"><span class="pre">Deformation.compute_control_points</span></code></a></td>
+<td>Compute the control points 2D coordinates for one of the parametric curves.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="_summaries/bladex.deform.Deformation.compute_deformed_parameters.html#bladex.deform.Deformation.compute_deformed_parameters" title="bladex.deform.Deformation.compute_deformed_parameters"><code class="xref py py-obj docutils literal"><span class="pre">Deformation.compute_deformed_parameters</span></code></a></td>
+<td>This method uses the spline npoints interpolation of the parametric curve to extract the parameters corresponding to the radial distribution of the original undeformed array.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="_summaries/bladex.deform.Deformation.export_param_file.html#bladex.deform.Deformation.export_param_file" title="bladex.deform.Deformation.export_param_file"><code class="xref py py-obj docutils literal"><span class="pre">Deformation.export_param_file</span></code></a></td>
+<td>Export a new parameter file with the new deformed parameters, while all other values are kept the same as in the original parameter file with the undeformed parameters.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="_summaries/bladex.deform.Deformation.generate_spline.html#bladex.deform.Deformation.generate_spline" title="bladex.deform.Deformation.generate_spline"><code class="xref py py-obj docutils literal"><span class="pre">Deformation.generate_spline</span></code></a></td>
+<td>Generate the B-spline interpolations, using the information: <cite>degree</cite>, <cite>npoints</cite> from the parameter file, as well as the computed 2D coordinates of the control points.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="_summaries/bladex.deform.Deformation.plot.html#bladex.deform.Deformation.plot" title="bladex.deform.Deformation.plot"><code class="xref py py-obj docutils literal"><span class="pre">Deformation.plot</span></code></a></td>
+<td>Plot the parametric curve.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="_summaries/bladex.deform.Deformation.update_control_points.html#bladex.deform.Deformation.update_control_points" title="bladex.deform.Deformation.update_control_points"><code class="xref py py-obj docutils literal"><span class="pre">Deformation.update_control_points</span></code></a></td>
+<td>Update the control point Y coordinate with the deformation values specified in the parameter file.</td>
+</tr>
+</tbody>
+</table>
+<dl class="class">
+<dt>
+<em class="property">class </em><code class="descname">Deformation</code><span class="sig-paren">(</span><em>paramfile</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bladex/deform.html#Deformation"><span class="viewcode-link">[source]</span></a></dt>
+<dd><p>Bases: <a class="reference external" href="http://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<p>Deform parameter curves {chord, pitch, rake, skew, camber} according to
+specific information passed through a parameter file.</p>
+<p>The module contains several methods that are able to:</p>
+<blockquote>
+<div><p>1. compute coordinates of the optimal control points, provided their
+number from the parameter file.</p>
+<p>2. update control points Y coordinates, provided the magnitude of the
+Y deformation from the parameter file.</p>
+<p>3. generate B-spline curve using the computed control points (before or
+after their deformation), provided npoints from the parameter file
+for spline estimation.</p>
+<p>4. plot parametric curves, with several options. Finally export a new
+parameter file containing the new deformed parameters.</p>
+</div></blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>paramfile</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; parameter file name</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Variables:</th><td class="field-body"><ul class="first last simple">
+<li><strong>paramfile</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; parameter file name</li>
+<li><strong>param</strong> (<em>class</em>) &#8211; <p>class object instantiated by the module params, and
+contains all the attributes assigned by reading the parameter file.
+Possible attributes are:</p>
+<ul>
+<li><cite>param.radii</cite></li>
+<li><cite>param.parameters</cite></li>
+<li><cite>param.nbasis</cite></li>
+<li><cite>param.degree</cite></li>
+<li><cite>param.deformations</cite></li>
+</ul>
+<p>First attribute is array defines the radial sections, while the
+remaining attributes are dictionaries with possible keys: <cite>chord</cite>,
+<cite>pitch</cite>, <cite>rake</cite>, <cite>skew</cite>, <cite>camber</cite>.</p>
+</li>
+<li><strong>deformed_parameters</strong> (<a class="reference external" href="http://docs.python.org/2/library/stdtypes.html#dict" title="(in Python v2.7)"><em>dict</em></a>) &#8211; dictionary that contains the deformed
+parameters at the same radial sections, provided some tolerance due to
+the spline interpolation. Possible dictionary keys are the parameters
+<cite>chord</cite>, <cite>pitch</cite>, <cite>rake</cite>, <cite>skew</cite>, <cite>camber</cite>. Default value is array of
+zeros with length equal to the radial sections.</li>
+<li><strong>control_points</strong> (<a class="reference external" href="http://docs.python.org/2/library/stdtypes.html#dict" title="(in Python v2.7)"><em>dict</em></a>) &#8211; dictionary that contains the 2D coordinates of
+the control points associated with the B-spline parametric curve. The
+dictionary possible keys are the parameters <cite>chord</cite>, <cite>pitch</cite>, <cite>rake</cite>,
+<cite>skew</cite>, <cite>camber</cite>. Default value is None</li>
+<li><strong>spline</strong> (<a class="reference external" href="http://docs.python.org/2/library/stdtypes.html#dict" title="(in Python v2.7)"><em>dict</em></a>) &#8211; dictionary that contains the B-spline interpolation for
+the parametric curves. The dictionary possible keys are the parameters
+<cite>chord</cite>, <cite>pitch</cite>, <cite>rake</cite>, <cite>skew</cite>, <cite>camber</cite>. Each value is a 2D numpy
+array containing the radii interpolations against the interpolations
+for one of the parameters mentioned in the dictionary keys. Default
+value is None.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt>
+<code class="descname">_check_control_points</code><span class="sig-paren">(</span><em>param</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bladex/deform.html#Deformation._check_control_points"><span class="viewcode-link">[source]</span></a></dt>
+<dd><p>Private method to check if control points are computed.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>param</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; passed parameter to check. Valid values
+are: <cite>chord</cite>, <cite>pitch</cite>, <cite>rake</cite>, <cite>skew</cite>, <cite>camber</cite></td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><strong>ValueError</strong> &#8211; if the control points have None value, i.e. not
+computed</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<code class="descname">_check_deformed</code><span class="sig-paren">(</span><em>param</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bladex/deform.html#Deformation._check_deformed"><span class="viewcode-link">[source]</span></a></dt>
+<dd><p>Private method to check if the deformed parameters are computed.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>param</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; passed parameter to check. Valid values
+are: <cite>chord</cite>, <cite>pitch</cite>, <cite>rake</cite>, <cite>skew</cite>, <cite>camber</cite></td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><strong>ValueError</strong> &#8211; if the deformed parameters have array of zeros,
+i.e. not computed</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt>
+<em class="property">static </em><code class="descname">_check_param</code><span class="sig-paren">(</span><em>param</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bladex/deform.html#Deformation._check_param"><span class="viewcode-link">[source]</span></a></dt>
+<dd><p>Private static method that checks the passed parameter.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>param</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; passed parameter to check. Valid values
+are: <cite>chord</cite>, <cite>pitch</cite>, <cite>rake</cite>, <cite>skew</cite>, <cite>camber</cite></td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><strong>ValueError</strong> &#8211; if the param value is not one of the previous</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<code class="descname">_check_spline</code><span class="sig-paren">(</span><em>param</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bladex/deform.html#Deformation._check_spline"><span class="viewcode-link">[source]</span></a></dt>
+<dd><p>Private method to check if spline interpolation is computed.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>param</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; passed parameter to check. Valid values
+are: <cite>chord</cite>, <cite>pitch</cite>, <cite>rake</cite>, <cite>skew</cite>, <cite>camber</cite></td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><strong>ValueError</strong> &#8211; if the spline of that parameter curve has None
+value, i.e. not computed</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt>
+<em class="property">static </em><code class="descname">_optimum_control_points</code><span class="sig-paren">(</span><em>X</em>, <em>Y</em>, <em>degree</em>, <em>nbasis</em>, <em>rbf_points</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bladex/deform.html#Deformation._optimum_control_points"><span class="viewcode-link">[source]</span></a></dt>
+<dd><p>Private static method that computes the optimum coordinates of the
+B-spline control points.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>X</strong> (<em>array_like</em>) &#8211; Array of original points of the parametric curve
+X-axis, usually array of the radii sections</li>
+<li><strong>Y</strong> (<em>array_like</em>) &#8211; radial distribution of parameter <cite>chord</cite> or
+<cite>pitch</cite> or <cite>rake</cite> or <cite>skew</cite> or <cite>camber</cite>, corresponding to the
+radial sections in X</li>
+<li><strong>degree</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; degree of the B-spline construction for the
+parametric curve</li>
+<li><strong>nbasis</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; number of control points associated with the
+parametric curve</li>
+<li><strong>rbf_points</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; if specified greater than zero, then the X and Y
+arrays are interpolated using the Wendland C2 radial basis function
+to produce X and Y arrays with length = rbf_points. The larger
+number of rbf_points implies better estimation of the optimum
+control coordinates. To turn it off (i.e. compute control points
+based on original X, Y arrays) then insert 0. (Negative values or
+None results in same effect as zero)</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">control points 2D coordinates</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="http://docs.scipy.org/doc/numpy/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.15)">numpy.ndarray</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<code class="descname">_plot_parametric_curve</code><span class="sig-paren">(</span><em>param</em>, <em>original=True</em>, <em>ctrl_points=True</em>, <em>spline=True</em>, <em>rbf=False</em>, <em>rbf_points=500</em>, <em>deformed=False</em>, <em>outfile=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bladex/deform.html#Deformation._plot_parametric_curve"><span class="viewcode-link">[source]</span></a></dt>
+<dd><p>Private method to plot the parametric curve. Several options
+can be specified.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>param</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; parameter corresponding to the parametric curve
+needs to be plotted. possible values are <cite>chord</cite>, <cite>pitch</cite>, <cite>rake</cite>,
+<cite>skew</cite>, <cite>camber</cite></li>
+<li><strong>original</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a>) &#8211; if True, then plot the original points of the
+parameter at the radii sections.</li>
+<li><strong>ctrl_points</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a>) &#8211; if True, then plot the control points of
+that parametric curve.</li>
+<li><strong>spline</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a>) &#8211; If True, then plot the B-spline interpolation of
+the parametric curve.</li>
+<li><strong>rbf</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a>) &#8211; if True, then plot the radial basis functions
+interpolation of the parametric curve.</li>
+<li><strong>rbf_points</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; number of points used for the rbf interpolation,
+if the flag <cite>rbf</cite> is set True. Beware that this argument does not
+have the same function of that when computing the control points,
+although both uses the radial basis function interpolation with
+the Wendland basis.</li>
+<li><strong>deformed</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a>) &#8211; if True, then plot the deformed points of the
+parameter radial distribution, estimated using the B-spline
+interpolations within a given tolerance.</li>
+<li><strong>outfile</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; if string is passed, then the plot is saved
+with that name. If the value is None, then the plot is shown on
+the screen.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<code class="descname">compute_all</code><span class="sig-paren">(</span><em>rbf_points=1000</em>, <em>tol_chord=0.001</em>, <em>tol_pitch=0.001</em>, <em>tol_rake=0.001</em>, <em>tol_skew=0.001</em>, <em>tol_camber=0.001</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bladex/deform.html#Deformation.compute_all"><span class="viewcode-link">[source]</span></a></dt>
+<dd><dl class="docutils">
+<dt>Computes everything:</dt>
+<dd><ul class="first last simple">
+<li>control points 2D coordinates</li>
+<li>deformed control points</li>
+<li>spline npoints interpolations</li>
+<li>deformed parameters of the original arrays</li>
+</ul>
+</dd>
+</dl>
+<p>The previous procedure is applied for all the parameters: <cite>chord</cite>,
+<cite>pitch</cite>, <cite>rake</cite>, <cite>skew</cite>, <cite>camber</cite></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>rbf_points</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; if greater than zero then the Wendland C2 radial
+basis function is used to interpolate the original arrays for the
+parametric curve, so that the control points are computed according
+to the interpolated arrays. Needless to mention that longer arrays
+would produce better estimation of the control points optimum
+coordinates. In order to turn off the rbf interpolation then
+specify either 0 or -1 (Also a None value can be used too). Default
+value is 1000</li>
+<li><strong>tol_chord</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#float" title="(in Python v2.7)"><em>float</em></a>) &#8211; tolerance used to extract the chord radial
+distribution for the deformed B-spline interpolation. Default value
+is 1e-3</li>
+<li><strong>tol_pitch</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#float" title="(in Python v2.7)"><em>float</em></a>) &#8211; tolerance used to extract the pitch radial
+distribution for the deformed B-spline interpolation. Default value
+is 1e-3</li>
+<li><strong>tol_rake</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#float" title="(in Python v2.7)"><em>float</em></a>) &#8211; tolerance used to extract the rake radial
+distribution for the deformed B-spline interpolation. Default value
+is 1e-3</li>
+<li><strong>tol_skew</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#float" title="(in Python v2.7)"><em>float</em></a>) &#8211; tolerance used to extract the skew radial
+distribution for the deformed B-spline interpolation. Default value
+is 1e-3</li>
+<li><strong>tol_camber</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#float" title="(in Python v2.7)"><em>float</em></a>) &#8211; tolerance used to extract the camber radial
+distribution for the deformed B-spline interpolation. Default value
+is 1e-3</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<code class="descname">compute_control_points</code><span class="sig-paren">(</span><em>param</em>, <em>rbf_points=1000</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bladex/deform.html#Deformation.compute_control_points"><span class="viewcode-link">[source]</span></a></dt>
+<dd><p>Compute the control points 2D coordinates for one of the parametric
+curves.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>param</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; parameter corresponding to the parametric curve.
+possible values are <cite>chord</cite>, <cite>pitch</cite>, <cite>rake</cite>, <cite>skew</cite>, <cite>camber</cite></li>
+<li><strong>rbf_points</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; if greater than zero then the Wendland C2 radial
+basis function is used to interpolate the original arrays for the
+parametric curve, so that the control points are computed according
+to the interpolated arrays. Needless to mention that longer arrays
+would produce better estimation of the control points optimum
+coordinates. In order to turn off the rbf interpolation: specify
+either 0 or -1 (Also a None value can be used too). Default value
+is 1000</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<code class="descname">compute_deformed_parameters</code><span class="sig-paren">(</span><em>param</em>, <em>tol=0.001</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bladex/deform.html#Deformation.compute_deformed_parameters"><span class="viewcode-link">[source]</span></a></dt>
+<dd><p>This method uses the spline npoints interpolation of the parametric
+curve to extract the parameters corresponding to the radial
+distribution of the original undeformed array. Therefore the resulting
+deformed parameters should be arrays of same length like that of the
+original parameters.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>param</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; parameter corresponding to the parametric curve.
+possible values are <cite>chord</cite>, <cite>pitch</cite>, <cite>rake</cite>, <cite>skew</cite>, <cite>camber</cite></li>
+<li><strong>tol</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#float" title="(in Python v2.7)"><em>float</em></a>) &#8211; tolerance required to find the B-spline estimation
+within the neighborhood of each of the radii sections. It is
+important to specify the value carefully as it depends on the order
+of the original array values, as well as the number of points for
+the spline interpolations. Default value is 1e-3</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<code class="descname">export_param_file</code><span class="sig-paren">(</span><em>outfile='parameters_mod.prm'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bladex/deform.html#Deformation.export_param_file"><span class="viewcode-link">[source]</span></a></dt>
+<dd><p>Export a new parameter file with the new deformed parameters, while
+all other values are kept the same as in the original parameter file
+with the undeformed parameters. In the new parameter file (i.e. with
+deformed parameters) the deformations arrays become array of zeros.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>outfile</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; file name to be written out</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<code class="descname">generate_spline</code><span class="sig-paren">(</span><em>param</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bladex/deform.html#Deformation.generate_spline"><span class="viewcode-link">[source]</span></a></dt>
+<dd><p>Generate the B-spline interpolations, using the information: <cite>degree</cite>,
+<cite>npoints</cite> from the parameter file, as well as the computed 2D
+coordinates of the control points.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>param</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; parameter corresponding to the parametric curve.
+possible values are <cite>chord</cite>, <cite>pitch</cite>, <cite>rake</cite>, <cite>skew</cite>, <cite>camber</cite></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<code class="descname">plot</code><span class="sig-paren">(</span><em>param</em>, <em>original=True</em>, <em>ctrl_points=True</em>, <em>spline=True</em>, <em>rbf=False</em>, <em>rbf_points=500</em>, <em>deformed=False</em>, <em>outfile=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bladex/deform.html#Deformation.plot"><span class="viewcode-link">[source]</span></a></dt>
+<dd><p>Plot the parametric curve. Several options
+can be specified.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>param</strong> (<em>array_like</em>) &#8211; array_like of strings corresponding to the
+parametric curve that needs to be plotted. possible values are
+<cite>chord</cite>, <cite>pitch</cite>, <cite>rake</cite>, <cite>skew</cite>, <cite>camber</cite></li>
+<li><strong>original</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a>) &#8211; if True, then plot the original points of the
+parameter at the radii sections. Default value is True</li>
+<li><strong>ctrl_points</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a>) &#8211; if True, then plot the control points of
+that parametric curve. Default value is True</li>
+<li><strong>spline</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a>) &#8211; If True, then plot the B-spline interpolation of
+the parametric curve. Default value is True</li>
+<li><strong>rbf</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a>) &#8211; if True, then plot the radial basis functions
+interpolation of the parametric curve. Default value is True</li>
+<li><strong>rbf_points</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; number of points used for the rbf interpolation,
+if the flag <cite>rbf</cite> is set True. Beware that this argument does not
+have the same function of that when computing the control points,
+although both uses the radial basis function interpolation with
+the Wendland basis. Default value is 500</li>
+<li><strong>deformed</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a>) &#8211; if True, then plot the deformed points of the
+parameter radial distribution, estimated using the B-spline
+interpolations within a given tolerance. Default value is False</li>
+<li><strong>outfile</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; if string is passed, then the plot is saved
+with that name. If the value is None, then the plot is shown on
+the screen. Default value is None</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<code class="descname">update_control_points</code><span class="sig-paren">(</span><em>param</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bladex/deform.html#Deformation.update_control_points"><span class="viewcode-link">[source]</span></a></dt>
+<dd><p>Update the control point Y coordinate with the deformation values
+specified in the parameter file.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>param</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; parameter corresponding to the parametric curve.
+possible values are <cite>chord</cite>, <cite>pitch</cite>, <cite>rake</cite>, <cite>skew</cite>, <cite>camber</cite></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="_summaries/bladex.deform.Deformation._check_control_points.html" class="btn btn-neutral float-right" title="bladex.deform.Deformation._check_control_points" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="_summaries/bladex.blade.Blade.export_ppg.html" class="btn btn-neutral" title="bladex.blade.Blade.export_ppg" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, BladeX contributors.
+      Last updated on Jul 26, 2018.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'0.0.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

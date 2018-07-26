@@ -1,0 +1,506 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>bladex.profiles &mdash; BladeX 0.0.1 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+    <link rel="top" title="BladeX 0.0.1 documentation" href="../../index.html"/>
+        <link rel="up" title="Module code" href="../index.html"/> 
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> BladeX
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../code.html">Code Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contact.html">Contact</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing.html">How to contribute</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../LICENSE.html">License</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../../index.html">BladeX</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+      
+    <li>bladex.profiles</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for bladex.profiles</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Derived module from profilebase.py to provide the airfoil coordinates.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">scipy.interpolate</span> <span class="kn">import</span> <span class="n">splev</span><span class="p">,</span> <span class="n">splrep</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">.profilebase</span> <span class="kn">import</span> <span class="n">ProfileBase</span>
+
+
+<div class="viewcode-block" id="CustomProfile"><a class="viewcode-back" href="../../profiles.html#bladex.profiles.CustomProfile">[docs]</a><span class="k">class</span> <span class="nc">CustomProfile</span><span class="p">(</span><span class="n">ProfileBase</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Provide custom profile for the airfoil coordinates.</span>
+
+<span class="sd">    :param numpy.ndarray xup: 1D array that contains the X-components of the</span>
+<span class="sd">        airfoil&#39;s upper surface</span>
+<span class="sd">    :param numpy.ndarray xdown: 1D array that contains the X-components of the</span>
+<span class="sd">        airfoil&#39;s lower surface</span>
+<span class="sd">    :param numpy.ndarray yup: 1D array that contains the Y-components of the</span>
+<span class="sd">        airfoil&#39;s upper surface</span>
+<span class="sd">    :param numpy.ndarray ydown: 1D array that contains the Y-components of the</span>
+<span class="sd">        airfoil&#39;s lower surface</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xup</span><span class="p">,</span> <span class="n">yup</span><span class="p">,</span> <span class="n">xdown</span><span class="p">,</span> <span class="n">ydown</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">CustomProfile</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">xup_coordinates</span> <span class="o">=</span> <span class="n">xup</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">yup_coordinates</span> <span class="o">=</span> <span class="n">yup</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">xdown_coordinates</span> <span class="o">=</span> <span class="n">xdown</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ydown_coordinates</span> <span class="o">=</span> <span class="n">ydown</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_check_coordinates</span><span class="p">()</span>
+
+<div class="viewcode-block" id="CustomProfile._check_coordinates"><a class="viewcode-back" href="../../profiles.html#bladex.profiles.CustomProfile._check_coordinates">[docs]</a>    <span class="k">def</span> <span class="nf">_check_coordinates</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Private method that checks whether the airfoil coordinates defined</span>
+<span class="sd">        are provided correctly.</span>
+
+<span class="sd">        We note that each array of coordinates must be consistent with the</span>
+<span class="sd">        other arrays. The upper and lower surfaces should start from exactly</span>
+<span class="sd">        the same point, the leading edge, and proceed on the way till the</span>
+<span class="sd">        trailing edge. The trailing edge might have a non-zero thickness as</span>
+<span class="sd">        in the case of some NACA-airfoils. In case of an open trailing edge,</span>
+<span class="sd">        the average coordinate between upper and lower part is taken as the</span>
+<span class="sd">        unique value.</span>
+
+<span class="sd">        :raises ValueError: if either xup, xdown, yup, ydown is None</span>
+<span class="sd">        :raises ValueError: if the 1D arrays xup, yup or xdown, ydown do not</span>
+<span class="sd">            have the same length</span>
+<span class="sd">        :raises ValueError: if array yup not greater than or equal array ydown</span>
+<span class="sd">            element-wise</span>
+<span class="sd">        :raises ValueError: if xdown[0] != xup[0] or ydown[0] != yup[0]</span>
+<span class="sd">            or xdown[-1] != xup[-1]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">xup_coordinates</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s1">&#39;object &quot;xup_coordinates&quot; refers to an empty array.&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">xdown_coordinates</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s1">&#39;object &quot;xdown_coordinates&quot; refers to an empty array.&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">yup_coordinates</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s1">&#39;object &quot;yup_coordinates&quot; refers to an empty array.&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ydown_coordinates</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s1">&#39;object &quot;ydown_coordinates&quot; refers to an empty array.&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">xup_coordinates</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">xup_coordinates</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">xup_coordinates</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">xdown_coordinates</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">xdown_coordinates</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">xdown_coordinates</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">yup_coordinates</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">yup_coordinates</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">yup_coordinates</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ydown_coordinates</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ydown_coordinates</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">ydown_coordinates</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+
+        <span class="c1"># Therefore the arrays xup_coordinates and yup_coordinates must have</span>
+        <span class="c1"># the same length = N, same holds for the arrays xdown_coordinates</span>
+        <span class="c1"># and ydown_coordinates.</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">xup_coordinates</span><span class="o">.</span><span class="n">shape</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">yup_coordinates</span><span class="o">.</span><span class="n">shape</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s1">&#39;xup_coordinates and yup_coordinates must have same shape.&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">xdown_coordinates</span><span class="o">.</span><span class="n">shape</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ydown_coordinates</span><span class="o">.</span><span class="n">shape</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s1">&#39;xdown_coordinates and ydown_coordinates must have same shape.&#39;</span><span class="p">)</span>
+
+        <span class="c1"># The condition yup_coordinates &gt;= ydown_coordinates must be satisfied</span>
+        <span class="c1"># element-wise to the whole elements in the mentioned arrays.</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">(</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">greater_equal</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">yup_coordinates</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ydown_coordinates</span><span class="p">)):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s1">&#39;yup_coordinates is not &gt;= ydown_coordinates elementwise.&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">xdown_coordinates</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">xup_coordinates</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s1">&#39;(xdown_coordinates[0]=xup_coordinates[0]) not satisfied.&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">ydown_coordinates</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">yup_coordinates</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s1">&#39;(ydown_coordinates[0]=yup_coordinates[0]) not satisfied.&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">xdown_coordinates</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">xup_coordinates</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s1">&#39;(xdown_coordinates[-1]=xup_coordinates[-1]) not satisfied.&#39;</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="NacaProfile"><a class="viewcode-back" href="../../profiles.html#bladex.profiles.NacaProfile">[docs]</a><span class="k">class</span> <span class="nc">NacaProfile</span><span class="p">(</span><span class="n">ProfileBase</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Generate 4- and 5-digit NACA profiles.</span>
+
+<span class="sd">    The NACA airfoils are airfoil shapes for aircraft wings developed by the</span>
+<span class="sd">    National Advisory Committee for Aeronautics (NACA). The shape of the NACA</span>
+<span class="sd">    airfoils is described using a series of digits following the word &quot;NACA&quot;.</span>
+<span class="sd">    The parameters in the numerical code can be entered into equations to</span>
+<span class="sd">    precisely generate the cross-section of the airfoil and calculate its</span>
+<span class="sd">    properties.</span>
+
+<span class="sd">    The NACA four-digit series describes airfoil by the format MPTT, where:</span>
+
+<span class="sd">        - M/100: indicates the maximum camber in percentage, with respect to the</span>
+<span class="sd">          chord length.</span>
+
+<span class="sd">        - P/10: indicates the location of the maximum camber measured from the</span>
+<span class="sd">          leading edge. The location is normalized by the chord length.</span>
+<span class="sd">        </span>
+<span class="sd">        - TT/100: the maximum thickness as fraction of the chord length.</span>
+
+<span class="sd">    The profile 00TT refers to a symmetrical NACA airfoil.</span>
+
+<span class="sd">    The NACA five-digit series describes more complex airfoil shapes.</span>
+<span class="sd">    Its format is: LPSTT, where:</span>
+<span class="sd">        </span>
+<span class="sd">        - L: the theoretical optimum lift coefficient at ideal</span>
+<span class="sd">          angle-of-attack = 0.15*L</span>
+<span class="sd">        </span>
+<span class="sd">        - P: the x-coordinate of the point of maximum camber</span>
+<span class="sd">          (max camber at x = 0.05*P)</span>
+<span class="sd">        </span>
+<span class="sd">        - S: indicates whether the camber is simple (S=0) or reflex (S=1)</span>
+<span class="sd">          TT/100: the maximum thickness in percent of chord, as in a four-digit</span>
+<span class="sd">          NACA airfoil code</span>
+
+<span class="sd">    References:</span>
+<span class="sd">    </span>
+<span class="sd">    - Moran, Jack (2003). An introduction to theoretical and computational</span>
+<span class="sd">      aerodynamics. Dover. p. 7. ISBN 0-486-42879-6.</span>
+<span class="sd">    </span>
+<span class="sd">    - Abbott, Ira (1959). Theory of Wing Sections: Including a Summary of</span>
+<span class="sd">      Airfoil Data. New York: Dover Publications. p. 115. ISBN 978-0486605869.</span>
+
+<span class="sd">    :param str digits: 4 or 5 digits that describes the NACA profile</span>
+<span class="sd">    :param int n_points: number of discrete points that represents the</span>
+<span class="sd">        airfoil profile. Default value is 240</span>
+<span class="sd">    :param bool cosine_spacing: if True, then a cosine spacing is used for the</span>
+<span class="sd">        airfoil coordinate distribution, otherwise linear spacing is used.</span>
+<span class="sd">        Default value is True</span>
+<span class="sd">    :raises ValueError: if n_points is not positive</span>
+<span class="sd">    :raises TypeError: if n_points is not of type int</span>
+<span class="sd">    :raises SyntaxError: if digits is not a string</span>
+<span class="sd">    :raises Exception: if digits is not of length 4 or 5</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">digits</span><span class="p">,</span> <span class="n">n_points</span><span class="o">=</span><span class="mi">240</span><span class="p">,</span> <span class="n">cosine_spacing</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">NacaProfile</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">digits</span> <span class="o">=</span> <span class="n">digits</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_points</span> <span class="o">=</span> <span class="n">n_points</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cosine_spacing</span> <span class="o">=</span> <span class="n">cosine_spacing</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_check_args</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_generate_coordinates</span><span class="p">()</span>
+
+<div class="viewcode-block" id="NacaProfile._check_args"><a class="viewcode-back" href="../../profiles.html#bladex.profiles.NacaProfile._check_args">[docs]</a>    <span class="k">def</span> <span class="nf">_check_args</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Private method to check that the number of the airfoil discrete points</span>
+<span class="sd">        is a positive integer.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">digits</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;digits must be of type string.&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_points</span><span class="p">,</span> <span class="nb">float</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">n_points</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_points</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_points</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;n_points must be of type integer.&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_points</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;n_points must be positive.&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="NacaProfile._generate_coordinates"><a class="viewcode-back" href="../../profiles.html#bladex.profiles.NacaProfile._generate_coordinates">[docs]</a>    <span class="k">def</span> <span class="nf">_generate_coordinates</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Private method that generates the coordinates of the NACA 4 or 5 digits</span>
+<span class="sd">        airfoil profile. The method assumes a zero-thickness trailing edge, and</span>
+<span class="sd">        no half-cosine spacing.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">a0</span> <span class="o">=</span> <span class="o">+</span><span class="mf">0.2969</span>
+        <span class="n">a1</span> <span class="o">=</span> <span class="o">-</span><span class="mf">0.1260</span>
+        <span class="n">a2</span> <span class="o">=</span> <span class="o">-</span><span class="mf">0.3516</span>
+        <span class="n">a3</span> <span class="o">=</span> <span class="o">+</span><span class="mf">0.2843</span>
+        <span class="n">a4</span> <span class="o">=</span> <span class="o">-</span><span class="mf">0.1036</span>  <span class="c1"># zero thickness TE</span>
+
+        <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">num</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">n_points</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">digits</span><span class="p">)</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
+            <span class="c1"># Returns n+1 points in [0 1] for the given 4-digits NACA string</span>
+            <span class="n">m</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">digits</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">/</span> <span class="mf">100.0</span>
+            <span class="n">p</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">digits</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">/</span> <span class="mf">10.0</span>
+            <span class="n">t</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">digits</span><span class="p">[</span><span class="mi">2</span><span class="p">:])</span> <span class="o">/</span> <span class="mf">100.0</span>
+
+            <span class="c1"># half-thickness distribution</span>
+            <span class="n">yt</span> <span class="o">=</span> <span class="mi">5</span> <span class="o">*</span> <span class="n">t</span> <span class="o">*</span> <span class="p">(</span><span class="n">a0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">+</span> <span class="n">a1</span> <span class="o">*</span> <span class="n">x</span> <span class="o">+</span> <span class="n">a2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span> <span class="o">+</span>
+                          <span class="n">a3</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span> <span class="o">+</span> <span class="n">a4</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
+
+            <span class="k">if</span> <span class="n">p</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="c1"># Symmetric foil</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">xup_coordinates</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">num</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">n_points</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">yup_coordinates</span> <span class="o">=</span> <span class="n">yt</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">xdown_coordinates</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span>
+                    <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">num</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">n_points</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">ydown_coordinates</span> <span class="o">=</span> <span class="o">-</span><span class="n">yt</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># Cambered foil</span>
+                <span class="n">xc1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="n">xx</span> <span class="k">for</span> <span class="n">xx</span> <span class="ow">in</span> <span class="n">x</span> <span class="k">if</span> <span class="n">xx</span> <span class="o">&lt;=</span> <span class="n">p</span><span class="p">])</span>
+                <span class="n">xc2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="n">xx</span> <span class="k">for</span> <span class="n">xx</span> <span class="ow">in</span> <span class="n">x</span> <span class="k">if</span> <span class="n">xx</span> <span class="o">&gt;</span> <span class="n">p</span><span class="p">])</span>
+                <span class="n">yc1</span> <span class="o">=</span> <span class="n">m</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">xc1</span> <span class="o">*</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">p</span> <span class="o">-</span> <span class="n">xc1</span><span class="p">)</span>
+                <span class="n">yc2</span> <span class="o">=</span> <span class="n">m</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">p</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">p</span> <span class="o">+</span> <span class="n">xc2</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">xc2</span><span class="p">)</span>
+                <span class="c1"># Y-coordinates of camber line</span>
+                <span class="n">yc</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">yc1</span><span class="p">,</span> <span class="n">yc2</span><span class="p">)</span>
+
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cosine_spacing</span><span class="p">:</span>
+                    <span class="c1"># points are generated according to cosine distribution of</span>
+                    <span class="c1"># the X-coordinates of the chord</span>
+                    <span class="n">dyc1_dx</span> <span class="o">=</span> <span class="n">m</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">p</span> <span class="o">-</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">xc1</span><span class="p">)</span>
+                    <span class="n">dyc2_dx</span> <span class="o">=</span> <span class="n">m</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">p</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">p</span> <span class="o">-</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">xc2</span><span class="p">)</span>
+                    <span class="n">dyc_dx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dyc1_dx</span><span class="p">,</span> <span class="n">dyc2_dx</span><span class="p">)</span>
+                    <span class="n">theta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arctan</span><span class="p">(</span><span class="n">dyc_dx</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">xup_coordinates</span> <span class="o">=</span> <span class="n">x</span> <span class="o">-</span> <span class="n">yt</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">theta</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">yup_coordinates</span> <span class="o">=</span> <span class="n">yc</span> <span class="o">+</span> <span class="n">yt</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">theta</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">xdown_coordinates</span> <span class="o">=</span> <span class="n">x</span> <span class="o">+</span> <span class="n">yt</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">theta</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">ydown_coordinates</span> <span class="o">=</span> <span class="n">yc</span> <span class="o">-</span> <span class="n">yt</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">theta</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="c1"># Linear spacing distribution of the foil coordinates</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">xup_coordinates</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span>
+                        <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">num</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">n_points</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">xdown_coordinates</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span>
+                        <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">num</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">n_points</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">yup_coordinates</span> <span class="o">=</span> <span class="n">yc</span> <span class="o">+</span> <span class="n">yt</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">ydown_coordinates</span> <span class="o">=</span> <span class="n">yc</span> <span class="o">-</span> <span class="n">yt</span>
+
+        <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">digits</span><span class="p">)</span> <span class="o">==</span> <span class="mi">5</span><span class="p">:</span>
+            <span class="c1"># Returns n+1 points in [0 1] for the given 5-digits NACA string</span>
+            <span class="n">cld</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">digits</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">*</span> <span class="mf">0.15</span>
+            <span class="n">p</span> <span class="o">=</span> <span class="mf">5.0</span> <span class="o">*</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">digits</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">/</span> <span class="mf">100.0</span>
+            <span class="n">s</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">digits</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+            <span class="n">t</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">digits</span><span class="p">[</span><span class="mi">3</span><span class="p">:])</span> <span class="o">/</span> <span class="mf">100.0</span>
+
+            <span class="c1"># half-thickness distribution</span>
+            <span class="n">yt</span> <span class="o">=</span> <span class="mi">5</span> <span class="o">*</span> <span class="n">t</span> <span class="o">*</span> <span class="p">(</span><span class="n">a0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">+</span> <span class="n">a1</span> <span class="o">*</span> <span class="n">x</span> <span class="o">+</span> <span class="n">a2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span> <span class="o">+</span>
+                          <span class="n">a3</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span> <span class="o">+</span> <span class="n">a4</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
+
+            <span class="k">if</span> <span class="n">s</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="c1"># Relfex camber</span>
+                <span class="n">P</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.15</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">])</span>
+                <span class="n">M</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.13</span><span class="p">,</span> <span class="mf">0.2170</span><span class="p">,</span> <span class="mf">0.318</span><span class="p">,</span> <span class="mf">0.441</span><span class="p">])</span>
+                <span class="n">K</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">51.99</span><span class="p">,</span> <span class="mf">15.793</span><span class="p">,</span> <span class="mf">6.520</span><span class="p">,</span> <span class="mf">3.191</span><span class="p">])</span>
+            <span class="k">elif</span> <span class="n">s</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="c1"># Standard camber</span>
+                <span class="n">P</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.05</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.15</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">])</span>
+                <span class="n">M</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.0580</span><span class="p">,</span> <span class="mf">0.1260</span><span class="p">,</span> <span class="mf">0.2025</span><span class="p">,</span> <span class="mf">0.2900</span><span class="p">,</span> <span class="mf">0.3910</span><span class="p">])</span>
+                <span class="n">K</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">361.4</span><span class="p">,</span> <span class="mf">51.64</span><span class="p">,</span> <span class="mf">15.957</span><span class="p">,</span> <span class="mf">6.643</span><span class="p">,</span> <span class="mf">3.230</span><span class="p">])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s1">&#39;For NACA &quot;LPSTT&quot; the value of &quot;S&quot; can be either 0 or 1.&#39;</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">p</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="c1"># Symmetric foil</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">xup_coordinates</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">num</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">n_points</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">yup_coordinates</span> <span class="o">=</span> <span class="n">yt</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">xdown_coordinates</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span>
+                    <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">num</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">n_points</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">ydown_coordinates</span> <span class="o">=</span> <span class="o">-</span><span class="n">yt</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># Cambered foil</span>
+                <span class="n">spl_m</span> <span class="o">=</span> <span class="n">splrep</span><span class="p">(</span><span class="n">P</span><span class="p">,</span> <span class="n">M</span><span class="p">)</span>
+                <span class="n">spl_k</span> <span class="o">=</span> <span class="n">splrep</span><span class="p">(</span><span class="n">M</span><span class="p">,</span> <span class="n">K</span><span class="p">)</span>
+                <span class="n">m</span> <span class="o">=</span> <span class="n">splev</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">spl_m</span><span class="p">)</span>
+                <span class="n">k1</span> <span class="o">=</span> <span class="n">splev</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">spl_k</span><span class="p">)</span>
+                <span class="n">xc1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="n">xx</span> <span class="k">for</span> <span class="n">xx</span> <span class="ow">in</span> <span class="n">x</span> <span class="k">if</span> <span class="n">xx</span> <span class="o">&lt;=</span> <span class="n">m</span><span class="p">])</span>
+                <span class="n">xc2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="n">xx</span> <span class="k">for</span> <span class="n">xx</span> <span class="ow">in</span> <span class="n">x</span> <span class="k">if</span> <span class="n">xx</span> <span class="o">&gt;</span> <span class="n">m</span><span class="p">])</span>
+                <span class="n">yc1</span> <span class="o">=</span> <span class="n">k1</span> <span class="o">/</span> <span class="mf">6.0</span> <span class="o">*</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">xc1</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span> <span class="o">-</span> <span class="mi">3</span> <span class="o">*</span> <span class="n">m</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">xc1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span> <span class="o">+</span>
+                                  <span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="mi">3</span> <span class="o">-</span> <span class="n">m</span><span class="p">)</span> <span class="o">*</span> <span class="n">xc1</span><span class="p">)</span>
+                <span class="n">yc2</span> <span class="o">=</span> <span class="n">k1</span> <span class="o">/</span> <span class="mf">6.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">xc2</span><span class="p">)</span>
+                <span class="n">yc</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">yc1</span><span class="p">,</span> <span class="n">yc2</span><span class="p">)</span>
+
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cosine_spacing</span><span class="p">:</span>
+                    <span class="c1"># points are generated according to cosine distribution of</span>
+                    <span class="c1"># the X-coordinates of the chord</span>
+                    <span class="n">zc</span> <span class="o">=</span> <span class="n">cld</span> <span class="o">/</span> <span class="mf">0.3</span> <span class="o">*</span> <span class="n">yc</span>
+                    <span class="n">dyc1_dx</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="mf">6.0</span> <span class="o">*</span> <span class="n">k1</span> <span class="o">*</span> <span class="p">(</span>
+                        <span class="mi">3</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">xc1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span> <span class="o">-</span> <span class="mi">6</span> <span class="o">*</span> <span class="n">m</span> <span class="o">*</span> <span class="n">xc1</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span>
+                        <span class="p">(</span><span class="mi">3</span> <span class="o">-</span> <span class="n">m</span><span class="p">))</span>
+                    <span class="n">dyc2_dx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span><span class="o">-</span><span class="mf">1.0</span> <span class="o">/</span> <span class="mf">6.0</span> <span class="o">*</span> <span class="n">k1</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span>
+                                      <span class="nb">len</span><span class="p">(</span><span class="n">xc2</span><span class="p">))</span>
+                    <span class="n">dyc_dx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dyc1_dx</span><span class="p">,</span> <span class="n">dyc2_dx</span><span class="p">)</span>
+                    <span class="n">theta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arctan</span><span class="p">(</span><span class="n">dyc_dx</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">xup_coordinates</span> <span class="o">=</span> <span class="n">x</span> <span class="o">-</span> <span class="n">yt</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">theta</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">yup_coordinates</span> <span class="o">=</span> <span class="n">zc</span> <span class="o">+</span> <span class="n">yt</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">theta</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">xdown_coordinates</span> <span class="o">=</span> <span class="n">x</span> <span class="o">+</span> <span class="n">yt</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">theta</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">ydown_coordinates</span> <span class="o">=</span> <span class="n">zc</span> <span class="o">-</span> <span class="n">yt</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">theta</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="c1"># Linear spacing distribution of the foil coordinates</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">xup_coordinates</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span>
+                        <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">num</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">n_points</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">xdown_coordinates</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span>
+                        <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">num</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">n_points</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">yup_coordinates</span> <span class="o">=</span> <span class="n">yc</span> <span class="o">+</span> <span class="n">yt</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">ydown_coordinates</span> <span class="o">=</span> <span class="n">yc</span> <span class="o">-</span> <span class="n">yt</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span></div></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, BladeX contributors.
+      Last updated on Jul 26, 2018.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../',
+            VERSION:'0.0.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

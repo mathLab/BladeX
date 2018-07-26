@@ -1,0 +1,727 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>bladex.deform &mdash; BladeX 0.0.1 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+    <link rel="top" title="BladeX 0.0.1 documentation" href="../../index.html"/>
+        <link rel="up" title="Module code" href="../index.html"/> 
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> BladeX
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../code.html">Code Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contact.html">Contact</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing.html">How to contribute</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../LICENSE.html">License</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../../index.html">BladeX</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+      
+    <li>bladex.deform</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for bladex.deform</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Module to deform blade&#39;s parameters, based on a given parameter file.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
+<span class="kn">from</span> <span class="nn">.ndinterpolator</span> <span class="kn">import</span> <span class="n">reconstruct_f</span><span class="p">,</span> <span class="n">scipy_bspline</span>
+<span class="kn">from</span> <span class="nn">.params</span> <span class="kn">import</span> <span class="n">ParamFile</span>
+
+
+<div class="viewcode-block" id="Deformation"><a class="viewcode-back" href="../../deform.html#bladex.deform.Deformation">[docs]</a><span class="k">class</span> <span class="nc">Deformation</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Deform parameter curves {chord, pitch, rake, skew, camber} according to</span>
+<span class="sd">    specific information passed through a parameter file.</span>
+
+<span class="sd">    The module contains several methods that are able to:</span>
+
+<span class="sd">        1. compute coordinates of the optimal control points, provided their</span>
+<span class="sd">        number from the parameter file.</span>
+
+<span class="sd">        2. update control points Y coordinates, provided the magnitude of the</span>
+<span class="sd">        Y deformation from the parameter file.</span>
+
+<span class="sd">        3. generate B-spline curve using the computed control points (before or</span>
+<span class="sd">        after their deformation), provided npoints from the parameter file</span>
+<span class="sd">        for spline estimation.</span>
+
+<span class="sd">        4. plot parametric curves, with several options. Finally export a new</span>
+<span class="sd">        parameter file containing the new deformed parameters.</span>
+
+<span class="sd">    :param str paramfile: parameter file name</span>
+<span class="sd">    :cvar str paramfile: parameter file name</span>
+<span class="sd">    :cvar class param: class object instantiated by the module params, and</span>
+<span class="sd">        contains all the attributes assigned by reading the parameter file.</span>
+<span class="sd">        Possible attributes are:</span>
+
+<span class="sd">        - `param.radii`</span>
+<span class="sd">        - `param.parameters`</span>
+<span class="sd">        - `param.nbasis`</span>
+<span class="sd">        - `param.degree`</span>
+<span class="sd">        - `param.deformations`</span>
+
+<span class="sd">        First attribute is array defines the radial sections, while the</span>
+<span class="sd">        remaining attributes are dictionaries with possible keys: `chord`,</span>
+<span class="sd">        `pitch`, `rake`, `skew`, `camber`.</span>
+
+<span class="sd">    :cvar dict deformed_parameters: dictionary that contains the deformed</span>
+<span class="sd">        parameters at the same radial sections, provided some tolerance due to</span>
+<span class="sd">        the spline interpolation. Possible dictionary keys are the parameters</span>
+<span class="sd">        `chord`, `pitch`, `rake`, `skew`, `camber`. Default value is array of</span>
+<span class="sd">        zeros with length equal to the radial sections.</span>
+<span class="sd">    :cvar dict control_points: dictionary that contains the 2D coordinates of</span>
+<span class="sd">        the control points associated with the B-spline parametric curve. The</span>
+<span class="sd">        dictionary possible keys are the parameters `chord`, `pitch`, `rake`,</span>
+<span class="sd">        `skew`, `camber`. Default value is None</span>
+<span class="sd">    :cvar dict spline: dictionary that contains the B-spline interpolation for</span>
+<span class="sd">        the parametric curves. The dictionary possible keys are the parameters</span>
+<span class="sd">        `chord`, `pitch`, `rake`, `skew`, `camber`. Each value is a 2D numpy</span>
+<span class="sd">        array containing the radii interpolations against the interpolations</span>
+<span class="sd">        for one of the parameters mentioned in the dictionary keys. Default</span>
+<span class="sd">        value is None.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">paramfile</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">paramfile</span> <span class="o">=</span> <span class="n">paramfile</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">param</span> <span class="o">=</span> <span class="n">ParamFile</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="o">.</span><span class="n">read_parameters</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="n">paramfile</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">deformed_parameters</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;chord&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="o">.</span><span class="n">radii</span><span class="o">.</span><span class="n">size</span><span class="p">),</span>
+            <span class="s1">&#39;pitch&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="o">.</span><span class="n">radii</span><span class="o">.</span><span class="n">size</span><span class="p">),</span>
+            <span class="s1">&#39;rake&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="o">.</span><span class="n">radii</span><span class="o">.</span><span class="n">size</span><span class="p">),</span>
+            <span class="s1">&#39;skew&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="o">.</span><span class="n">radii</span><span class="o">.</span><span class="n">size</span><span class="p">),</span>
+            <span class="s1">&#39;camber&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="o">.</span><span class="n">radii</span><span class="o">.</span><span class="n">size</span><span class="p">)</span>
+        <span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">control_points</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;chord&#39;</span><span class="p">:</span> <span class="bp">None</span><span class="p">,</span>
+            <span class="s1">&#39;pitch&#39;</span><span class="p">:</span> <span class="bp">None</span><span class="p">,</span>
+            <span class="s1">&#39;rake&#39;</span><span class="p">:</span> <span class="bp">None</span><span class="p">,</span>
+            <span class="s1">&#39;skew&#39;</span><span class="p">:</span> <span class="bp">None</span><span class="p">,</span>
+            <span class="s1">&#39;camber&#39;</span><span class="p">:</span> <span class="bp">None</span>
+        <span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">spline</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;chord&#39;</span><span class="p">:</span> <span class="bp">None</span><span class="p">,</span>
+            <span class="s1">&#39;pitch&#39;</span><span class="p">:</span> <span class="bp">None</span><span class="p">,</span>
+            <span class="s1">&#39;rake&#39;</span><span class="p">:</span> <span class="bp">None</span><span class="p">,</span>
+            <span class="s1">&#39;skew&#39;</span><span class="p">:</span> <span class="bp">None</span><span class="p">,</span>
+            <span class="s1">&#39;camber&#39;</span><span class="p">:</span> <span class="bp">None</span>
+        <span class="p">}</span>
+
+    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="Deformation._optimum_control_points"><a class="viewcode-back" href="../../deform.html#bladex.deform.Deformation._optimum_control_points">[docs]</a>    <span class="k">def</span> <span class="nf">_optimum_control_points</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">degree</span><span class="p">,</span> <span class="n">nbasis</span><span class="p">,</span> <span class="n">rbf_points</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Private static method that computes the optimum coordinates of the</span>
+<span class="sd">        B-spline control points.</span>
+
+<span class="sd">        :param array_like X: Array of original points of the parametric curve</span>
+<span class="sd">            X-axis, usually array of the radii sections</span>
+<span class="sd">        :param array_like Y: radial distribution of parameter `chord` or</span>
+<span class="sd">            `pitch` or `rake` or `skew` or `camber`, corresponding to the</span>
+<span class="sd">            radial sections in X</span>
+<span class="sd">        :param int degree: degree of the B-spline construction for the</span>
+<span class="sd">            parametric curve</span>
+<span class="sd">        :param int nbasis: number of control points associated with the</span>
+<span class="sd">            parametric curve</span>
+<span class="sd">        :param int rbf_points: if specified greater than zero, then the X and Y</span>
+<span class="sd">            arrays are interpolated using the Wendland C2 radial basis function</span>
+<span class="sd">            to produce X and Y arrays with length = rbf_points. The larger</span>
+<span class="sd">            number of rbf_points implies better estimation of the optimum</span>
+<span class="sd">            control coordinates. To turn it off (i.e. compute control points</span>
+<span class="sd">            based on original X, Y arrays) then insert 0. (Negative values or</span>
+<span class="sd">            None results in same effect as zero)</span>
+<span class="sd">        :return: control points 2D coordinates</span>
+<span class="sd">        :rtype: numpy.ndarray</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">rbf_points</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+            <span class="c1"># in case inserted as None, then converts to zero,</span>
+            <span class="c1"># otherwise returns the inserted value. Useful when dealing with</span>
+            <span class="c1"># the parameter as a flag</span>
+            <span class="n">rbf_points</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">rbf_points</span> <span class="ow">or</span> <span class="mi">0</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">rbf_points</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">xx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">X</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">X</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">num</span><span class="o">=</span><span class="n">rbf_points</span><span class="p">)</span>
+            <span class="n">yy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">rbf_points</span><span class="p">)</span>
+            <span class="n">reconstruct_f</span><span class="p">(</span>
+                <span class="n">original_input</span><span class="o">=</span><span class="n">X</span><span class="p">,</span>
+                <span class="n">original_output</span><span class="o">=</span><span class="n">Y</span><span class="p">,</span>
+                <span class="n">rbf_input</span><span class="o">=</span><span class="n">xx</span><span class="p">,</span>
+                <span class="n">rbf_output</span><span class="o">=</span><span class="n">yy</span><span class="p">,</span>
+                <span class="n">basis</span><span class="o">=</span><span class="s1">&#39;beckert_wendland_c2_basis&#39;</span><span class="p">,</span>
+                <span class="n">radius</span><span class="o">=</span><span class="mf">2.0</span><span class="p">)</span>
+            <span class="n">X</span> <span class="o">=</span> <span class="n">xx</span>
+            <span class="n">Y</span> <span class="o">=</span> <span class="n">yy</span>
+
+        <span class="n">A</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">X</span><span class="p">),</span> <span class="n">nbasis</span><span class="p">))</span>
+        <span class="n">At</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">X</span><span class="p">),</span> <span class="n">nbasis</span> <span class="o">-</span> <span class="mi">2</span><span class="p">))</span>
+
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nbasis</span><span class="p">):</span>
+            <span class="n">cv_new</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">nbasis</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+            <span class="n">cv_new</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.</span>
+            <span class="c1"># i-th basis function in the reference space</span>
+            <span class="n">A</span><span class="p">[:,</span> <span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">scipy_bspline</span><span class="p">(</span><span class="n">cv_new</span><span class="p">,</span> <span class="n">A</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">degree</span><span class="p">)[:,</span> <span class="mi">0</span><span class="p">]</span>
+
+        <span class="c1"># A tilde for the constraints on the first and last point</span>
+        <span class="n">At</span> <span class="o">=</span> <span class="n">A</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="c1"># x and y of the ctrl points with constrained least square.</span>
+        <span class="c1"># we subtract the contribution of the first and last basis function</span>
+        <span class="n">cvt_x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">lstsq</span><span class="p">(</span>
+            <span class="n">At</span><span class="p">,</span> <span class="n">X</span> <span class="o">-</span> <span class="n">A</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">X</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">A</span><span class="p">[:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">X</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">rcond</span><span class="o">=-</span><span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">cvt_y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">lstsq</span><span class="p">(</span>
+            <span class="n">At</span><span class="p">,</span> <span class="n">Y</span> <span class="o">-</span> <span class="n">A</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">Y</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">A</span><span class="p">[:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">Y</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">rcond</span><span class="o">=-</span><span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="c1"># fill with the constraints the first and last point</span>
+        <span class="n">opt_ctrl</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">nbasis</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+        <span class="n">opt_ctrl</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">X</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">opt_ctrl</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">X</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">opt_ctrl</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">Y</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">opt_ctrl</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">Y</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">opt_ctrl</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">cvt_x</span>
+        <span class="n">opt_ctrl</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">cvt_y</span>
+
+        <span class="k">return</span> <span class="n">opt_ctrl</span></div>
+
+    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="Deformation._check_param"><a class="viewcode-back" href="../../deform.html#bladex.deform.Deformation._check_param">[docs]</a>    <span class="k">def</span> <span class="nf">_check_param</span><span class="p">(</span><span class="n">param</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Private static method that checks the passed parameter.</span>
+
+<span class="sd">        :param str param: passed parameter to check. Valid values</span>
+<span class="sd">            are: `chord`, `pitch`, `rake`, `skew`, `camber`</span>
+<span class="sd">        :raises ValueError: if the param value is not one of the previous</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;chord&#39;</span><span class="p">,</span> <span class="s1">&#39;pitch&#39;</span><span class="p">,</span> <span class="s1">&#39;rake&#39;</span><span class="p">,</span> <span class="s1">&#39;skew&#39;</span><span class="p">,</span> <span class="s1">&#39;camber&#39;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">params</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s1">&#39;Valid param values are: &quot;chord&quot;, &quot;pitch&quot;, &quot;rake&quot;, &quot;skew&quot;,&#39;</span>\
+                 <span class="s1">&#39; &quot;camber&quot;.&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Deformation._check_control_points"><a class="viewcode-back" href="../../deform.html#bladex.deform.Deformation._check_control_points">[docs]</a>    <span class="k">def</span> <span class="nf">_check_control_points</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Private method to check if control points are computed.</span>
+
+<span class="sd">        :param str param: passed parameter to check. Valid values</span>
+<span class="sd">            are: `chord`, `pitch`, `rake`, `skew`, `camber`</span>
+<span class="sd">        :raises ValueError: if the control points have None value, i.e. not</span>
+<span class="sd">            computed</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">control_points</span><span class="p">[</span><span class="n">param</span><span class="p">]</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s1">&#39;control_points has None value. You must compute them first.&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Deformation._check_spline"><a class="viewcode-back" href="../../deform.html#bladex.deform.Deformation._check_spline">[docs]</a>    <span class="k">def</span> <span class="nf">_check_spline</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Private method to check if spline interpolation is computed.</span>
+
+<span class="sd">        :param str param: passed parameter to check. Valid values</span>
+<span class="sd">            are: `chord`, `pitch`, `rake`, `skew`, `camber`</span>
+<span class="sd">        :raises ValueError: if the spline of that parameter curve has None</span>
+<span class="sd">            value, i.e. not computed</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">spline</span><span class="p">[</span><span class="n">param</span><span class="p">]</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="n">param</span> <span class="o">+</span> <span class="s1">&#39; spline is None. You must first generate spline.&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Deformation._check_deformed"><a class="viewcode-back" href="../../deform.html#bladex.deform.Deformation._check_deformed">[docs]</a>    <span class="k">def</span> <span class="nf">_check_deformed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Private method to check if the deformed parameters are computed.</span>
+
+<span class="sd">        :param str param: passed parameter to check. Valid values</span>
+<span class="sd">            are: `chord`, `pitch`, `rake`, `skew`, `camber`</span>
+<span class="sd">        :raises ValueError: if the deformed parameters have array of zeros,</span>
+<span class="sd">            i.e. not computed</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">deformed_parameters</span><span class="p">[</span><span class="n">param</span><span class="p">]</span><span class="o">.</span><span class="n">all</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">param</span> <span class="o">+</span> <span class="s1">&#39; deformed points are not computed.&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Deformation.compute_control_points"><a class="viewcode-back" href="../../deform.html#bladex.deform.Deformation.compute_control_points">[docs]</a>    <span class="k">def</span> <span class="nf">compute_control_points</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param</span><span class="p">,</span> <span class="n">rbf_points</span><span class="o">=</span><span class="mi">1000</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Compute the control points 2D coordinates for one of the parametric</span>
+<span class="sd">        curves.</span>
+
+<span class="sd">        :param str param: parameter corresponding to the parametric curve.</span>
+<span class="sd">            possible values are `chord`, `pitch`, `rake`, `skew`, `camber`</span>
+<span class="sd">        :param int rbf_points: if greater than zero then the Wendland C2 radial</span>
+<span class="sd">            basis function is used to interpolate the original arrays for the</span>
+<span class="sd">            parametric curve, so that the control points are computed according</span>
+<span class="sd">            to the interpolated arrays. Needless to mention that longer arrays</span>
+<span class="sd">            would produce better estimation of the control points optimum</span>
+<span class="sd">            coordinates. In order to turn off the rbf interpolation: specify</span>
+<span class="sd">            either 0 or -1 (Also a None value can be used too). Default value</span>
+<span class="sd">            is 1000</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_check_param</span><span class="p">(</span><span class="n">param</span><span class="o">=</span><span class="n">param</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">control_points</span><span class="p">[</span><span class="n">param</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_optimum_control_points</span><span class="p">(</span>
+            <span class="n">X</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="o">.</span><span class="n">radii</span><span class="p">,</span>
+            <span class="n">Y</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="n">param</span><span class="p">],</span>
+            <span class="n">degree</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="o">.</span><span class="n">degree</span><span class="p">[</span><span class="n">param</span><span class="p">],</span>
+            <span class="n">nbasis</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="o">.</span><span class="n">nbasis</span><span class="p">[</span><span class="n">param</span><span class="p">],</span>
+            <span class="n">rbf_points</span><span class="o">=</span><span class="n">rbf_points</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Deformation.update_control_points"><a class="viewcode-back" href="../../deform.html#bladex.deform.Deformation.update_control_points">[docs]</a>    <span class="k">def</span> <span class="nf">update_control_points</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Update the control point Y coordinate with the deformation values</span>
+<span class="sd">        specified in the parameter file.</span>
+
+<span class="sd">        :param str param: parameter corresponding to the parametric curve.</span>
+<span class="sd">            possible values are `chord`, `pitch`, `rake`, `skew`, `camber`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_check_param</span><span class="p">(</span><span class="n">param</span><span class="o">=</span><span class="n">param</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_check_control_points</span><span class="p">(</span><span class="n">param</span><span class="o">=</span><span class="n">param</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">control_points</span><span class="p">[</span><span class="n">param</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="o">.</span><span class="n">deformations</span><span class="p">[</span><span class="n">param</span><span class="p">]):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s1">&#39;array of deformations must equal to number of control points&#39;</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">control_points</span><span class="p">[</span><span class="n">param</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">control_points</span><span class="p">[</span><span class="n">param</span><span class="p">][</span><span class="n">i</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="o">.</span><span class="n">deformations</span><span class="p">[</span><span class="n">param</span><span class="p">][</span>
+                <span class="n">i</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="Deformation.generate_spline"><a class="viewcode-back" href="../../deform.html#bladex.deform.Deformation.generate_spline">[docs]</a>    <span class="k">def</span> <span class="nf">generate_spline</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generate the B-spline interpolations, using the information: `degree`,</span>
+<span class="sd">        `npoints` from the parameter file, as well as the computed 2D</span>
+<span class="sd">        coordinates of the control points.</span>
+
+<span class="sd">        :param str param: parameter corresponding to the parametric curve.</span>
+<span class="sd">            possible values are `chord`, `pitch`, `rake`, `skew`, `camber`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_check_param</span><span class="p">(</span><span class="n">param</span><span class="o">=</span><span class="n">param</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_check_control_points</span><span class="p">(</span><span class="n">param</span><span class="o">=</span><span class="n">param</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">spline</span><span class="p">[</span><span class="n">param</span><span class="p">]</span> <span class="o">=</span> <span class="n">scipy_bspline</span><span class="p">(</span>
+            <span class="n">cv</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">control_points</span><span class="p">[</span><span class="n">param</span><span class="p">],</span>
+            <span class="n">npoints</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="o">.</span><span class="n">npoints</span><span class="p">[</span><span class="n">param</span><span class="p">],</span>
+            <span class="n">degree</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="o">.</span><span class="n">degree</span><span class="p">[</span><span class="n">param</span><span class="p">])</span></div>
+
+<div class="viewcode-block" id="Deformation.compute_deformed_parameters"><a class="viewcode-back" href="../../deform.html#bladex.deform.Deformation.compute_deformed_parameters">[docs]</a>    <span class="k">def</span> <span class="nf">compute_deformed_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This method uses the spline npoints interpolation of the parametric</span>
+<span class="sd">        curve to extract the parameters corresponding to the radial</span>
+<span class="sd">        distribution of the original undeformed array. Therefore the resulting</span>
+<span class="sd">        deformed parameters should be arrays of same length like that of the</span>
+<span class="sd">        original parameters.</span>
+
+<span class="sd">        :param str param: parameter corresponding to the parametric curve.</span>
+<span class="sd">            possible values are `chord`, `pitch`, `rake`, `skew`, `camber`</span>
+<span class="sd">        :param float tol: tolerance required to find the B-spline estimation</span>
+<span class="sd">            within the neighborhood of each of the radii sections. It is</span>
+<span class="sd">            important to specify the value carefully as it depends on the order</span>
+<span class="sd">            of the original array values, as well as the number of points for</span>
+<span class="sd">            the spline interpolations. Default value is 1e-3</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_check_param</span><span class="p">(</span><span class="n">param</span><span class="o">=</span><span class="n">param</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_check_spline</span><span class="p">(</span><span class="n">param</span><span class="o">=</span><span class="n">param</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="o">.</span><span class="n">radii</span><span class="p">):</span>
+            <span class="n">index</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">fabs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">spline</span><span class="p">[</span><span class="n">param</span><span class="p">][:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">val</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">tol</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">index</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s1">&#39;Could not compute deformed parameter &quot;&#39;</span> <span class="o">+</span> <span class="n">param</span> <span class="o">+</span>
+                    <span class="s1">&#39;&quot; at radius &quot;&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">val</span><span class="p">)</span> <span class="o">+</span>
+                    <span class="s1">&#39;&quot;. Either increase the tolerance for that parameter, or&#39;</span>\
+                    <span class="s1">&#39; increase the spline npoints in the parameter file.&#39;</span>
+                <span class="p">)</span>
+            <span class="k">if</span> <span class="n">index</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="c1"># In case more neighbors are found, then take first value only.</span>
+                <span class="n">index</span> <span class="o">=</span> <span class="n">index</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">deformed_parameters</span><span class="p">[</span><span class="n">param</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">spline</span><span class="p">[</span><span class="n">param</span><span class="p">][</span><span class="n">index</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="Deformation.compute_all"><a class="viewcode-back" href="../../deform.html#bladex.deform.Deformation.compute_all">[docs]</a>    <span class="k">def</span> <span class="nf">compute_all</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                    <span class="n">rbf_points</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span>
+                    <span class="n">tol_chord</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">,</span>
+                    <span class="n">tol_pitch</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">,</span>
+                    <span class="n">tol_rake</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">,</span>
+                    <span class="n">tol_skew</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">,</span>
+                    <span class="n">tol_camber</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Computes everything:</span>
+<span class="sd">            - control points 2D coordinates</span>
+<span class="sd">            - deformed control points</span>
+<span class="sd">            - spline npoints interpolations</span>
+<span class="sd">            - deformed parameters of the original arrays</span>
+
+<span class="sd">        The previous procedure is applied for all the parameters: `chord`,</span>
+<span class="sd">        `pitch`, `rake`, `skew`, `camber`</span>
+
+<span class="sd">        :param int rbf_points: if greater than zero then the Wendland C2 radial</span>
+<span class="sd">            basis function is used to interpolate the original arrays for the</span>
+<span class="sd">            parametric curve, so that the control points are computed according</span>
+<span class="sd">            to the interpolated arrays. Needless to mention that longer arrays</span>
+<span class="sd">            would produce better estimation of the control points optimum</span>
+<span class="sd">            coordinates. In order to turn off the rbf interpolation then</span>
+<span class="sd">            specify either 0 or -1 (Also a None value can be used too). Default</span>
+<span class="sd">            value is 1000</span>
+<span class="sd">        :param float tol_chord: tolerance used to extract the chord radial</span>
+<span class="sd">            distribution for the deformed B-spline interpolation. Default value</span>
+<span class="sd">            is 1e-3</span>
+<span class="sd">        :param float tol_pitch: tolerance used to extract the pitch radial</span>
+<span class="sd">            distribution for the deformed B-spline interpolation. Default value</span>
+<span class="sd">            is 1e-3</span>
+<span class="sd">        :param float tol_rake: tolerance used to extract the rake radial</span>
+<span class="sd">            distribution for the deformed B-spline interpolation. Default value</span>
+<span class="sd">            is 1e-3</span>
+<span class="sd">        :param float tol_skew: tolerance used to extract the skew radial</span>
+<span class="sd">            distribution for the deformed B-spline interpolation. Default value</span>
+<span class="sd">            is 1e-3</span>
+<span class="sd">        :param float tol_camber: tolerance used to extract the camber radial</span>
+<span class="sd">            distribution for the deformed B-spline interpolation. Default value</span>
+<span class="sd">            is 1e-3</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">tols</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;chord&#39;</span><span class="p">:</span> <span class="n">tol_chord</span><span class="p">,</span>
+            <span class="s1">&#39;pitch&#39;</span><span class="p">:</span> <span class="n">tol_pitch</span><span class="p">,</span>
+            <span class="s1">&#39;rake&#39;</span><span class="p">:</span> <span class="n">tol_rake</span><span class="p">,</span>
+            <span class="s1">&#39;skew&#39;</span><span class="p">:</span> <span class="n">tol_skew</span><span class="p">,</span>
+            <span class="s1">&#39;camber&#39;</span><span class="p">:</span> <span class="n">tol_camber</span>
+        <span class="p">}</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;chord&#39;</span><span class="p">,</span> <span class="s1">&#39;pitch&#39;</span><span class="p">,</span> <span class="s1">&#39;rake&#39;</span><span class="p">,</span> <span class="s1">&#39;skew&#39;</span><span class="p">,</span> <span class="s1">&#39;camber&#39;</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">params</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">compute_control_points</span><span class="p">(</span><span class="n">param</span><span class="o">=</span><span class="n">param</span><span class="p">,</span> <span class="n">rbf_points</span><span class="o">=</span><span class="n">rbf_points</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">update_control_points</span><span class="p">(</span><span class="n">param</span><span class="o">=</span><span class="n">param</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">generate_spline</span><span class="p">(</span><span class="n">param</span><span class="o">=</span><span class="n">param</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">compute_deformed_parameters</span><span class="p">(</span><span class="n">param</span><span class="o">=</span><span class="n">param</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="n">tols</span><span class="p">[</span><span class="n">param</span><span class="p">])</span></div>
+
+<div class="viewcode-block" id="Deformation._plot_parametric_curve"><a class="viewcode-back" href="../../deform.html#bladex.deform.Deformation._plot_parametric_curve">[docs]</a>    <span class="k">def</span> <span class="nf">_plot_parametric_curve</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                               <span class="n">param</span><span class="p">,</span>
+                               <span class="n">original</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+                               <span class="n">ctrl_points</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+                               <span class="n">spline</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+                               <span class="n">rbf</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+                               <span class="n">rbf_points</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span>
+                               <span class="n">deformed</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+                               <span class="n">outfile</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Private method to plot the parametric curve. Several options</span>
+<span class="sd">        can be specified.</span>
+
+<span class="sd">        :param str param: parameter corresponding to the parametric curve</span>
+<span class="sd">            needs to be plotted. possible values are `chord`, `pitch`, `rake`,</span>
+<span class="sd">            `skew`, `camber`</span>
+<span class="sd">        :param bool original: if True, then plot the original points of the</span>
+<span class="sd">            parameter at the radii sections.</span>
+<span class="sd">        :param bool ctrl_points: if True, then plot the control points of</span>
+<span class="sd">            that parametric curve.</span>
+<span class="sd">        :param bool spline: If True, then plot the B-spline interpolation of</span>
+<span class="sd">            the parametric curve.</span>
+<span class="sd">        :param bool rbf: if True, then plot the radial basis functions</span>
+<span class="sd">            interpolation of the parametric curve.</span>
+<span class="sd">        :param int rbf_points: number of points used for the rbf interpolation,</span>
+<span class="sd">            if the flag `rbf` is set True. Beware that this argument does not</span>
+<span class="sd">            have the same function of that when computing the control points,</span>
+<span class="sd">            although both uses the radial basis function interpolation with</span>
+<span class="sd">            the Wendland basis.</span>
+<span class="sd">        :param bool deformed: if True, then plot the deformed points of the</span>
+<span class="sd">            parameter radial distribution, estimated using the B-spline</span>
+<span class="sd">            interpolations within a given tolerance.</span>
+<span class="sd">        :param str outfile: if string is passed, then the plot is saved</span>
+<span class="sd">            with that name. If the value is None, then the plot is shown on</span>
+<span class="sd">            the screen.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_check_param</span><span class="p">(</span><span class="n">param</span><span class="o">=</span><span class="n">param</span><span class="p">)</span>
+
+        <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">original</span><span class="p">:</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="o">.</span><span class="n">radii</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="n">param</span><span class="p">],</span>
+                <span class="s1">&#39;o&#39;</span><span class="p">,</span>
+                <span class="n">label</span><span class="o">=</span><span class="s1">&#39;original points&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">ctrl_points</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_check_control_points</span><span class="p">(</span><span class="n">param</span><span class="o">=</span><span class="n">param</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">control_points</span><span class="p">[</span><span class="n">param</span><span class="p">][:,</span> <span class="mi">0</span><span class="p">],</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">control_points</span><span class="p">[</span><span class="n">param</span><span class="p">][:,</span> <span class="mi">1</span><span class="p">],</span>
+                <span class="s1">&#39;*-&#39;</span><span class="p">,</span>
+                <span class="n">label</span><span class="o">=</span><span class="s1">&#39;control points&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">spline</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_check_spline</span><span class="p">(</span><span class="n">param</span><span class="o">=</span><span class="n">param</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">spline</span><span class="p">[</span><span class="n">param</span><span class="p">][:,</span> <span class="mi">0</span><span class="p">],</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">spline</span><span class="p">[</span><span class="n">param</span><span class="p">][:,</span> <span class="mi">1</span><span class="p">],</span>
+                <span class="n">label</span><span class="o">=</span><span class="s1">&#39;spline&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">rbf</span><span class="p">:</span>
+            <span class="n">xx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="o">.</span><span class="n">radii</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="o">.</span><span class="n">radii</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">num</span><span class="o">=</span><span class="n">rbf_points</span><span class="p">)</span>
+            <span class="n">yy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">rbf_points</span><span class="p">)</span>
+            <span class="n">reconstruct_f</span><span class="p">(</span>
+                <span class="n">original_input</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="o">.</span><span class="n">radii</span><span class="p">,</span>
+                <span class="n">original_output</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="n">param</span><span class="p">],</span>
+                <span class="n">rbf_input</span><span class="o">=</span><span class="n">xx</span><span class="p">,</span>
+                <span class="n">rbf_output</span><span class="o">=</span><span class="n">yy</span><span class="p">,</span>
+                <span class="n">basis</span><span class="o">=</span><span class="s1">&#39;beckert_wendland_c2_basis&#39;</span><span class="p">,</span>
+                <span class="n">radius</span><span class="o">=</span><span class="mf">2.0</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">xx</span><span class="p">,</span> <span class="n">yy</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;rbf&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">deformed</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_check_deformed</span><span class="p">(</span><span class="n">param</span><span class="o">=</span><span class="n">param</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="o">.</span><span class="n">radii</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">deformed_parameters</span><span class="p">[</span><span class="n">param</span><span class="p">],</span>
+                <span class="s1">&#39;+&#39;</span><span class="p">,</span>
+                <span class="n">label</span><span class="o">=</span><span class="s1">&#39;deformed points&#39;</span><span class="p">)</span>
+
+        <span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;dotted&#39;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="n">param</span> <span class="o">+</span> <span class="s1">&#39; curve&#39;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">outfile</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">outfile</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Output file name must be string.&#39;</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">outfile</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Deformation.plot"><a class="viewcode-back" href="../../deform.html#bladex.deform.Deformation.plot">[docs]</a>    <span class="k">def</span> <span class="nf">plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+             <span class="n">param</span><span class="p">,</span>
+             <span class="n">original</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+             <span class="n">ctrl_points</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+             <span class="n">spline</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+             <span class="n">rbf</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+             <span class="n">rbf_points</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span>
+             <span class="n">deformed</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+             <span class="n">outfile</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Plot the parametric curve. Several options</span>
+<span class="sd">        can be specified.</span>
+
+<span class="sd">        :param array_like param: array_like of strings corresponding to the</span>
+<span class="sd">            parametric curve that needs to be plotted. possible values are</span>
+<span class="sd">            `chord`, `pitch`, `rake`, `skew`, `camber`</span>
+<span class="sd">        :param bool original: if True, then plot the original points of the</span>
+<span class="sd">            parameter at the radii sections. Default value is True</span>
+<span class="sd">        :param bool ctrl_points: if True, then plot the control points of</span>
+<span class="sd">            that parametric curve. Default value is True</span>
+<span class="sd">        :param bool spline: If True, then plot the B-spline interpolation of</span>
+<span class="sd">            the parametric curve. Default value is True</span>
+<span class="sd">        :param bool rbf: if True, then plot the radial basis functions</span>
+<span class="sd">            interpolation of the parametric curve. Default value is True</span>
+<span class="sd">        :param int rbf_points: number of points used for the rbf interpolation,</span>
+<span class="sd">            if the flag `rbf` is set True. Beware that this argument does not</span>
+<span class="sd">            have the same function of that when computing the control points,</span>
+<span class="sd">            although both uses the radial basis function interpolation with</span>
+<span class="sd">            the Wendland basis. Default value is 500</span>
+<span class="sd">        :param bool deformed: if True, then plot the deformed points of the</span>
+<span class="sd">            parameter radial distribution, estimated using the B-spline</span>
+<span class="sd">            interpolations within a given tolerance. Default value is False</span>
+<span class="sd">        :param str outfile: if string is passed, then the plot is saved</span>
+<span class="sd">            with that name. If the value is None, then the plot is shown on</span>
+<span class="sd">            the screen. Default value is None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">param</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)):</span>
+            <span class="n">param</span> <span class="o">=</span> <span class="p">[</span><span class="n">param</span><span class="p">]</span>
+
+        <span class="k">for</span> <span class="n">par</span> <span class="ow">in</span> <span class="n">param</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_plot_parametric_curve</span><span class="p">(</span>
+                <span class="n">param</span><span class="o">=</span><span class="n">par</span><span class="p">,</span>
+                <span class="n">original</span><span class="o">=</span><span class="n">original</span><span class="p">,</span>
+                <span class="n">ctrl_points</span><span class="o">=</span><span class="n">ctrl_points</span><span class="p">,</span>
+                <span class="n">spline</span><span class="o">=</span><span class="n">spline</span><span class="p">,</span>
+                <span class="n">rbf</span><span class="o">=</span><span class="n">rbf</span><span class="p">,</span>
+                <span class="n">rbf_points</span><span class="o">=</span><span class="n">rbf_points</span><span class="p">,</span>
+                <span class="n">deformed</span><span class="o">=</span><span class="n">deformed</span><span class="p">,</span>
+                <span class="n">outfile</span><span class="o">=</span><span class="n">outfile</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Deformation.export_param_file"><a class="viewcode-back" href="../../deform.html#bladex.deform.Deformation.export_param_file">[docs]</a>    <span class="k">def</span> <span class="nf">export_param_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">outfile</span><span class="o">=</span><span class="s1">&#39;parameters_mod.prm&#39;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Export a new parameter file with the new deformed parameters, while</span>
+<span class="sd">        all other values are kept the same as in the original parameter file</span>
+<span class="sd">        with the undeformed parameters. In the new parameter file (i.e. with</span>
+<span class="sd">        deformed parameters) the deformations arrays become array of zeros.</span>
+
+<span class="sd">        :param str outfile: file name to be written out</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">prm</span> <span class="o">=</span> <span class="n">ParamFile</span><span class="p">()</span>
+        <span class="n">prm</span><span class="o">.</span><span class="n">radii</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="o">.</span><span class="n">radii</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;chord&#39;</span><span class="p">,</span> <span class="s1">&#39;pitch&#39;</span><span class="p">,</span> <span class="s1">&#39;rake&#39;</span><span class="p">,</span> <span class="s1">&#39;skew&#39;</span><span class="p">,</span> <span class="s1">&#39;camber&#39;</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">params</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="o">.</span><span class="n">deformations</span><span class="p">[</span><span class="n">param</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>
+                <span class="n">prm</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="n">param</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="n">param</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">prm</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="n">param</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">deformed_parameters</span><span class="p">[</span><span class="n">param</span><span class="p">]</span>
+            <span class="n">prm</span><span class="o">.</span><span class="n">nbasis</span><span class="p">[</span><span class="n">param</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="o">.</span><span class="n">nbasis</span><span class="p">[</span><span class="n">param</span><span class="p">]</span>
+            <span class="n">prm</span><span class="o">.</span><span class="n">degree</span><span class="p">[</span><span class="n">param</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="o">.</span><span class="n">nbasis</span><span class="p">[</span><span class="n">param</span><span class="p">]</span>
+            <span class="n">prm</span><span class="o">.</span><span class="n">npoints</span><span class="p">[</span><span class="n">param</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="o">.</span><span class="n">npoints</span><span class="p">[</span><span class="n">param</span><span class="p">]</span>
+            <span class="n">prm</span><span class="o">.</span><span class="n">deformations</span><span class="p">[</span><span class="n">param</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="o">.</span><span class="n">nbasis</span><span class="p">[</span><span class="n">param</span><span class="p">])</span>
+
+        <span class="n">prm</span><span class="o">.</span><span class="n">write_parameters</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="n">outfile</span><span class="p">)</span></div></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, BladeX contributors.
+      Last updated on Jul 26, 2018.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../',
+            VERSION:'0.0.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

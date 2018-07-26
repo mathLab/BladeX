@@ -1,0 +1,37 @@
+bladex.profiles.CustomProfile
+=============================
+
+.. currentmodule:: bladex.profiles
+
+.. autoclass:: CustomProfile
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~CustomProfile.__init__
+      ~CustomProfile.flip
+      ~CustomProfile.interpolate_coordinates
+      ~CustomProfile.max_camber
+      ~CustomProfile.max_thickness
+      ~CustomProfile.plot
+      ~CustomProfile.rotate
+      ~CustomProfile.scale
+      ~CustomProfile.translate
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~CustomProfile.chord_length
+      ~CustomProfile.reference_point
+   
+   

@@ -1,0 +1,547 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Ndinterpolator &mdash; BladeX 0.0.1 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+    <link rel="top" title="BladeX 0.0.1 documentation" href="index.html"/>
+        <link rel="up" title="Code Documentation" href="code.html"/>
+        <link rel="next" title="bladex.ndinterpolator.RBF.beckert_wendland_c2_basis" href="_summaries/bladex.ndinterpolator.RBF.beckert_wendland_c2_basis.html"/>
+        <link rel="prev" title="bladex.deform.Deformation.update_control_points" href="_summaries/bladex.deform.Deformation.update_control_points.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> BladeX
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="code.html">Code Documentation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="blade.html">Blade</a></li>
+<li class="toctree-l2"><a class="reference internal" href="deform.html">Deformation</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Ndinterpolator</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="_summaries/bladex.ndinterpolator.RBF.beckert_wendland_c2_basis.html">bladex.ndinterpolator.RBF.beckert_wendland_c2_basis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_summaries/bladex.ndinterpolator.RBF.gaussian_spline.html">bladex.ndinterpolator.RBF.gaussian_spline</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_summaries/bladex.ndinterpolator.RBF.inv_multi_quadratic_biharmonic_spline.html">bladex.ndinterpolator.RBF.inv_multi_quadratic_biharmonic_spline</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_summaries/bladex.ndinterpolator.RBF.multi_quadratic_biharmonic_spline.html">bladex.ndinterpolator.RBF.multi_quadratic_biharmonic_spline</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_summaries/bladex.ndinterpolator.RBF.thin_plate_spline.html">bladex.ndinterpolator.RBF.thin_plate_spline</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_summaries/bladex.ndinterpolator.RBF.weights_matrix.html">bladex.ndinterpolator.RBF.weights_matrix</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_summaries/bladex.ndinterpolator.reconstruct_f.html">bladex.ndinterpolator.reconstruct_f</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="profilebase.html">ProfileBase</a></li>
+<li class="toctree-l2"><a class="reference internal" href="params.html">ParamFile</a></li>
+<li class="toctree-l2"><a class="reference internal" href="profiles.html">Profiles</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="contact.html">Contact</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">How to contribute</a></li>
+<li class="toctree-l1"><a class="reference internal" href="LICENSE.html">License</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">BladeX</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="code.html">Code Documentation</a> &raquo;</li>
+      
+    <li>Ndinterpolator</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/ndinterpolator.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-bladex.ndinterpolator">
+<span id="ndinterpolator"></span><h1>Ndinterpolator<a class="headerlink" href="#module-bladex.ndinterpolator" title="Permalink to this headline">¶</a></h1>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="_summaries/bladex.ndinterpolator.RBF.beckert_wendland_c2_basis.html#bladex.ndinterpolator.RBF.beckert_wendland_c2_basis" title="bladex.ndinterpolator.RBF.beckert_wendland_c2_basis"><code class="xref py py-obj docutils literal"><span class="pre">RBF.beckert_wendland_c2_basis</span></code></a></td>
+<td>It implements the following formula:</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="_summaries/bladex.ndinterpolator.RBF.gaussian_spline.html#bladex.ndinterpolator.RBF.gaussian_spline" title="bladex.ndinterpolator.RBF.gaussian_spline"><code class="xref py py-obj docutils literal"><span class="pre">RBF.gaussian_spline</span></code></a></td>
+<td>It implements the following formula:</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="_summaries/bladex.ndinterpolator.RBF.inv_multi_quadratic_biharmonic_spline.html#bladex.ndinterpolator.RBF.inv_multi_quadratic_biharmonic_spline" title="bladex.ndinterpolator.RBF.inv_multi_quadratic_biharmonic_spline"><code class="xref py py-obj docutils literal"><span class="pre">RBF.inv_multi_quadratic_biharmonic_spline</span></code></a></td>
+<td>It implements the following formula:</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="_summaries/bladex.ndinterpolator.RBF.multi_quadratic_biharmonic_spline.html#bladex.ndinterpolator.RBF.multi_quadratic_biharmonic_spline" title="bladex.ndinterpolator.RBF.multi_quadratic_biharmonic_spline"><code class="xref py py-obj docutils literal"><span class="pre">RBF.multi_quadratic_biharmonic_spline</span></code></a></td>
+<td>It implements the following formula:</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="_summaries/bladex.ndinterpolator.RBF.thin_plate_spline.html#bladex.ndinterpolator.RBF.thin_plate_spline" title="bladex.ndinterpolator.RBF.thin_plate_spline"><code class="xref py py-obj docutils literal"><span class="pre">RBF.thin_plate_spline</span></code></a></td>
+<td>It implements the following formula:</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="_summaries/bladex.ndinterpolator.RBF.weights_matrix.html#bladex.ndinterpolator.RBF.weights_matrix" title="bladex.ndinterpolator.RBF.weights_matrix"><code class="xref py py-obj docutils literal"><span class="pre">RBF.weights_matrix</span></code></a></td>
+<td>This method returns the following matrix:</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="_summaries/bladex.ndinterpolator.reconstruct_f.html#bladex.ndinterpolator.reconstruct_f" title="bladex.ndinterpolator.reconstruct_f"><code class="xref py py-obj docutils literal"><span class="pre">reconstruct_f</span></code></a></td>
+<td>Reconstruct a function by using the radial basis function approximations.</td>
+</tr>
+</tbody>
+</table>
+<dl class="class">
+<dt>
+<em class="property">class </em><code class="descname">RBF</code><span class="sig-paren">(</span><em>basis</em>, <em>radius</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bladex/ndinterpolator.html#RBF"><span class="viewcode-link">[source]</span></a></dt>
+<dd><p>Module focused on the implementation of the Radial Basis Functions
+interpolation technique.  This technique is still based on the use of
+a set of parameters, the so-called control points, as for FFD, but RBF
+is interpolatory. Another important key point of RBF strategy relies in
+the way we can locate the control points: in fact, instead of FFD where
+control points need to be placed inside a regular lattice, with RBF we
+havo no more limitations. So we have the possibility to perform localized
+control points refiniments.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name" colspan="2">Theoretical Insight:</th></tr>
+<tr class="field-odd field"><td>&nbsp;</td><td class="field-body"><p class="first">As reference please consult M.D. Buhmann, Radial Basis Functions,
+volume 12 of Cambridge monographs on applied and computational
+mathematics. Cambridge University Press, UK, 2003.  This implementation
+follows D. Forti and G. Rozza, Efficient geometrical parametrization
+techniques of interfaces for reduced order modelling: application to
+fluid-structure interaction coupling problems, International Journal
+of Computational Fluid Dynamics.</p>
+<p>RBF shape parametrization technique is based on the definition of a map
+<img class="math" src="_images/math/45dd05b7ae8ec69094085f29d426b567f90f3b6a.png" alt="\mathcal{M}(\boldsymbol{x}) : \mathbb{R}^n \rightarrow
+\mathbb{R}^n"/>, that allows the possibility of transferring data across
+non-matching grids and facing the dynamic mesh handling. The map
+introduced is defines as follows</p>
+<div class="math">
+<p><img src="_images/math/27b7bb9f8709a50e7b3bffa1f6e1a4d6be487f2d.png" alt="\mathcal{M}(\boldsymbol{x}) = p(\boldsymbol{x}) + 
+\sum_{i=1}^{\mathcal{N}_C} \gamma_i
+\varphi(\| \boldsymbol{x} - \boldsymbol{x_{C_i}} \|)"/></p>
+</div><p>where <img class="math" src="_images/math/5fc881227ec12be3b2218d9f66f8009f4ec7c939.png" alt="p(\boldsymbol{x})"/> is a low_degree polynomial term,
+<img class="math" src="_images/math/86fc341e7bf84b2a5fa1b8274a4e721dd574b084.png" alt="\gamma_i"/> is the weight, corresponding to the a-priori selected
+<img class="math" src="_images/math/aeea44fb480f1aacc712343b97e28afeaf89afaa.png" alt="\mathcal{N}_C"/> control points, associated to the <img class="math" src="_images/math/df0deb143e5ac127f00bd248ee8001ecae572adc.png" alt="i"/>-th
+basis function, and <img class="math" src="_images/math/42972469b5fee8570673711f3339fade8942a0d5.png" alt="\varphi(\| \boldsymbol{x} -
+\boldsymbol{x_{C_i}} \|)"/> a radial function based on the Euclidean
+distance between the control points position <img class="math" src="_images/math/25ce74d54bf8eec960a53b7b613479854fe4b151.png" alt="\boldsymbol{x_{C_i}}"/>
+and <img class="math" src="_images/math/1fb53a6e43d7ce3b8f6b9680713299ee42199ead.png" alt="\boldsymbol{x}"/>. A radial basis function, generally, is a
+real-valued function whose value depends only on the distance from the
+origin, so that <img class="math" src="_images/math/00e0261a8ecc36eeaf94b411593647cf1335925c.png" alt="\varphi(\boldsymbol{x}) = \tilde{\varphi}(
+\|\boldsymbol{x} \|)"/>.</p>
+<p>The matrix version of the formula above is:</p>
+<div class="math">
+<p><img src="_images/math/4d3785cfc36fd0d9a9e2d7afe8376783b403f3c8.png" alt="\mathcal{M}(\boldsymbol{x}) = \boldsymbol{c} +
+\boldsymbol{Q}\boldsymbol{x} +
+\boldsymbol{W^T}\boldsymbol{d}(\boldsymbol{x})"/></p>
+</div><p>The idea is that after the computation of the weights and the
+polynomial terms from the coordinates of the control points before and
+after the deformation, we can deform all the points of the mesh
+accordingly. Among the most common used radial basis functions for
+modelling 2D and 3D shapes, we consider Gaussian splines, Multi-
+uadratic biharmonic splines, Inverted multi-quadratic biharmonic
+splines, Thin-plate splines, Beckert and Wendland <img class="math" src="_images/math/989dee8049ef0358e3fa647a45a2f7874e1f470a.png" alt="C^2"/> basis all
+defined and implemented below.</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>basis</strong> (<a class="reference external" href="http://docs.python.org/2/library/string.html#module-string" title="(in Python v2.7)"><em>string</em></a>) &#8211; RBF basis function</li>
+<li><strong>radius</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#float" title="(in Python v2.7)"><em>float</em></a>) &#8211; cut-off radius</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="staticmethod">
+<dt>
+<em class="property">static </em><code class="descname">beckert_wendland_c2_basis</code><span class="sig-paren">(</span><em>X</em>, <em>r</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bladex/ndinterpolator.html#RBF.beckert_wendland_c2_basis"><span class="viewcode-link">[source]</span></a></dt>
+<dd><p>It implements the following formula:</p>
+<div class="math">
+<p><img src="_images/math/a750e61f154a3ea879227f1e63a102f80c2a1e52.png" alt="\varphi(\| \boldsymbol{x} \|) =
+\left( 1 - \frac{\| \boldsymbol{x} \|}{r} \right)^4 +
+\left( 4 \frac{\| \boldsymbol{x} \|}{r} + 1 \right)"/></p>
+</div><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>X</strong> (<a class="reference external" href="http://docs.scipy.org/doc/numpy/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.14)"><em>numpy.ndarray</em></a>) &#8211; l2-norm between given inputs of a function
+and the locations to perform rbf approximation to that function.</li>
+<li><strong>r</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#float" title="(in Python v2.7)"><em>float</em></a>) &#8211; smoothing length, also called the cut-off radius.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">result: the result of the formula above.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="http://docs.python.org/2/library/functions.html#float" title="(in Python v2.7)">float</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt>
+<em class="property">static </em><code class="descname">gaussian_spline</code><span class="sig-paren">(</span><em>X</em>, <em>r</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bladex/ndinterpolator.html#RBF.gaussian_spline"><span class="viewcode-link">[source]</span></a></dt>
+<dd><p>It implements the following formula:</p>
+<div class="math">
+<p><img src="_images/math/4caad23c3f87f09f7f76f735348359dd87f5b119.png" alt="\varphi(\| \boldsymbol{x} \|) =
+e^{-\frac{\| \boldsymbol{x} \|^2}{r^2}}"/></p>
+</div><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>X</strong> (<a class="reference external" href="http://docs.scipy.org/doc/numpy/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.14)"><em>numpy.ndarray</em></a>) &#8211; l2-norm between given inputs of a function
+and the locations to perform rbf approximation to that function.</li>
+<li><strong>r</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#float" title="(in Python v2.7)"><em>float</em></a>) &#8211; smoothing length, also called the cut-off radius.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">result: the result of the formula above.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="http://docs.python.org/2/library/functions.html#float" title="(in Python v2.7)">float</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt>
+<em class="property">static </em><code class="descname">inv_multi_quadratic_biharmonic_spline</code><span class="sig-paren">(</span><em>X</em>, <em>r</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bladex/ndinterpolator.html#RBF.inv_multi_quadratic_biharmonic_spline"><span class="viewcode-link">[source]</span></a></dt>
+<dd><p>It implements the following formula:</p>
+<div class="math">
+<p><img src="_images/math/168a7f0405a1c5485269d6ad299d52c48087397a.png" alt="\varphi(\| \boldsymbol{x} \|) =
+(\| \boldsymbol{x} \|^2 + r^2 )^{-\frac{1}{2}}"/></p>
+</div><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>X</strong> (<a class="reference external" href="http://docs.scipy.org/doc/numpy/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.14)"><em>numpy.ndarray</em></a>) &#8211; l2-norm between given inputs of a function
+and the locations to perform rbf approximation to that function.</li>
+<li><strong>r</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#float" title="(in Python v2.7)"><em>float</em></a>) &#8211; smoothing length, also called the cut-off radius.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">result: the result of the formula above.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="http://docs.python.org/2/library/functions.html#float" title="(in Python v2.7)">float</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt>
+<em class="property">static </em><code class="descname">multi_quadratic_biharmonic_spline</code><span class="sig-paren">(</span><em>X</em>, <em>r</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bladex/ndinterpolator.html#RBF.multi_quadratic_biharmonic_spline"><span class="viewcode-link">[source]</span></a></dt>
+<dd><p>It implements the following formula:</p>
+<div class="math">
+<p><img src="_images/math/3af77d39a308102bdbe2f9f20276293b2e0ba9da.png" alt="\varphi(\| \boldsymbol{x} \|) =
+\sqrt{\| \boldsymbol{x} \|^2 + r^2}"/></p>
+</div><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>X</strong> (<a class="reference external" href="http://docs.scipy.org/doc/numpy/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.14)"><em>numpy.ndarray</em></a>) &#8211; l2-norm between given inputs of a function
+and the locations to perform rbf approximation to that function.</li>
+<li><strong>r</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#float" title="(in Python v2.7)"><em>float</em></a>) &#8211; smoothing length, also called the cut-off radius.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">result: the result of the formula above.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="http://docs.python.org/2/library/functions.html#float" title="(in Python v2.7)">float</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt>
+<em class="property">static </em><code class="descname">thin_plate_spline</code><span class="sig-paren">(</span><em>X</em>, <em>r</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bladex/ndinterpolator.html#RBF.thin_plate_spline"><span class="viewcode-link">[source]</span></a></dt>
+<dd><p>It implements the following formula:</p>
+<div class="math">
+<p><img src="_images/math/3e2d82177c217fba8c95196fbd9609f57e61564d.png" alt="\varphi(\| \boldsymbol{x} \|) =
+\left\| \frac{\boldsymbol{x} }{r} \right\|^2
+\ln \left\| \frac{\boldsymbol{x} }{r} \right\|"/></p>
+</div><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>X</strong> (<a class="reference external" href="http://docs.scipy.org/doc/numpy/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.14)"><em>numpy.ndarray</em></a>) &#8211; l2-norm between given inputs of a function
+and the locations to perform rbf approximation to that function.</li>
+<li><strong>r</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#float" title="(in Python v2.7)"><em>float</em></a>) &#8211; smoothing length, also called the cut-off radius.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">result: the result of the formula above.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="http://docs.python.org/2/library/functions.html#float" title="(in Python v2.7)">float</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<code class="descname">weights_matrix</code><span class="sig-paren">(</span><em>X1</em>, <em>X2</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bladex/ndinterpolator.html#RBF.weights_matrix"><span class="viewcode-link">[source]</span></a></dt>
+<dd><p>This method returns the following matrix:</p>
+<div class="math">
+<p><img src="_images/math/f02f62471ad5a6429f487a4700bfb9a7a0e895ba.png" alt="\boldsymbol{D_{ij}} = \varphi(\| \boldsymbol{x_i} -
+\boldsymbol{y_j} \|)"/></p>
+</div><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>X1</strong> (<a class="reference external" href="http://docs.scipy.org/doc/numpy/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.14)"><em>numpy.ndarray</em></a>) &#8211; the vector x in the formula above.</li>
+<li><strong>X2</strong> (<a class="reference external" href="http://docs.scipy.org/doc/numpy/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.14)"><em>numpy.ndarray</em></a>) &#8211; the vector y in the formula above.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">matrix: the matrix D.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="http://docs.scipy.org/doc/numpy/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.14)">numpy.ndarray</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt>
+<code class="descname">reconstruct_f</code><span class="sig-paren">(</span><em>original_input</em>, <em>original_output</em>, <em>rbf_input</em>, <em>rbf_output</em>, <em>basis</em>, <em>radius</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bladex/ndinterpolator.html#reconstruct_f"><span class="viewcode-link">[source]</span></a></dt>
+<dd><p>Reconstruct a function by using the radial basis function approximations.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>original_input</strong> (<em>array_like</em>) &#8211; the original values of function inputs.</li>
+<li><strong>original_output</strong> (<em>array_like</em>) &#8211; the original values of function output.</li>
+<li><strong>rbf_input</strong> (<em>array_like</em>) &#8211; the input data for RBF approximation.</li>
+<li><strong>rbf_output</strong> (<em>array_like</em>) &#8211; the array elements to be updated with the RBF
+interpolated outputs after the approximation.</li>
+<li><strong>basis</strong> (<a class="reference external" href="http://docs.python.org/2/library/string.html#module-string" title="(in Python v2.7)"><em>string</em></a>) &#8211; radial basis function.</li>
+<li><strong>radius</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#float" title="(in Python v2.7)"><em>float</em></a>) &#8211; smoothing length, also called the cut-off radius.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Example:</th><td class="field-body"><div class="first last highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">bladex.ndinterpolator</span> <span class="k">import</span> <span class="n">reconstruct_f</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">radius</span> <span class="o">=</span> <span class="mi">10</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">n_interp</span> <span class="o">=</span> <span class="mi">50</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">x_rbf</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">x</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">num</span><span class="o">=</span><span class="n">n_interp</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">y_rbf</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">n_interp</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">reconstruct_f</span><span class="p">(</span><span class="n">original_input</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">original_output</span><span class="o">=</span><span class="n">y</span><span class="p">,</span> <span class="n">rbf_input</span><span class="o">=</span><span class="n">x_rbf</span><span class="p">,</span>
+<span class="go">    rbf_output=y_rbf, radius=radius, basis=&#39;beckert_wendland_c2_basis&#39;)</span>
+</pre></div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt>
+<code class="descname">scipy_bspline</code><span class="sig-paren">(</span><em>cv</em>, <em>npoints</em>, <em>degree</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bladex/ndinterpolator.html#scipy_bspline"><span class="viewcode-link">[source]</span></a></dt>
+<dd><p>Construct B-Spline curve via the control points.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>cv</strong> (<em>array_like</em>) &#8211; control points vector (spline coefficients).</li>
+<li><strong>npoints</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; number of points on the curve.</li>
+<li><strong>degree</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; BSpline degree.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="_summaries/bladex.ndinterpolator.RBF.beckert_wendland_c2_basis.html" class="btn btn-neutral float-right" title="bladex.ndinterpolator.RBF.beckert_wendland_c2_basis" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="_summaries/bladex.deform.Deformation.update_control_points.html" class="btn btn-neutral" title="bladex.deform.Deformation.update_control_points" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, BladeX contributors.
+      Last updated on Jun 18, 2018.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'0.0.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

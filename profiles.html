@@ -1,0 +1,379 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Profiles &mdash; BladeX 0.0.1 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+    <link rel="top" title="BladeX 0.0.1 documentation" href="index.html"/>
+        <link rel="up" title="Code Documentation" href="code.html"/>
+        <link rel="next" title="bladex.profiles.CustomProfile._check_coordinates" href="_summaries/bladex.profiles.CustomProfile._check_coordinates.html"/>
+        <link rel="prev" title="bladex.params.ParamFile.write_parameters" href="_summaries/bladex.params.ParamFile.write_parameters.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> BladeX
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="code.html">Code Documentation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="blade.html">Blade</a></li>
+<li class="toctree-l2"><a class="reference internal" href="deform.html">Deformation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ndinterpolator.html">Ndinterpolator</a></li>
+<li class="toctree-l2"><a class="reference internal" href="profilebase.html">ProfileBase</a></li>
+<li class="toctree-l2"><a class="reference internal" href="params.html">ParamFile</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Profiles</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="_summaries/bladex.profiles.CustomProfile._check_coordinates.html">bladex.profiles.CustomProfile._check_coordinates</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_summaries/bladex.profiles.NacaProfile._check_args.html">bladex.profiles.NacaProfile._check_args</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_summaries/bladex.profiles.NacaProfile._generate_coordinates.html">bladex.profiles.NacaProfile._generate_coordinates</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="contact.html">Contact</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">How to contribute</a></li>
+<li class="toctree-l1"><a class="reference internal" href="LICENSE.html">License</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">BladeX</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="code.html">Code Documentation</a> &raquo;</li>
+      
+    <li>Profiles</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/profiles.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-bladex.profiles">
+<span id="profiles"></span><h1>Profiles<a class="headerlink" href="#module-bladex.profiles" title="Permalink to this headline">¶</a></h1>
+<p>Derived module from profilebase.py to provide the airfoil coordinates.</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="_summaries/bladex.profiles.CustomProfile._check_coordinates.html#bladex.profiles.CustomProfile._check_coordinates" title="bladex.profiles.CustomProfile._check_coordinates"><code class="xref py py-obj docutils literal"><span class="pre">CustomProfile._check_coordinates</span></code></a></td>
+<td>Private method that checks whether the airfoil coordinates defined are provided correctly.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="_summaries/bladex.profiles.NacaProfile._check_args.html#bladex.profiles.NacaProfile._check_args" title="bladex.profiles.NacaProfile._check_args"><code class="xref py py-obj docutils literal"><span class="pre">NacaProfile._check_args</span></code></a></td>
+<td>Private method to check that the number of the airfoil discrete points is a positive integer.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="_summaries/bladex.profiles.NacaProfile._generate_coordinates.html#bladex.profiles.NacaProfile._generate_coordinates" title="bladex.profiles.NacaProfile._generate_coordinates"><code class="xref py py-obj docutils literal"><span class="pre">NacaProfile._generate_coordinates</span></code></a></td>
+<td>Private method that generates the coordinates of the NACA 4 or 5 digits airfoil profile.</td>
+</tr>
+</tbody>
+</table>
+<dl class="class">
+<dt>
+<em class="property">class </em><code class="descname">CustomProfile</code><span class="sig-paren">(</span><em>xup</em>, <em>yup</em>, <em>xdown</em>, <em>ydown</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bladex/profiles.html#CustomProfile"><span class="viewcode-link">[source]</span></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">bladex.profilebase.ProfileBase</span></code></p>
+<p>Provide custom profile for the airfoil coordinates.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>xup</strong> (<a class="reference external" href="http://docs.scipy.org/doc/numpy/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.14)"><em>numpy.ndarray</em></a>) &#8211; 1D array that contains the X-components of the
+airfoil&#8217;s upper surface</li>
+<li><strong>xdown</strong> (<a class="reference external" href="http://docs.scipy.org/doc/numpy/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.14)"><em>numpy.ndarray</em></a>) &#8211; 1D array that contains the X-components of the
+airfoil&#8217;s lower surface</li>
+<li><strong>yup</strong> (<a class="reference external" href="http://docs.scipy.org/doc/numpy/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.14)"><em>numpy.ndarray</em></a>) &#8211; 1D array that contains the Y-components of the
+airfoil&#8217;s upper surface</li>
+<li><strong>ydown</strong> (<a class="reference external" href="http://docs.scipy.org/doc/numpy/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.14)"><em>numpy.ndarray</em></a>) &#8211; 1D array that contains the Y-components of the
+airfoil&#8217;s lower surface</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt>
+<code class="descname">_check_coordinates</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/bladex/profiles.html#CustomProfile._check_coordinates"><span class="viewcode-link">[source]</span></a></dt>
+<dd><p>Private method that checks whether the airfoil coordinates defined
+are provided correctly.</p>
+<p>We note that each array of coordinates must be consistent with the
+other arrays. The upper and lower surfaces should start from exactly
+the same point, the leading edge, and proceed on the way till the
+trailing edge. The trailing edge might have a non-zero thickness as
+in the case of some NACA-airfoils. In case of an open trailing edge,
+the average coordinate between upper and lower part is taken as the
+unique value.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
+<li><strong>ValueError</strong> &#8211; if either xup, xdown, yup, ydown is None</li>
+<li><strong>ValueError</strong> &#8211; if the 1D arrays xup, yup or xdown, ydown do not
+have the same length</li>
+<li><strong>ValueError</strong> &#8211; if array yup not greater than or equal array ydown
+element-wise</li>
+<li><strong>ValueError</strong> &#8211; if xdown[0] != xup[0] or ydown[0] != yup[0]
+or xdown[-1] != xup[-1]</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt>
+<em class="property">class </em><code class="descname">NacaProfile</code><span class="sig-paren">(</span><em>digits</em>, <em>n_points=240</em>, <em>cosine_spacing=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bladex/profiles.html#NacaProfile"><span class="viewcode-link">[source]</span></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">bladex.profilebase.ProfileBase</span></code></p>
+<p>Generate 4- and 5-digit NACA profiles.</p>
+<p>The NACA airfoils are airfoil shapes for aircraft wings developed by the
+National Advisory Committee for Aeronautics (NACA). The shape of the NACA
+airfoils is described using a series of digits following the word &#8220;NACA&#8221;.
+The parameters in the numerical code can be entered into equations to
+precisely generate the cross-section of the airfoil and calculate its
+properties.</p>
+<p>The NACA four-digit series describes airfoil by the format MPTT, where:</p>
+<blockquote>
+<div><ul class="simple">
+<li>M/100: indicates the maximum camber in percentage, with respect to the
+chord length.</li>
+<li>P/10: indicates the location of the maximum camber measured from the
+leading edge. The location is normalized by the chord length.</li>
+<li>TT/100: the maximum thickness as fraction of the chord length.</li>
+</ul>
+</div></blockquote>
+<p>The profile 00TT refers to a symmetrical NACA airfoil.</p>
+<p>The NACA five-digit series describes more complex airfoil shapes.
+Its format is: LPSTT, where:</p>
+<blockquote>
+<div><ul class="simple">
+<li>L: the theoretical optimum lift coefficient at ideal
+angle-of-attack = 0.15*L</li>
+<li>P: the x-coordinate of the point of maximum camber
+(max camber at x = 0.05*P)</li>
+<li>S: indicates whether the camber is simple (S=0) or reflex (S=1)
+TT/100: the maximum thickness in percent of chord, as in a four-digit
+NACA airfoil code</li>
+</ul>
+</div></blockquote>
+<p>References:</p>
+<ul class="simple">
+<li>Moran, Jack (2003). An introduction to theoretical and computational
+aerodynamics. Dover. p. 7. ISBN 0-486-42879-6.</li>
+<li>Abbott, Ira (1959). Theory of Wing Sections: Including a Summary of
+Airfoil Data. New York: Dover Publications. p. 115. ISBN 978-0486605869.</li>
+</ul>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>digits</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; 4 or 5 digits that describes the NACA profile</li>
+<li><strong>n_points</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; number of discrete points that represents the
+airfoil profile. Default value is 240</li>
+<li><strong>cosine_spacing</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a>) &#8211; if True, then a cosine spacing is used for the
+airfoil coordinate distribution, otherwise linear spacing is used.
+Default value is True</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
+<li><strong>ValueError</strong> &#8211; if n_points is not positive</li>
+<li><strong>TypeError</strong> &#8211; if n_points is not of type int</li>
+<li><strong>SyntaxError</strong> &#8211; if digits is not a string</li>
+<li><strong>Exception</strong> &#8211; if digits is not of length 4 or 5</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt>
+<code class="descname">_check_args</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/bladex/profiles.html#NacaProfile._check_args"><span class="viewcode-link">[source]</span></a></dt>
+<dd><p>Private method to check that the number of the airfoil discrete points
+is a positive integer.</p>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<code class="descname">_generate_coordinates</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/bladex/profiles.html#NacaProfile._generate_coordinates"><span class="viewcode-link">[source]</span></a></dt>
+<dd><p>Private method that generates the coordinates of the NACA 4 or 5 digits
+airfoil profile. The method assumes a zero-thickness trailing edge, and
+no half-cosine spacing.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="_summaries/bladex.profiles.CustomProfile._check_coordinates.html" class="btn btn-neutral float-right" title="bladex.profiles.CustomProfile._check_coordinates" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="_summaries/bladex.params.ParamFile.write_parameters.html" class="btn btn-neutral" title="bladex.params.ParamFile.write_parameters" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, BladeX contributors.
+      Last updated on Jun 18, 2018.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'0.0.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>
