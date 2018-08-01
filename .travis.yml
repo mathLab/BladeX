@@ -68,6 +68,11 @@ install:
       fi
     - source activate test
     - conda install --yes numpy scipy matplotlib pip nose sip=4.18
+    - if [[ "$TOXENV" == "py27" ]]; then
+        conda install --yes -c conda-forge -c dlr-sc -c pythonocc -c oce pythonocc-core=0.18.1 python=2.7;
+      else
+        conda install --yes -c conda-forge -c dlr-sc -c pythonocc -c oce pythonocc-core=0.18.1 python=3.6;
+      fi
     - pip install setuptools
     - pip install enum34
     - pip install coveralls
