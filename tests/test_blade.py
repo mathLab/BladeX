@@ -24,6 +24,23 @@ def create_sample_blade_NACA():
         skew_angles=skew_angles)
 
 
+def create_sample_blade_NACA_10():
+    sections = np.asarray(
+        [pr.NacaProfile(digits='0012', n_points=10) for i in range(2)])
+    radii = np.array([0.4, 0.5])
+    chord_lengths = np.array([0.55, 0.7])
+    pitch = np.array([3.0, 3.2])
+    rake = np.array([5e-3, 0.015])
+    skew_angles = np.array([-4., -7])
+    return bl.Blade(
+        sections=sections,
+        radii=radii,
+        chord_lengths=chord_lengths,
+        pitch=pitch,
+        rake=rake,
+        skew_angles=skew_angles)
+
+
 def create_sample_blade_custom():
     xup = np.linspace(-1.0, 1.0, 5)
     yup = np.array([0.0, 0.75, 1.0, 0.75, 0.0])
@@ -338,6 +355,93 @@ class TestBlade(TestCase):
         blade = create_sample_blade_NACA()
         with self.assertRaises(ValueError):
             blade.plot()
+
+    def test_iges_upper_blade_not_string(self):
+        blade = create_sample_blade_NACA()
+        blade.apply_transformations()
+        upper = 1
+        with self.assertRaises(Exception):
+            blade.generate_iges(
+                upper_face=upper,
+                lower_face=None,
+                tip=None,
+                display=False,
+                errors=None)
+
+    def test_iges_lower_blade_not_string(self):
+        blade = create_sample_blade_NACA()
+        blade.apply_transformations()
+        lower = 1
+        with self.assertRaises(Exception):
+            blade.generate_iges(
+                upper_face=None,
+                lower_face=lower,
+                tip=None,
+                display=False,
+                errors=None)
+
+    def test_iges_tip_not_string(self):
+        blade = create_sample_blade_NACA()
+        blade.apply_transformations()
+        tip = 1
+        with self.assertRaises(Exception):
+            blade.generate_iges(
+                upper_face=None,
+                lower_face=None,
+                tip=tip,
+                display=False,
+                errors=None)
+
+    def test_iges_blade_tip_generate(self):
+        blade = create_sample_blade_NACA()
+        blade.apply_transformations()
+        blade.generate_iges(
+            upper_face=None,
+            lower_face=None,
+            tip='tests/test_datasets/tip',
+            display=False,
+            errors=None)
+        self.assertTrue(os.path.isfile('tests/test_datasets/tip.iges'))
+        self.addCleanup(os.remove, 'tests/test_datasets/tip.iges')
+
+    def test_iges_errors_exception(self):
+        blade = create_sample_blade_NACA()
+        blade.apply_transformations()
+        with self.assertRaises(ValueError):
+            blade.generate_iges(
+                upper_face=None,
+                lower_face=None,
+                tip=None,
+                display=False,
+                errors='tests/test_datasets/errors')
+
+    def test_iges_generate_errors_upper(self):
+        blade = create_sample_blade_NACA_10()
+        blade.apply_transformations()
+        blade.generate_iges(
+            upper_face='tests/test_datasets/upper',
+            lower_face=None,
+            tip=None,
+            display=False,
+            errors='tests/test_datasets/errors')
+        self.assertTrue(os.path.isfile('tests/test_datasets/upper.iges'))
+        self.addCleanup(os.remove, 'tests/test_datasets/upper.iges')
+        self.assertTrue(os.path.isfile('tests/test_datasets/errors.txt'))
+        self.addCleanup(os.remove, 'tests/test_datasets/errors.txt')
+
+    def test_iges_generate_errors_lower(self):
+        blade = create_sample_blade_NACA_10()
+        blade.apply_transformations()
+        blade.generate_iges(
+            upper_face=None,
+            lower_face='tests/test_datasets/lower',
+            tip=None,
+            display=False,
+            errors='tests/test_datasets/errors')
+        self.assertTrue(os.path.isfile('tests/test_datasets/lower.iges'))
+        self.addCleanup(os.remove, 'tests/test_datasets/lower.iges')
+        self.assertTrue(os.path.isfile('tests/test_datasets/errors.txt'))
+        self.addCleanup(os.remove, 'tests/test_datasets/errors.txt')
 
     def test_abs_to_norm_radii(self):
         blade = create_sample_blade_NACA()
