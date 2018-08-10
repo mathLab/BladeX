@@ -476,9 +476,275 @@
         <span class="k">if</span> <span class="n">outfile</span><span class="p">:</span>
             <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">outfile</span><span class="p">)</span></div>
 
+<div class="viewcode-block" id="Blade.generate_iges"><a class="viewcode-back" href="../../blade.html#bladex.blade.Blade.generate_iges">[docs]</a>    <span class="k">def</span> <span class="nf">generate_iges</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                      <span class="n">upper_face</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+                      <span class="n">lower_face</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+                      <span class="n">tip</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+                      <span class="n">display</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+                      <span class="n">errors</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generate and export the .iges CAD for the blade upper face, lower face,</span>
+<span class="sd">        and tip. This method requires PythonOCC to be installed.</span>
+
+<span class="sd">        :param string upper_face: if string is passed then the method generates</span>
+<span class="sd">            the blade upper surface using the BRepOffsetAPI_ThruSections</span>
+<span class="sd">            algorithm, then exports the generated CAD into .iges file holding</span>
+<span class="sd">            the name &lt;upper_face_string&gt;.iges. Default value is None</span>
+<span class="sd">        :param string lower_face: if string is passed then the method generates</span>
+<span class="sd">            the blade lower surface using the BRepOffsetAPI_ThruSections</span>
+<span class="sd">            algorithm, then exports the generated CAD into .iges file holding</span>
+<span class="sd">            the name &lt;lower_face_string&gt;.iges. Default value is None</span>
+<span class="sd">        :param string tip: if string is passed then the method generates</span>
+<span class="sd">            the blade tip using the BRepOffsetAPI_ThruSections algorithm</span>
+<span class="sd">            in order to close the blade, then exports the generated CAD into</span>
+<span class="sd">            .iges file holding the name &lt;tip_string&gt;.iges. Default value is None</span>
+<span class="sd">        :param bool display: if True, then display the generated CAD. Default</span>
+<span class="sd">            value is False</span>
+<span class="sd">        :param string errors: if string is passed then the method writes out</span>
+<span class="sd">            the distances between each discrete point used to construct the</span>
+<span class="sd">            blade and the nearest point on the CAD that is perpendicular to</span>
+<span class="sd">            that point. Default value is None</span>
+
+<span class="sd">        We note that the blade object must have its radial sections be arranged</span>
+<span class="sd">        in order from the blade root to the blade tip, so that generate_iges</span>
+<span class="sd">        method can build the CAD surface that passes through the corresponding</span>
+<span class="sd">        airfoils. Also to be able to identify and close the blade tip.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="kn">from</span> <span class="nn">OCC.BRepBuilderAPI</span> <span class="kn">import</span> <span class="n">BRepBuilderAPI_MakeEdge</span><span class="p">,</span>\
+             <span class="n">BRepBuilderAPI_MakeWire</span><span class="p">,</span> <span class="n">BRepBuilderAPI_MakeVertex</span>
+        <span class="kn">from</span> <span class="nn">OCC.Display.SimpleGui</span> <span class="kn">import</span> <span class="n">init_display</span>
+        <span class="kn">from</span> <span class="nn">OCC.gp</span> <span class="kn">import</span> <span class="n">gp_Pnt</span>
+        <span class="kn">from</span> <span class="nn">OCC.TColgp</span> <span class="kn">import</span> <span class="n">TColgp_HArray1OfPnt</span>
+        <span class="kn">from</span> <span class="nn">OCC.GeomAPI</span> <span class="kn">import</span> <span class="n">GeomAPI_Interpolate</span>
+        <span class="kn">from</span> <span class="nn">OCC.IGESControl</span> <span class="kn">import</span> <span class="n">IGESControl_Writer</span>
+        <span class="kn">from</span> <span class="nn">OCC.BRepOffsetAPI</span> <span class="kn">import</span> <span class="n">BRepOffsetAPI_ThruSections</span>
+        <span class="kn">from</span> <span class="nn">OCC.BRepExtrema</span> <span class="kn">import</span> <span class="n">BRepExtrema_DistShapeShape</span>
+
+        <span class="k">if</span> <span class="n">upper_face</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_check_string</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="n">upper_face</span><span class="p">)</span>
+            <span class="c1"># Initializes ThruSections algorithm for building a shell passing</span>
+            <span class="c1"># through a set of sections (wires). The generated faces between</span>
+            <span class="c1"># the edges of every two consecutive wires are smoothed out with</span>
+            <span class="c1"># a precision criterion = 1e-10</span>
+            <span class="n">generator</span> <span class="o">=</span> <span class="n">BRepOffsetAPI_ThruSections</span><span class="p">(</span><span class="bp">False</span><span class="p">,</span> <span class="bp">False</span><span class="p">,</span> <span class="mf">1e-10</span><span class="p">)</span>
+            <span class="c1"># Define upper edges (wires) for the face generation</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_sections</span><span class="p">):</span>
+                <span class="n">npoints</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">blade_coordinates_up</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+                <span class="n">vertices</span> <span class="o">=</span> <span class="n">TColgp_HArray1OfPnt</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">npoints</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">npoints</span><span class="p">):</span>
+                    <span class="n">vertices</span><span class="o">.</span><span class="n">SetValue</span><span class="p">(</span>
+                        <span class="n">j</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span>
+                        <span class="n">gp_Pnt</span><span class="p">(</span><span class="mi">1000</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">blade_coordinates_up</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="n">j</span><span class="p">],</span>
+                               <span class="mi">1000</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">blade_coordinates_up</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">][</span><span class="n">j</span><span class="p">],</span>
+                               <span class="mi">1000</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">blade_coordinates_up</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">2</span><span class="p">][</span><span class="n">j</span><span class="p">]))</span>
+                <span class="c1"># Initializes an algorithm for constructing a constrained</span>
+                <span class="c1"># BSpline curve passing through the points of the blade i-th</span>
+                <span class="c1"># section, with tolerance = 1e-9</span>
+                <span class="n">bspline</span> <span class="o">=</span> <span class="n">GeomAPI_Interpolate</span><span class="p">(</span><span class="n">vertices</span><span class="o">.</span><span class="n">GetHandle</span><span class="p">(),</span> <span class="bp">False</span><span class="p">,</span> <span class="mf">1e-9</span><span class="p">)</span>
+                <span class="n">bspline</span><span class="o">.</span><span class="n">Perform</span><span class="p">()</span>
+                <span class="n">edge</span> <span class="o">=</span> <span class="n">BRepBuilderAPI_MakeEdge</span><span class="p">(</span><span class="n">bspline</span><span class="o">.</span><span class="n">Curve</span><span class="p">())</span><span class="o">.</span><span class="n">Edge</span><span class="p">()</span>
+                <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">bound_root_edge</span> <span class="o">=</span> <span class="n">edge</span>
+                <span class="c1"># Add BSpline wire to the generator constructor</span>
+                <span class="n">generator</span><span class="o">.</span><span class="n">AddWire</span><span class="p">(</span><span class="n">BRepBuilderAPI_MakeWire</span><span class="p">(</span><span class="n">edge</span><span class="p">)</span><span class="o">.</span><span class="n">Wire</span><span class="p">())</span>
+            <span class="c1"># Returns the shape built by the shape construction algorithm</span>
+            <span class="n">generator</span><span class="o">.</span><span class="n">Build</span><span class="p">()</span>
+            <span class="c1"># Returns the Face generated by each edge of the first section</span>
+            <span class="n">generated_upper_face</span> <span class="o">=</span> <span class="n">generator</span><span class="o">.</span><span class="n">GeneratedFace</span><span class="p">(</span><span class="n">bound_root_edge</span><span class="p">)</span>
+
+            <span class="c1"># Write IGES</span>
+            <span class="n">iges_writer</span> <span class="o">=</span> <span class="n">IGESControl_Writer</span><span class="p">()</span>
+            <span class="n">iges_writer</span><span class="o">.</span><span class="n">AddShape</span><span class="p">(</span><span class="n">generated_upper_face</span><span class="p">)</span>
+            <span class="n">iges_writer</span><span class="o">.</span><span class="n">Write</span><span class="p">(</span><span class="n">upper_face</span> <span class="o">+</span> <span class="s1">&#39;.iges&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">lower_face</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_check_string</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="n">lower_face</span><span class="p">)</span>
+            <span class="c1"># Initializes ThruSections algorithm for building a shell passing</span>
+            <span class="c1"># through a set of sections (wires). The generated faces between</span>
+            <span class="c1"># the edges of every two consecutive wires are smoothed out with</span>
+            <span class="c1"># a precision criterion = 1e-10</span>
+            <span class="n">generator</span> <span class="o">=</span> <span class="n">BRepOffsetAPI_ThruSections</span><span class="p">(</span><span class="bp">False</span><span class="p">,</span> <span class="bp">False</span><span class="p">,</span> <span class="mf">1e-10</span><span class="p">)</span>
+            <span class="c1"># Define upper edges (wires) for the face generation</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_sections</span><span class="p">):</span>
+                <span class="n">npoints</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">blade_coordinates_down</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+                <span class="n">vertices</span> <span class="o">=</span> <span class="n">TColgp_HArray1OfPnt</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">npoints</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">npoints</span><span class="p">):</span>
+                    <span class="n">vertices</span><span class="o">.</span><span class="n">SetValue</span><span class="p">(</span>
+                        <span class="n">j</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span>
+                        <span class="n">gp_Pnt</span><span class="p">(</span><span class="mi">1000</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">blade_coordinates_down</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="n">j</span><span class="p">],</span>
+                               <span class="mi">1000</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">blade_coordinates_down</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">][</span><span class="n">j</span><span class="p">],</span>
+                               <span class="mi">1000</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">blade_coordinates_down</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">2</span><span class="p">][</span><span class="n">j</span><span class="p">]))</span>
+                <span class="c1"># Initializes an algorithm for constructing a constrained</span>
+                <span class="c1"># BSpline curve passing through the points of the blade i-th</span>
+                <span class="c1"># section, with tolerance = 1e-9</span>
+                <span class="n">bspline</span> <span class="o">=</span> <span class="n">GeomAPI_Interpolate</span><span class="p">(</span><span class="n">vertices</span><span class="o">.</span><span class="n">GetHandle</span><span class="p">(),</span> <span class="bp">False</span><span class="p">,</span> <span class="mf">1e-9</span><span class="p">)</span>
+                <span class="n">bspline</span><span class="o">.</span><span class="n">Perform</span><span class="p">()</span>
+                <span class="n">edge</span> <span class="o">=</span> <span class="n">BRepBuilderAPI_MakeEdge</span><span class="p">(</span><span class="n">bspline</span><span class="o">.</span><span class="n">Curve</span><span class="p">())</span><span class="o">.</span><span class="n">Edge</span><span class="p">()</span>
+                <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">bound_root_edge</span> <span class="o">=</span> <span class="n">edge</span>
+                <span class="c1"># Add BSpline wire to the generator constructor</span>
+                <span class="n">generator</span><span class="o">.</span><span class="n">AddWire</span><span class="p">(</span><span class="n">BRepBuilderAPI_MakeWire</span><span class="p">(</span><span class="n">edge</span><span class="p">)</span><span class="o">.</span><span class="n">Wire</span><span class="p">())</span>
+            <span class="c1"># Returns the shape built by the shape construction algorithm</span>
+            <span class="n">generator</span><span class="o">.</span><span class="n">Build</span><span class="p">()</span>
+            <span class="c1"># Returns the Face generated by each edge of the first section</span>
+            <span class="n">generated_lower_face</span> <span class="o">=</span> <span class="n">generator</span><span class="o">.</span><span class="n">GeneratedFace</span><span class="p">(</span><span class="n">bound_root_edge</span><span class="p">)</span>
+
+            <span class="c1"># Write IGES</span>
+            <span class="n">iges_writer</span> <span class="o">=</span> <span class="n">IGESControl_Writer</span><span class="p">()</span>
+            <span class="n">iges_writer</span><span class="o">.</span><span class="n">AddShape</span><span class="p">(</span><span class="n">generated_lower_face</span><span class="p">)</span>
+            <span class="n">iges_writer</span><span class="o">.</span><span class="n">Write</span><span class="p">(</span><span class="n">lower_face</span> <span class="o">+</span> <span class="s1">&#39;.iges&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">tip</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_check_string</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="n">tip</span><span class="p">)</span>
+            <span class="n">generator</span> <span class="o">=</span> <span class="n">BRepOffsetAPI_ThruSections</span><span class="p">(</span><span class="bp">False</span><span class="p">,</span> <span class="bp">False</span><span class="p">,</span> <span class="mf">1e-10</span><span class="p">)</span>
+            <span class="n">generator</span><span class="o">.</span><span class="n">SetMaxDegree</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+            <span class="c1"># npoints_up == npoints_down</span>
+            <span class="n">npoints</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">blade_coordinates_down</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">vertices_1</span> <span class="o">=</span> <span class="n">TColgp_HArray1OfPnt</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">npoints</span><span class="p">)</span>
+            <span class="n">vertices_2</span> <span class="o">=</span> <span class="n">TColgp_HArray1OfPnt</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">npoints</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">npoints</span><span class="p">):</span>
+                <span class="n">vertices_1</span><span class="o">.</span><span class="n">SetValue</span><span class="p">(</span>
+                    <span class="n">j</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span>
+                    <span class="n">gp_Pnt</span><span class="p">(</span><span class="mi">1000</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">blade_coordinates_down</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="n">j</span><span class="p">],</span>
+                           <span class="mi">1000</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">blade_coordinates_down</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">][</span><span class="n">j</span><span class="p">],</span>
+                           <span class="mi">1000</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">blade_coordinates_down</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">2</span><span class="p">][</span><span class="n">j</span><span class="p">]))</span>
+
+                <span class="n">vertices_2</span><span class="o">.</span><span class="n">SetValue</span><span class="p">(</span>
+                    <span class="n">j</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span>
+                    <span class="n">gp_Pnt</span><span class="p">(</span><span class="mi">1000</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">blade_coordinates_up</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="n">j</span><span class="p">],</span>
+                           <span class="mi">1000</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">blade_coordinates_up</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">][</span><span class="n">j</span><span class="p">],</span>
+                           <span class="mi">1000</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">blade_coordinates_up</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">2</span><span class="p">][</span><span class="n">j</span><span class="p">]))</span>
+
+            <span class="c1"># Initializes an algorithm for constructing a constrained</span>
+            <span class="c1"># BSpline curve passing through the points of the blade last</span>
+            <span class="c1"># section, with tolerance = 1e-9</span>
+            <span class="n">bspline_1</span> <span class="o">=</span> <span class="n">GeomAPI_Interpolate</span><span class="p">(</span><span class="n">vertices_1</span><span class="o">.</span><span class="n">GetHandle</span><span class="p">(),</span> <span class="bp">False</span><span class="p">,</span> <span class="mf">1e-9</span><span class="p">)</span>
+            <span class="n">bspline_1</span><span class="o">.</span><span class="n">Perform</span><span class="p">()</span>
+
+            <span class="n">bspline_2</span> <span class="o">=</span> <span class="n">GeomAPI_Interpolate</span><span class="p">(</span><span class="n">vertices_2</span><span class="o">.</span><span class="n">GetHandle</span><span class="p">(),</span> <span class="bp">False</span><span class="p">,</span> <span class="mf">1e-9</span><span class="p">)</span>
+            <span class="n">bspline_2</span><span class="o">.</span><span class="n">Perform</span><span class="p">()</span>
+
+            <span class="n">edge_1</span> <span class="o">=</span> <span class="n">BRepBuilderAPI_MakeEdge</span><span class="p">(</span><span class="n">bspline_1</span><span class="o">.</span><span class="n">Curve</span><span class="p">())</span><span class="o">.</span><span class="n">Edge</span><span class="p">()</span>
+            <span class="n">edge_2</span> <span class="o">=</span> <span class="n">BRepBuilderAPI_MakeEdge</span><span class="p">(</span><span class="n">bspline_2</span><span class="o">.</span><span class="n">Curve</span><span class="p">())</span><span class="o">.</span><span class="n">Edge</span><span class="p">()</span>
+
+            <span class="c1"># Add BSpline wire to the generator constructor</span>
+            <span class="n">generator</span><span class="o">.</span><span class="n">AddWire</span><span class="p">(</span><span class="n">BRepBuilderAPI_MakeWire</span><span class="p">(</span><span class="n">edge_1</span><span class="p">)</span><span class="o">.</span><span class="n">Wire</span><span class="p">())</span>
+            <span class="n">generator</span><span class="o">.</span><span class="n">AddWire</span><span class="p">(</span><span class="n">BRepBuilderAPI_MakeWire</span><span class="p">(</span><span class="n">edge_2</span><span class="p">)</span><span class="o">.</span><span class="n">Wire</span><span class="p">())</span>
+            <span class="c1"># Returns the shape built by the shape construction algorithm</span>
+            <span class="n">generator</span><span class="o">.</span><span class="n">Build</span><span class="p">()</span>
+            <span class="c1"># Returns the Face generated by each edge of the first section</span>
+            <span class="n">generated_tip</span> <span class="o">=</span> <span class="n">generator</span><span class="o">.</span><span class="n">GeneratedFace</span><span class="p">(</span><span class="n">edge_1</span><span class="p">)</span>
+
+            <span class="n">iges_writer</span> <span class="o">=</span> <span class="n">IGESControl_Writer</span><span class="p">()</span>
+            <span class="n">iges_writer</span><span class="o">.</span><span class="n">AddShape</span><span class="p">(</span><span class="n">generated_tip</span><span class="p">)</span>
+            <span class="n">iges_writer</span><span class="o">.</span><span class="n">Write</span><span class="p">(</span><span class="n">tip</span> <span class="o">+</span> <span class="s1">&#39;.iges&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">errors</span><span class="p">:</span>
+            <span class="c1"># Write out errors between discrete points and constructed faces</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_check_string</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="n">errors</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_check_errors</span><span class="p">(</span><span class="n">upper_face</span><span class="o">=</span><span class="n">upper_face</span><span class="p">,</span> <span class="n">lower_face</span><span class="o">=</span><span class="n">lower_face</span><span class="p">)</span>
+
+            <span class="n">output_string</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">errors</span> <span class="o">+</span> <span class="s1">&#39;.txt&#39;</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">upper_face</span><span class="p">:</span>
+                    <span class="n">output_string</span> <span class="o">+=</span> <span class="s1">&#39;########## UPPER FACE ##########</span><span class="se">\n\n</span><span class="s1">&#39;</span>
+                    <span class="n">output_string</span> <span class="o">+=</span> <span class="s1">&#39;N_section</span><span class="se">\t\t</span><span class="s1">N_point</span><span class="se">\t\t\t</span><span class="s1">X_crds</span><span class="se">\t\t\t\t</span><span class="s1">&#39;</span>
+                    <span class="n">output_string</span> <span class="o">+=</span> <span class="s1">&#39;Y_crds</span><span class="se">\t\t\t\t\t</span><span class="s1">Z_crds</span><span class="se">\t\t\t\t\t</span><span class="s1">DISTANCE&#39;</span>
+                    <span class="n">output_string</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="se">\n\n</span><span class="s1">&#39;</span>
+                    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_sections</span><span class="p">):</span>
+                        <span class="n">alength</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">blade_coordinates_up</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+                        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">alength</span><span class="p">):</span>
+                            <span class="n">vertex</span> <span class="o">=</span> <span class="n">BRepBuilderAPI_MakeVertex</span><span class="p">(</span>
+                                <span class="n">gp_Pnt</span><span class="p">(</span>
+                                    <span class="mi">1000</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">blade_coordinates_up</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="n">j</span><span class="p">],</span>
+                                    <span class="mi">1000</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">blade_coordinates_up</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">][</span><span class="n">j</span><span class="p">],</span>
+                                    <span class="mi">1000</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">blade_coordinates_up</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">2</span><span class="p">][</span>
+                                        <span class="n">j</span><span class="p">]))</span><span class="o">.</span><span class="n">Vertex</span><span class="p">()</span>
+                            <span class="n">projection</span> <span class="o">=</span> <span class="n">BRepExtrema_DistShapeShape</span><span class="p">(</span>
+                                <span class="n">generated_upper_face</span><span class="p">,</span> <span class="n">vertex</span><span class="p">)</span>
+                            <span class="n">projection</span><span class="o">.</span><span class="n">Perform</span><span class="p">()</span>
+                            <span class="n">output_string</span> <span class="o">+=</span> <span class="nb">str</span><span class="p">(</span>
+                                <span class="n">i</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\t\t\t</span><span class="s1">&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">j</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\t\t\t</span><span class="s1">&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span>
+                                    <span class="mi">1000</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">blade_coordinates_up</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+                                    <span class="p">[</span><span class="n">j</span><span class="p">])</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\t\t\t</span><span class="s1">&#39;</span>
+                            <span class="n">output_string</span> <span class="o">+=</span> <span class="nb">str</span><span class="p">(</span>
+                                <span class="mi">1000</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">blade_coordinates_up</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                                <span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="n">j</span><span class="p">])</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\t\t\t</span><span class="s1">&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span>
+                                    <span class="mi">1000</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">blade_coordinates_up</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">2</span><span class="p">]</span>
+                                    <span class="p">[</span><span class="n">j</span><span class="p">])</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\t\t\t</span><span class="s1">&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">projection</span><span class="o">.</span><span class="n">Value</span><span class="p">())</span>
+                            <span class="n">output_string</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span>
+
+                <span class="k">if</span> <span class="n">lower_face</span><span class="p">:</span>
+                    <span class="n">output_string</span> <span class="o">+=</span> <span class="s1">&#39;########## LOWER FACE ##########</span><span class="se">\n\n</span><span class="s1">&#39;</span>
+                    <span class="n">output_string</span> <span class="o">+=</span> <span class="s1">&#39;N_section</span><span class="se">\t\t</span><span class="s1">N_point</span><span class="se">\t\t\t</span><span class="s1">X_crds</span><span class="se">\t\t\t\t</span><span class="s1">&#39;</span>
+                    <span class="n">output_string</span> <span class="o">+=</span> <span class="s1">&#39;Y_crds</span><span class="se">\t\t\t\t\t</span><span class="s1">Z_crds</span><span class="se">\t\t\t\t\t</span><span class="s1">DISTANCE&#39;</span>
+                    <span class="n">output_string</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="se">\n\n</span><span class="s1">&#39;</span>
+                    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_sections</span><span class="p">):</span>
+                        <span class="n">alength</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">blade_coordinates_down</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+                        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">alength</span><span class="p">):</span>
+                            <span class="n">vertex</span> <span class="o">=</span> <span class="n">BRepBuilderAPI_MakeVertex</span><span class="p">(</span>
+                                <span class="n">gp_Pnt</span><span class="p">(</span>
+                                    <span class="mi">1000</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">blade_coordinates_down</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="n">j</span><span class="p">],</span>
+                                    <span class="mi">1000</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">blade_coordinates_down</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">][</span><span class="n">j</span><span class="p">],</span>
+                                    <span class="mi">1000</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">blade_coordinates_down</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">2</span><span class="p">][</span>
+                                        <span class="n">j</span><span class="p">]))</span><span class="o">.</span><span class="n">Vertex</span><span class="p">()</span>
+                            <span class="n">projection</span> <span class="o">=</span> <span class="n">BRepExtrema_DistShapeShape</span><span class="p">(</span>
+                                <span class="n">generated_lower_face</span><span class="p">,</span> <span class="n">vertex</span><span class="p">)</span>
+                            <span class="n">projection</span><span class="o">.</span><span class="n">Perform</span><span class="p">()</span>
+                            <span class="n">output_string</span> <span class="o">+=</span> <span class="nb">str</span><span class="p">(</span>
+                                <span class="n">i</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\t\t\t</span><span class="s1">&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">j</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\t\t\t</span><span class="s1">&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span>
+                                    <span class="mi">1000</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">blade_coordinates_down</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+                                    <span class="p">[</span><span class="n">j</span><span class="p">])</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\t\t\t</span><span class="s1">&#39;</span>
+                            <span class="n">output_string</span> <span class="o">+=</span> <span class="nb">str</span><span class="p">(</span>
+                                <span class="mi">1000</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">blade_coordinates_down</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                                <span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="n">j</span><span class="p">])</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\t\t\t</span><span class="s1">&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span>
+                                    <span class="mi">1000</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">blade_coordinates_down</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">2</span><span class="p">]</span>
+                                    <span class="p">[</span><span class="n">j</span><span class="p">])</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\t\t\t</span><span class="s1">&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">projection</span><span class="o">.</span><span class="n">Value</span><span class="p">())</span>
+                            <span class="n">output_string</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">output_string</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">display</span><span class="p">:</span>
+            <span class="n">display</span><span class="p">,</span> <span class="n">start_display</span><span class="p">,</span> <span class="n">add_menu</span><span class="p">,</span> <span class="n">add_function_to_menu</span> <span class="o">=</span> <span class="n">init_display</span><span class="p">(</span>
+            <span class="p">)</span>
+
+            <span class="c1">## DISPLAY FACES</span>
+            <span class="k">if</span> <span class="n">upper_face</span><span class="p">:</span>
+                <span class="n">display</span><span class="o">.</span><span class="n">DisplayShape</span><span class="p">(</span><span class="n">generated_upper_face</span><span class="p">,</span> <span class="n">update</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">lower_face</span><span class="p">:</span>
+                <span class="n">display</span><span class="o">.</span><span class="n">DisplayShape</span><span class="p">(</span><span class="n">generated_lower_face</span><span class="p">,</span> <span class="n">update</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">tip</span><span class="p">:</span>
+                <span class="n">display</span><span class="o">.</span><span class="n">DisplayShape</span><span class="p">(</span><span class="n">generated_tip</span><span class="p">,</span> <span class="n">update</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+            <span class="n">start_display</span><span class="p">()</span></div>
+
+    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="Blade._check_string"><a class="viewcode-back" href="../../blade.html#bladex.blade.Blade._check_string">[docs]</a>    <span class="k">def</span> <span class="nf">_check_string</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Private method to check if the parameter type is string</span>
+
+<span class="sd">        :param string filename: filename of the generated .iges surface</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;IGES filename must be a valid string.&#39;</span><span class="p">)</span></div>
+
+    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="Blade._check_errors"><a class="viewcode-back" href="../../blade.html#bladex.blade.Blade._check_errors">[docs]</a>    <span class="k">def</span> <span class="nf">_check_errors</span><span class="p">(</span><span class="n">upper_face</span><span class="p">,</span> <span class="n">lower_face</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Private method to check if either the blade upper face or lower face</span>
+<span class="sd">        is passed in the generate_iges method. Otherwise it raises an exception</span>
+
+<span class="sd">        :param string upper_face: blade upper face.</span>
+<span class="sd">        :param string lower_face: blade lower face.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">upper_face</span> <span class="ow">or</span> <span class="n">lower_face</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Either upper_face or lower_face must not be None.&#39;</span><span class="p">)</span></div>
+
 <div class="viewcode-block" id="Blade._abs_to_norm"><a class="viewcode-back" href="../../blade.html#bladex.blade.Blade._abs_to_norm">[docs]</a>    <span class="k">def</span> <span class="nf">_abs_to_norm</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">D_prop</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Private method to normalize the blade parameters.</span>
+
+<span class="sd">        :param float D_prop: propeller diameter</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">radii</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">radii</span> <span class="o">*</span> <span class="mf">2.</span> <span class="o">/</span> <span class="n">D_prop</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">chord_lengths</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">chord_lengths</span> <span class="o">/</span> <span class="n">D_prop</span>
@@ -489,6 +755,8 @@
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Private method that converts the normalized blade parameters into the</span>
 <span class="sd">        actual values.</span>
+
+<span class="sd">        :param float D_prop: propeller diameter</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">radii</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">radii</span> <span class="o">*</span> <span class="n">D_prop</span> <span class="o">/</span> <span class="mf">2.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">chord_lengths</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">chord_lengths</span> <span class="o">*</span> <span class="n">D_prop</span>
@@ -631,7 +899,7 @@
   <div role="contentinfo">
     <p>
         &copy; Copyright 2018, BladeX contributors.
-      Last updated on Jul 26, 2018.
+      Last updated on Aug 10, 2018.
 
     </p>
   </div>

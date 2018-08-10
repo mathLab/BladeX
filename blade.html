@@ -86,14 +86,17 @@
 <li class="toctree-l1 current"><a class="reference internal" href="code.html">Code Documentation</a><ul class="current">
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Blade</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="_summaries/bladex.blade.Blade._abs_to_norm.html">bladex.blade.Blade._abs_to_norm</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_summaries/bladex.blade.Blade._check_errors.html">bladex.blade.Blade._check_errors</a></li>
 <li class="toctree-l3"><a class="reference internal" href="_summaries/bladex.blade.Blade._check_params.html">bladex.blade.Blade._check_params</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_summaries/bladex.blade.Blade._check_string.html">bladex.blade.Blade._check_string</a></li>
 <li class="toctree-l3"><a class="reference internal" href="_summaries/bladex.blade.Blade._compute_pitch_angle.html">bladex.blade.Blade._compute_pitch_angle</a></li>
 <li class="toctree-l3"><a class="reference internal" href="_summaries/bladex.blade.Blade._induced_rake_from_skew.html">bladex.blade.Blade._induced_rake_from_skew</a></li>
 <li class="toctree-l3"><a class="reference internal" href="_summaries/bladex.blade.Blade._norm_to_abs.html">bladex.blade.Blade._norm_to_abs</a></li>
 <li class="toctree-l3"><a class="reference internal" href="_summaries/bladex.blade.Blade._planar_to_cylindrical.html">bladex.blade.Blade._planar_to_cylindrical</a></li>
 <li class="toctree-l3"><a class="reference internal" href="_summaries/bladex.blade.Blade.apply_transformations.html">bladex.blade.Blade.apply_transformations</a></li>
-<li class="toctree-l3"><a class="reference internal" href="_summaries/bladex.blade.Blade.plot.html">bladex.blade.Blade.plot</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_summaries/bladex.blade.Blade.generate_iges.html">bladex.blade.Blade.generate_iges</a></li>
 <li class="toctree-l3"><a class="reference internal" href="_summaries/bladex.blade.Blade.export_ppg.html">bladex.blade.Blade.export_ppg</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_summaries/bladex.blade.Blade.plot.html">bladex.blade.Blade.plot</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="deform.html">Deformation</a></li>
@@ -164,8 +167,14 @@
 <tr class="row-odd"><td><a class="reference internal" href="_summaries/bladex.blade.Blade._abs_to_norm.html#bladex.blade.Blade._abs_to_norm" title="bladex.blade.Blade._abs_to_norm"><code class="xref py py-obj docutils literal"><span class="pre">Blade._abs_to_norm</span></code></a></td>
 <td>Private method to normalize the blade parameters.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="_summaries/bladex.blade.Blade._check_params.html#bladex.blade.Blade._check_params" title="bladex.blade.Blade._check_params"><code class="xref py py-obj docutils literal"><span class="pre">Blade._check_params</span></code></a></td>
+<tr class="row-even"><td><a class="reference internal" href="_summaries/bladex.blade.Blade._check_errors.html#bladex.blade.Blade._check_errors" title="bladex.blade.Blade._check_errors"><code class="xref py py-obj docutils literal"><span class="pre">Blade._check_errors</span></code></a></td>
+<td>Private method to check if either the blade upper face or lower face is passed in the generate_iges method.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="_summaries/bladex.blade.Blade._check_params.html#bladex.blade.Blade._check_params" title="bladex.blade.Blade._check_params"><code class="xref py py-obj docutils literal"><span class="pre">Blade._check_params</span></code></a></td>
 <td>Private method to check if all the blade arguments are numpy.ndarrays with the same shape.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="_summaries/bladex.blade.Blade._check_string.html#bladex.blade.Blade._check_string" title="bladex.blade.Blade._check_string"><code class="xref py py-obj docutils literal"><span class="pre">Blade._check_string</span></code></a></td>
+<td>Private method to check if the parameter type is string</td>
 </tr>
 <tr class="row-odd"><td><a class="reference internal" href="_summaries/bladex.blade.Blade._compute_pitch_angle.html#bladex.blade.Blade._compute_pitch_angle" title="bladex.blade.Blade._compute_pitch_angle"><code class="xref py py-obj docutils literal"><span class="pre">Blade._compute_pitch_angle</span></code></a></td>
 <td>Private method that computes the pitch angle from the linear pitch for all blade sections.</td>
@@ -182,11 +191,14 @@
 <tr class="row-odd"><td><a class="reference internal" href="_summaries/bladex.blade.Blade.apply_transformations.html#bladex.blade.Blade.apply_transformations" title="bladex.blade.Blade.apply_transformations"><code class="xref py py-obj docutils literal"><span class="pre">Blade.apply_transformations</span></code></a></td>
 <td>Generate a bottom-up constructed propeller blade based on the airfoil transformations, see <span class="xref std std-ref">mytransformation_operations</span>.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="_summaries/bladex.blade.Blade.plot.html#bladex.blade.Blade.plot" title="bladex.blade.Blade.plot"><code class="xref py py-obj docutils literal"><span class="pre">Blade.plot</span></code></a></td>
-<td>Plot the generated blade sections.</td>
+<tr class="row-even"><td><a class="reference internal" href="_summaries/bladex.blade.Blade.generate_iges.html#bladex.blade.Blade.generate_iges" title="bladex.blade.Blade.generate_iges"><code class="xref py py-obj docutils literal"><span class="pre">Blade.generate_iges</span></code></a></td>
+<td>Generate and export the .iges CAD for the blade upper face, lower face, and tip.</td>
 </tr>
 <tr class="row-odd"><td><a class="reference internal" href="_summaries/bladex.blade.Blade.export_ppg.html#bladex.blade.Blade.export_ppg" title="bladex.blade.Blade.export_ppg"><code class="xref py py-obj docutils literal"><span class="pre">Blade.export_ppg</span></code></a></td>
 <td>Export the generated blade parameters and sectional profiles into .ppg format.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="_summaries/bladex.blade.Blade.plot.html#bladex.blade.Blade.plot" title="bladex.blade.Blade.plot"><code class="xref py py-obj docutils literal"><span class="pre">Blade.plot</span></code></a></td>
+<td>Plot the generated blade sections.</td>
 </tr>
 </tbody>
 </table>
@@ -330,6 +342,33 @@ to the transformed data in the array sections</p>
 <dt>
 <code class="descname">_abs_to_norm</code><span class="sig-paren">(</span><em>D_prop</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bladex/blade.html#Blade._abs_to_norm"><span class="viewcode-link">[source]</span></a></dt>
 <dd><p>Private method to normalize the blade parameters.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>D_prop</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#float" title="(in Python v2.7)"><em>float</em></a>) &#8211; propeller diameter</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt>
+<em class="property">static </em><code class="descname">_check_errors</code><span class="sig-paren">(</span><em>upper_face</em>, <em>lower_face</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bladex/blade.html#Blade._check_errors"><span class="viewcode-link">[source]</span></a></dt>
+<dd><p>Private method to check if either the blade upper face or lower face
+is passed in the generate_iges method. Otherwise it raises an exception</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>upper_face</strong> (<a class="reference external" href="http://docs.python.org/2/library/string.html#module-string" title="(in Python v2.7)"><em>string</em></a>) &#8211; blade upper face.</li>
+<li><strong>lower_face</strong> (<a class="reference external" href="http://docs.python.org/2/library/string.html#module-string" title="(in Python v2.7)"><em>string</em></a>) &#8211; blade lower face.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
@@ -337,6 +376,20 @@ to the transformed data in the array sections</p>
 <code class="descname">_check_params</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/bladex/blade.html#Blade._check_params"><span class="viewcode-link">[source]</span></a></dt>
 <dd><p>Private method to check if all the blade arguments are numpy.ndarrays
 with the same shape.</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt>
+<em class="property">static </em><code class="descname">_check_string</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bladex/blade.html#Blade._check_string"><span class="viewcode-link">[source]</span></a></dt>
+<dd><p>Private method to check if the parameter type is string</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filename</strong> (<a class="reference external" href="http://docs.python.org/2/library/string.html#module-string" title="(in Python v2.7)"><em>string</em></a>) &#8211; filename of the generated .iges surface</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
@@ -378,6 +431,14 @@ blade sections, according to <span class="xref std std-ref">mytransformation_ope
 <code class="descname">_norm_to_abs</code><span class="sig-paren">(</span><em>D_prop</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bladex/blade.html#Blade._norm_to_abs"><span class="viewcode-link">[source]</span></a></dt>
 <dd><p>Private method that converts the normalized blade parameters into the
 actual values.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>D_prop</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#float" title="(in Python v2.7)"><em>float</em></a>) &#8211; propeller diameter</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
@@ -463,6 +524,45 @@ format.</li>
 
 <dl class="method">
 <dt>
+<code class="descname">generate_iges</code><span class="sig-paren">(</span><em>upper_face=None</em>, <em>lower_face=None</em>, <em>tip=None</em>, <em>display=False</em>, <em>errors=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bladex/blade.html#Blade.generate_iges"><span class="viewcode-link">[source]</span></a></dt>
+<dd><p>Generate and export the .iges CAD for the blade upper face, lower face,
+and tip. This method requires PythonOCC to be installed.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>upper_face</strong> (<a class="reference external" href="http://docs.python.org/2/library/string.html#module-string" title="(in Python v2.7)"><em>string</em></a>) &#8211; if string is passed then the method generates
+the blade upper surface using the BRepOffsetAPI_ThruSections
+algorithm, then exports the generated CAD into .iges file holding
+the name &lt;upper_face_string&gt;.iges. Default value is None</li>
+<li><strong>lower_face</strong> (<a class="reference external" href="http://docs.python.org/2/library/string.html#module-string" title="(in Python v2.7)"><em>string</em></a>) &#8211; if string is passed then the method generates
+the blade lower surface using the BRepOffsetAPI_ThruSections
+algorithm, then exports the generated CAD into .iges file holding
+the name &lt;lower_face_string&gt;.iges. Default value is None</li>
+<li><strong>tip</strong> (<a class="reference external" href="http://docs.python.org/2/library/string.html#module-string" title="(in Python v2.7)"><em>string</em></a>) &#8211; if string is passed then the method generates
+the blade tip using the BRepOffsetAPI_ThruSections algorithm
+in order to close the blade, then exports the generated CAD into
+.iges file holding the name &lt;tip_string&gt;.iges. Default value is None</li>
+<li><strong>display</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a>) &#8211; if True, then display the generated CAD. Default
+value is False</li>
+<li><strong>errors</strong> (<a class="reference external" href="http://docs.python.org/2/library/string.html#module-string" title="(in Python v2.7)"><em>string</em></a>) &#8211; if string is passed then the method writes out
+the distances between each discrete point used to construct the
+blade and the nearest point on the CAD that is perpendicular to
+that point. Default value is None</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p>We note that the blade object must have its radial sections be arranged
+in order from the blade root to the blade tip, so that generate_iges
+method can build the CAD surface that passes through the corresponding
+airfoils. Also to be able to identify and close the blade tip.</p>
+</dd></dl>
+
+<dl class="method">
+<dt>
 <code class="descname">plot</code><span class="sig-paren">(</span><em>elev=None</em>, <em>azim=None</em>, <em>outfile=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bladex/blade.html#Blade.plot"><span class="viewcode-link">[source]</span></a></dt>
 <dd><p>Plot the generated blade sections.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -513,7 +613,7 @@ Default value is None.</li>
   <div role="contentinfo">
     <p>
         &copy; Copyright 2018, BladeX contributors.
-      Last updated on Jul 26, 2018.
+      Last updated on Aug 10, 2018.
 
     </p>
   </div>
