@@ -32,7 +32,7 @@
   
     <link rel="top" title="BladeX 0.0.1 documentation" href="../index.html"/>
         <link rel="up" title="Blade" href="../blade.html"/>
-        <link rel="next" title="bladex.blade.Blade._check_params" href="bladex.blade.Blade._check_params.html"/>
+        <link rel="next" title="bladex.blade.Blade._check_errors" href="bladex.blade.Blade._check_errors.html"/>
         <link rel="prev" title="Blade" href="../blade.html"/> 
 
   
@@ -86,14 +86,17 @@
 <li class="toctree-l1 current"><a class="reference internal" href="../code.html">Code Documentation</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="../blade.html">Blade</a><ul class="current">
 <li class="toctree-l3 current"><a class="current reference internal" href="#">bladex.blade.Blade._abs_to_norm</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bladex.blade.Blade._check_errors.html">bladex.blade.Blade._check_errors</a></li>
 <li class="toctree-l3"><a class="reference internal" href="bladex.blade.Blade._check_params.html">bladex.blade.Blade._check_params</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bladex.blade.Blade._check_string.html">bladex.blade.Blade._check_string</a></li>
 <li class="toctree-l3"><a class="reference internal" href="bladex.blade.Blade._compute_pitch_angle.html">bladex.blade.Blade._compute_pitch_angle</a></li>
 <li class="toctree-l3"><a class="reference internal" href="bladex.blade.Blade._induced_rake_from_skew.html">bladex.blade.Blade._induced_rake_from_skew</a></li>
 <li class="toctree-l3"><a class="reference internal" href="bladex.blade.Blade._norm_to_abs.html">bladex.blade.Blade._norm_to_abs</a></li>
 <li class="toctree-l3"><a class="reference internal" href="bladex.blade.Blade._planar_to_cylindrical.html">bladex.blade.Blade._planar_to_cylindrical</a></li>
 <li class="toctree-l3"><a class="reference internal" href="bladex.blade.Blade.apply_transformations.html">bladex.blade.Blade.apply_transformations</a></li>
-<li class="toctree-l3"><a class="reference internal" href="bladex.blade.Blade.plot.html">bladex.blade.Blade.plot</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bladex.blade.Blade.generate_iges.html">bladex.blade.Blade.generate_iges</a></li>
 <li class="toctree-l3"><a class="reference internal" href="bladex.blade.Blade.export_ppg.html">bladex.blade.Blade.export_ppg</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bladex.blade.Blade.plot.html">bladex.blade.Blade.plot</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../deform.html">Deformation</a></li>
@@ -160,6 +163,14 @@
 <dt id="bladex.blade.Blade._abs_to_norm">
 <code class="descclassname">Blade.</code><code class="descname">_abs_to_norm</code><span class="sig-paren">(</span><em>D_prop</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/bladex/blade.html#Blade._abs_to_norm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bladex.blade.Blade._abs_to_norm" title="Permalink to this definition">¶</a></dt>
 <dd><p>Private method to normalize the blade parameters.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>D_prop</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#float" title="(in Python v2.7)"><em>float</em></a>) &#8211; propeller diameter</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 </div>
@@ -171,7 +182,7 @@
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="bladex.blade.Blade._check_params.html" class="btn btn-neutral float-right" title="bladex.blade.Blade._check_params" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="bladex.blade.Blade._check_errors.html" class="btn btn-neutral float-right" title="bladex.blade.Blade._check_errors" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="../blade.html" class="btn btn-neutral" title="Blade" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
@@ -184,7 +195,7 @@
   <div role="contentinfo">
     <p>
         &copy; Copyright 2018, BladeX contributors.
-      Last updated on Jul 26, 2018.
+      Last updated on Aug 10, 2018.
 
     </p>
   </div>

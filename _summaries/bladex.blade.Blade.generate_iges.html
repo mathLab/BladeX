@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>bladex.blade.Blade._compute_pitch_angle &mdash; BladeX 0.0.1 documentation</title>
+  <title>bladex.blade.Blade.generate_iges &mdash; BladeX 0.0.1 documentation</title>
   
 
   
@@ -32,8 +32,8 @@
   
     <link rel="top" title="BladeX 0.0.1 documentation" href="../index.html"/>
         <link rel="up" title="Blade" href="../blade.html"/>
-        <link rel="next" title="bladex.blade.Blade._induced_rake_from_skew" href="bladex.blade.Blade._induced_rake_from_skew.html"/>
-        <link rel="prev" title="bladex.blade.Blade._check_string" href="bladex.blade.Blade._check_string.html"/> 
+        <link rel="next" title="bladex.blade.Blade.export_ppg" href="bladex.blade.Blade.export_ppg.html"/>
+        <link rel="prev" title="bladex.blade.Blade.apply_transformations" href="bladex.blade.Blade.apply_transformations.html"/> 
 
   
   <script src="../_static/js/modernizr.min.js"></script>
@@ -89,12 +89,12 @@
 <li class="toctree-l3"><a class="reference internal" href="bladex.blade.Blade._check_errors.html">bladex.blade.Blade._check_errors</a></li>
 <li class="toctree-l3"><a class="reference internal" href="bladex.blade.Blade._check_params.html">bladex.blade.Blade._check_params</a></li>
 <li class="toctree-l3"><a class="reference internal" href="bladex.blade.Blade._check_string.html">bladex.blade.Blade._check_string</a></li>
-<li class="toctree-l3 current"><a class="current reference internal" href="#">bladex.blade.Blade._compute_pitch_angle</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bladex.blade.Blade._compute_pitch_angle.html">bladex.blade.Blade._compute_pitch_angle</a></li>
 <li class="toctree-l3"><a class="reference internal" href="bladex.blade.Blade._induced_rake_from_skew.html">bladex.blade.Blade._induced_rake_from_skew</a></li>
 <li class="toctree-l3"><a class="reference internal" href="bladex.blade.Blade._norm_to_abs.html">bladex.blade.Blade._norm_to_abs</a></li>
 <li class="toctree-l3"><a class="reference internal" href="bladex.blade.Blade._planar_to_cylindrical.html">bladex.blade.Blade._planar_to_cylindrical</a></li>
 <li class="toctree-l3"><a class="reference internal" href="bladex.blade.Blade.apply_transformations.html">bladex.blade.Blade.apply_transformations</a></li>
-<li class="toctree-l3"><a class="reference internal" href="bladex.blade.Blade.generate_iges.html">bladex.blade.Blade.generate_iges</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">bladex.blade.Blade.generate_iges</a></li>
 <li class="toctree-l3"><a class="reference internal" href="bladex.blade.Blade.export_ppg.html">bladex.blade.Blade.export_ppg</a></li>
 <li class="toctree-l3"><a class="reference internal" href="bladex.blade.Blade.plot.html">bladex.blade.Blade.plot</a></li>
 </ul>
@@ -143,11 +143,11 @@
       
           <li><a href="../blade.html">Blade</a> &raquo;</li>
       
-    <li>bladex.blade.Blade._compute_pitch_angle</li>
+    <li>bladex.blade.Blade.generate_iges</li>
       <li class="wy-breadcrumbs-aside">
         
           
-            <a href="../_sources/_summaries/bladex.blade.Blade._compute_pitch_angle.txt" rel="nofollow"> View page source</a>
+            <a href="../_sources/_summaries/bladex.blade.Blade.generate_iges.txt" rel="nofollow"> View page source</a>
           
         
       </li>
@@ -157,23 +157,45 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="bladex-blade-blade-compute-pitch-angle">
-<h1>bladex.blade.Blade._compute_pitch_angle<a class="headerlink" href="#bladex-blade-blade-compute-pitch-angle" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="bladex-blade-blade-generate-iges">
+<h1>bladex.blade.Blade.generate_iges<a class="headerlink" href="#bladex-blade-blade-generate-iges" title="Permalink to this headline">¶</a></h1>
 <dl class="method">
-<dt id="bladex.blade.Blade._compute_pitch_angle">
-<code class="descclassname">Blade.</code><code class="descname">_compute_pitch_angle</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/bladex/blade.html#Blade._compute_pitch_angle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bladex.blade.Blade._compute_pitch_angle" title="Permalink to this definition">¶</a></dt>
-<dd><p>Private method that computes the pitch angle from the linear pitch for
-all blade sections.</p>
+<dt id="bladex.blade.Blade.generate_iges">
+<code class="descclassname">Blade.</code><code class="descname">generate_iges</code><span class="sig-paren">(</span><em>upper_face=None</em>, <em>lower_face=None</em>, <em>tip=None</em>, <em>display=False</em>, <em>errors=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/bladex/blade.html#Blade.generate_iges"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bladex.blade.Blade.generate_iges" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate and export the .iges CAD for the blade upper face, lower face,
+and tip. This method requires PythonOCC to be installed.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">pitch angle in radians</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="http://docs.scipy.org/doc/numpy/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.15)">numpy.ndarray</a></td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>upper_face</strong> (<a class="reference external" href="http://docs.python.org/2/library/string.html#module-string" title="(in Python v2.7)"><em>string</em></a>) &#8211; if string is passed then the method generates
+the blade upper surface using the BRepOffsetAPI_ThruSections
+algorithm, then exports the generated CAD into .iges file holding
+the name &lt;upper_face_string&gt;.iges. Default value is None</li>
+<li><strong>lower_face</strong> (<a class="reference external" href="http://docs.python.org/2/library/string.html#module-string" title="(in Python v2.7)"><em>string</em></a>) &#8211; if string is passed then the method generates
+the blade lower surface using the BRepOffsetAPI_ThruSections
+algorithm, then exports the generated CAD into .iges file holding
+the name &lt;lower_face_string&gt;.iges. Default value is None</li>
+<li><strong>tip</strong> (<a class="reference external" href="http://docs.python.org/2/library/string.html#module-string" title="(in Python v2.7)"><em>string</em></a>) &#8211; if string is passed then the method generates
+the blade tip using the BRepOffsetAPI_ThruSections algorithm
+in order to close the blade, then exports the generated CAD into
+.iges file holding the name &lt;tip_string&gt;.iges. Default value is None</li>
+<li><strong>display</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a>) &#8211; if True, then display the generated CAD. Default
+value is False</li>
+<li><strong>errors</strong> (<a class="reference external" href="http://docs.python.org/2/library/string.html#module-string" title="(in Python v2.7)"><em>string</em></a>) &#8211; if string is passed then the method writes out
+the distances between each discrete point used to construct the
+blade and the nearest point on the CAD that is perpendicular to
+that point. Default value is None</li>
+</ul>
+</td>
 </tr>
 </tbody>
 </table>
+<p>We note that the blade object must have its radial sections be arranged
+in order from the blade root to the blade tip, so that generate_iges
+method can build the CAD surface that passes through the corresponding
+airfoils. Also to be able to identify and close the blade tip.</p>
 </dd></dl>
 
 </div>
@@ -185,10 +207,10 @@ all blade sections.</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="bladex.blade.Blade._induced_rake_from_skew.html" class="btn btn-neutral float-right" title="bladex.blade.Blade._induced_rake_from_skew" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="bladex.blade.Blade.export_ppg.html" class="btn btn-neutral float-right" title="bladex.blade.Blade.export_ppg" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="bladex.blade.Blade._check_string.html" class="btn btn-neutral" title="bladex.blade.Blade._check_string" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="bladex.blade.Blade.apply_transformations.html" class="btn btn-neutral" title="bladex.blade.Blade.apply_transformations" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
