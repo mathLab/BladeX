@@ -96,8 +96,8 @@ class Blade(object):
     we generate 12 sectional profiles using NACA airfoils and we need to use
     them in two different blade classes, then we should instantiate two class
     objects for the profiles, as well as the blade. The following example
-    explains the fault and the correct implementations (assuming assuming we
-    already have the arrays radii, chord, pitch, rake, skew):
+    explains the fault and the correct implementations (assuming we already
+    have the arrays radii, chord, pitch, rake, skew):
 
     INCORRECT IMPLEMENTATION:
 
@@ -226,7 +226,8 @@ class Blade(object):
               \\forall y_i \\in Y`
 
         After transformation, the method also fills the numpy.ndarray
-        "blade_coordinates" with the new :math:`(X, Y, Z)` coordinates.
+        "blade_coordinates_up" and "blade_coordinates_down" with the new
+        :math:`(X, Y, Z)` coordinates.
         """
         for section, radius in zip(self.sections, self.radii):
             theta_up = section.yup_coordinates / radius
@@ -235,8 +236,8 @@ class Blade(object):
             y_section_up = radius * np.sin(theta_up)
             y_section_down = radius * np.sin(theta_down)
 
-            z_section_up = radius * np.cos(theta_up)
-            z_section_down = radius * np.cos(theta_down)
+            z_section_up = -radius * np.cos(theta_up)
+            z_section_down = -radius * np.cos(theta_down)
 
             self.blade_coordinates_up.append(
                 np.array([section.xup_coordinates, y_section_up, z_section_up]))
@@ -269,8 +270,16 @@ class Blade(object):
                each foil on a cylinder of radius equals to the section radius,
                and the cylinder axis is the propeller axis of rotation.
 
-        :param bool reflect: if true, then reflect the coordinates of all the airfoils
-            about both X-axis and Y-axis. Default value is True.
+        :param bool reflect: if true, then reflect the coordinates of all the
+            airfoils about both X-axis and Y-axis. Default value is True.
+
+        We note that the implemented transformation operations with the current
+        Cartesian coordinate system shown in :ref:`mytransformation_operations`
+        assumes a right-handed propeller. In case of a desired left-handed
+        propeller the user can either change the code for the negative
+        Z-coordinates in the cylindrical transformation (i.e.
+        `_planar_to_cylindrical` private method), or manipulating the
+        orientation of the generated CAD with respect to the hub.
         """
         for i in range(self.n_sections):
             # Translate reference point into origin
@@ -300,28 +309,157 @@ class Blade(object):
 
         self._planar_to_cylindrical()
 
-    def plot(self, elev=None, azim=None, outfile=None):
+    def rotate(self, deg_angle=None, rad_angle=None):
+        """
+        3D counter clockwise rotation about the X-axis of the Cartesian
+        coordinate system, which is the axis of rotation of the propeller hub.
+
+        The rotation matrix, :math:`R(\\theta)`, is used to perform rotation
+        in the 3D Euclidean space about the X-axis, which is -- by default --
+        the propeller axis of rotation.
+
+        :math:`R(\\theta)` is defined by:
+
+        .. math::
+             \\left(\\begin{matrix} 1 & 0 & 0 \\\\
+             0 & cos (\\theta) & - sin (\\theta) \\\\
+             0 & sin (\\theta) & cos (\\theta) \\end{matrix}\\right)
+
+        Given the coordinates of point :math:`P` such that
+
+        .. math::
+            P = \\left(\\begin{matrix} x \\\\
+            y \\\\ z \\end{matrix}\\right),
+
+        Then, the rotated coordinates will be:
+
+        .. math::
+            P^{'} = \\left(\\begin{matrix} x^{'} \\\\
+                     y^{'} \\\\ z^{'} \\end{matrix}\\right)
+                  = R (\\theta) \\cdot P
+
+        :param float deg_angle: angle in degrees. Default value is None
+        :param float rad_angle: angle in radians. Default value is None
+        :raises ValueError: if both rad_angle and deg_angle are inserted,
+            or if neither is inserted
+
+        """
+        if not self.blade_coordinates_up:
+            raise ValueError('You must apply transformations before rotation.')
+
+        # Check rotation angle
+        if deg_angle is not None and rad_angle is not None:
+            raise ValueError(
+                'You have to pass either the angle in radians or in degrees,' \
+                ' not both.')
+        if rad_angle is not None:
+            cosine = np.cos(rad_angle)
+            sine = np.sin(rad_angle)
+        elif deg_angle is not None:
+            cosine = np.cos(np.radians(deg_angle))
+            sine = np.sin(np.radians(deg_angle))
+        else:
+            raise ValueError(
+                'You have to pass either the angle in radians or in degrees.')
+
+        # Rotation is always about the X-axis, which is the center if the hub
+        # according to the implemented transformation procedure
+        rot_matrix = np.array([1, 0, 0, 0, cosine, -sine, 0, sine,
+                               cosine]).reshape((3, 3))
+
+        for i in range(self.n_sections):
+            coord_matrix_up = np.vstack((self.blade_coordinates_up[i][0],
+                                         self.blade_coordinates_up[i][1],
+                                         self.blade_coordinates_up[i][2]))
+            coord_matrix_down = np.vstack((self.blade_coordinates_down[i][0],
+                                           self.blade_coordinates_down[i][1],
+                                           self.blade_coordinates_down[i][2]))
+
+            new_coord_matrix_up = np.dot(rot_matrix, coord_matrix_up)
+            new_coord_matrix_down = np.dot(rot_matrix, coord_matrix_down)
+
+            self.blade_coordinates_up[i][0] = new_coord_matrix_up[0]
+            self.blade_coordinates_up[i][1] = new_coord_matrix_up[1]
+            self.blade_coordinates_up[i][2] = new_coord_matrix_up[2]
+
+            self.blade_coordinates_down[i][0] = new_coord_matrix_down[0]
+            self.blade_coordinates_down[i][1] = new_coord_matrix_down[1]
+            self.blade_coordinates_down[i][2] = new_coord_matrix_down[2]
+
+    def plot(self, elev=None, azim=None, ax=None, outfile=None):
         """
         Plot the generated blade sections.
 
-        :param int elev: Set the view elevation of the axes. This can be used
+        :param int elev: set the view elevation of the axes. This can be used
             to rotate the axes programatically. 'elev' stores the elevation
             angle in the z plane. If elev is None, then the initial value is
             used which was specified in the mplot3d.Axes3D constructor. Default
             value is None
-        :param int azim: Set the view azimuth angle of the axes. This can be
+        :param int azim: set the view azimuth angle of the axes. This can be
             used to rotate the axes programatically. 'azim' stores the azimuth
             angle in the x,y plane. If azim is None, then the initial value is
             used which was specified in the mplot3d.Axes3D constructor. Default
             value is None
+        :param matplotlib.axes ax: allows to pass the instance of figure axes
+            to the current plot. This is useful when the user needs to plot the
+            coordinates of several blade objects on the same figure (see the
+            example below). If nothing is passed then the method plots on a new
+            figure axes. Default value is None
         :param string outfile: save the plot if a filename string is provided.
-            Default value is None.
+            Default value is None
+
+        EXAMPLE:
+        Assume we already have the arrays radii, chord, pitch, rake, skew for
+        10 blade sections.
+
+        >>> sections_1 = np.asarray([blade.NacaProfile(digits='0012')
+                            for i in range(10)])
+        >>> blade_1 = blade.Blade(sections=sections,
+                                  radii=radii,
+                                  chord_lengths=chord,
+                                  pitch=pitch,
+                                  rake=rake,
+                                  skew_angles=skew)
+        >>> blade_1.apply_transformations()
+
+        >>> sections_2 = np.asarray([blade.NacaProfile(digits='0012')
+                            for i in range(10)])
+        >>> blade_2 = blade.Blade(sections=sections,
+                                  radii=radii,
+                                  chord_lengths=chord,
+                                  pitch=pitch,
+                                  rake=rake,
+                                  skew_angles=skew)
+        >>> blade_2.apply_transformations()
+        >>> blade_2.rotate(rot_angle_deg=72)
+
+        >>> fig = plt.figure()
+        >>> ax = fig.gca(projection=Axes3D.name)
+        >>> blade_1.plot(ax=ax)
+        >>> blade_2.plot(ax=ax)
+
+        On the other hand, if we need to plot for a single blade object,
+        we can just ignore such parameter, and the method will internally
+        create a new instance for the figure axes, i.e.
+
+        >>> sections = np.asarray([blade.NacaProfile(digits='0012')
+                            for i in range(10)])
+        >>> blade = blade.Blade(sections=sections,
+                                radii=radii,
+                                chord_lengths=chord,
+                                pitch=pitch,
+                                rake=rake,
+                                skew_angles=skew)
+        >>> blade.apply_transformations()
+        >>> blade.plot()
         """
         if not self.blade_coordinates_up:
             raise ValueError('You must apply transformations before plotting.')
-
-        fig = plt.figure()
-        ax = fig.gca(projection=Axes3D.name)
+        if ax:
+            ax = ax
+        else:
+            fig = plt.figure()
+            ax = fig.gca(projection=Axes3D.name)
         ax.set_aspect('equal')
 
         for i in range(self.n_sections):
@@ -606,7 +744,8 @@ class Blade(object):
         :param string lower_face: blade lower face.
         """
         if not (upper_face or lower_face):
-            raise ValueError('Either upper_face or lower_face must not be None.')
+            raise ValueError(
+                'Either upper_face or lower_face must not be None.')
 
     def _abs_to_norm(self, D_prop):
         """

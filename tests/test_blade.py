@@ -4,6 +4,7 @@ import bladex.blade as bl
 import numpy as np
 import os
 import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
 
 
 def create_sample_blade_NACA():
@@ -313,11 +314,88 @@ class TestBlade(TestCase):
         np.testing.assert_almost_equal(blade.blade_coordinates_down,
                                        blade_coordinates_down_expected)
 
-    def test_plot(self):
+    def test_blade_rotate_exceptions(self):
         blade = create_sample_blade_NACA()
         blade.apply_transformations()
-        blade.plot()
-        plt.close()
+        with self.assertRaises(ValueError):
+            blade.rotate(rad_angle=None, deg_angle=None)
+
+    def test_blade_rotate_exceptions_2(self):
+        blade = create_sample_blade_NACA()
+        blade.apply_transformations()
+        with self.assertRaises(ValueError):
+            blade.rotate(rad_angle=np.pi, deg_angle=180)
+
+    def test_blade_rotate_exceptions_no_transformation(self):
+        blade = create_sample_blade_NACA()
+        with self.assertRaises(ValueError):
+            blade.rotate(rad_angle=80, deg_angle=None)
+
+    def test_rotate_deg_section_0_xup(self):
+        blade = create_sample_blade_NACA_10()
+        blade.apply_transformations()
+        blade.rotate(deg_angle=90)
+        rotated_coordinates = np.array([
+            0.23913475, 0.20945559, 0.16609993, 0.11970761, 0.07154874,
+            0.02221577, -0.02796314, -0.07881877, -0.13030229, -0.18246808
+        ])
+        np.testing.assert_almost_equal(blade.blade_coordinates_up[0][0],
+                                       rotated_coordinates)
+
+    def test_rotate_deg_section_0_yup(self):
+        blade = create_sample_blade_NACA_10()
+        blade.apply_transformations()
+        blade.rotate(deg_angle=90)
+        rotated_coordinates = np.array([
+            0.3488408, 0.37407923, 0.38722075, 0.39526658, 0.39928492,
+            0.39980927, 0.39716902, 0.39160916, 0.38335976, 0.3726862
+        ])
+        np.testing.assert_almost_equal(blade.blade_coordinates_up[0][1],
+                                       rotated_coordinates)
+
+    def test_rotate_deg_section_0_zup(self):
+        blade = create_sample_blade_NACA_10()
+        blade.apply_transformations()
+        blade.rotate(deg_angle=90)
+        rotated_coordinates = np.array([
+            0.19572966, 0.14165003, 0.1003, 0.06135417, 0.02390711, -0.01235116,
+            -0.04750545, -0.08150009, -0.11417222, -0.14527558
+        ])
+        np.testing.assert_almost_equal(blade.blade_coordinates_up[0][2],
+                                       rotated_coordinates)
+
+    def test_rotate_rad_section_1_xdown(self):
+        blade = create_sample_blade_NACA_10()
+        blade.apply_transformations()
+        blade.rotate(rad_angle=np.pi / 2.0)
+        rotated_coordinates = np.array([
+            0.29697841, 0.2176438, 0.15729805, 0.10116849, 0.04749167,
+            -0.00455499, -0.05542713, -0.10535969, -0.15442047, -0.20253397
+        ])
+        np.testing.assert_almost_equal(blade.blade_coordinates_down[1][0],
+                                       rotated_coordinates)
+
+    def test_rotate_rad_section_1_ydown(self):
+        blade = create_sample_blade_NACA_10()
+        blade.apply_transformations()
+        blade.rotate(rad_angle=np.pi / 2.0)
+        rotated_coordinates = np.array([
+            0.40908705, 0.42570092, 0.44956113, 0.47048031, 0.48652991,
+            0.49660315, 0.49999921, 0.49627767, 0.48516614, 0.4664844
+        ])
+        np.testing.assert_almost_equal(blade.blade_coordinates_down[1][1],
+                                       rotated_coordinates)
+
+    def test_rotate_rad_section_1_zdown(self):
+        blade = create_sample_blade_NACA_10()
+        blade.apply_transformations()
+        blade.rotate(rad_angle=np.pi / 2.0)
+        rotated_coordinates = np.array([
+            0.28748529, 0.26225699, 0.21884879, 0.16925801, 0.11527639,
+            0.05818345, -0.00088808, -0.0608972, -0.1208876, -0.17997863
+        ])
+        np.testing.assert_almost_equal(blade.blade_coordinates_down[1][2],
+                                       rotated_coordinates)
 
     def test_plot_view_elev_init(self):
         blade = create_sample_blade_NACA()
@@ -341,6 +419,23 @@ class TestBlade(TestCase):
         blade = create_sample_blade_NACA()
         blade.apply_transformations()
         blade.plot(azim=-90)
+        plt.close()
+
+    def test_plot_ax_single(self):
+        blade = create_sample_blade_NACA()
+        blade.apply_transformations()
+        blade.plot(ax=None)
+        plt.close()
+
+    def test_plot_ax_multi(self):
+        blade_1 = create_sample_blade_NACA()
+        blade_1.apply_transformations()
+        blade_2 = create_sample_blade_custom()
+        blade_2.apply_transformations()
+        fig = plt.figure()
+        ax = fig.gca(projection=Axes3D.name)
+        blade_1.plot(ax=ax)
+        blade_2.plot(ax=ax)
         plt.close()
 
     def test_plot_save(self):
