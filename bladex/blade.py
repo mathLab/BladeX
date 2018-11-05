@@ -530,6 +530,9 @@ class Blade(object):
         from OCC.BRepOffsetAPI import BRepOffsetAPI_ThruSections
         from OCC.BRepExtrema import BRepExtrema_DistShapeShape
 
+        if maxDeg <= 0:
+            raise ValueError('maxDeg argument must be a positive integer.')
+
         if upper_face:
             self._check_string(filename=upper_face)
             # Initializes ThruSections algorithm for building a shell passing
@@ -610,7 +613,6 @@ class Blade(object):
             self._check_string(filename=tip)
             generator = BRepOffsetAPI_ThruSections(False, False, 1e-10)
             generator.SetMaxDegree(maxDeg)
-
             # npoints_up == npoints_down
             npoints = len(self.blade_coordinates_down[-1][0])
             vertices_1 = TColgp_HArray1OfPnt(1, npoints)
