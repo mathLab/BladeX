@@ -486,6 +486,7 @@ class Blade(object):
                       upper_face=None,
                       lower_face=None,
                       tip=None,
+                      maxDeg=1,
                       display=False,
                       errors=None):
         """
@@ -504,6 +505,8 @@ class Blade(object):
             the blade tip using the BRepOffsetAPI_ThruSections algorithm
             in order to close the blade, then exports the generated CAD into
             .iges file holding the name <tip_string>.iges. Default value is None
+        :param int maxDeg: Define the maximal U degree of generated surface.
+            Default value is 1
         :param bool display: if True, then display the generated CAD. Default
             value is False
         :param string errors: if string is passed then the method writes out
@@ -527,6 +530,9 @@ class Blade(object):
         from OCC.BRepOffsetAPI import BRepOffsetAPI_ThruSections
         from OCC.BRepExtrema import BRepExtrema_DistShapeShape
 
+        if maxDeg <= 0:
+            raise ValueError('maxDeg argument must be a positive integer.')
+
         if upper_face:
             self._check_string(filename=upper_face)
             # Initializes ThruSections algorithm for building a shell passing
@@ -534,6 +540,7 @@ class Blade(object):
             # the edges of every two consecutive wires are smoothed out with
             # a precision criterion = 1e-10
             generator = BRepOffsetAPI_ThruSections(False, False, 1e-10)
+            generator.SetMaxDegree(maxDeg)
             # Define upper edges (wires) for the face generation
             for i in range(self.n_sections):
                 npoints = len(self.blade_coordinates_up[i][0])
@@ -571,6 +578,7 @@ class Blade(object):
             # the edges of every two consecutive wires are smoothed out with
             # a precision criterion = 1e-10
             generator = BRepOffsetAPI_ThruSections(False, False, 1e-10)
+            generator.SetMaxDegree(maxDeg)
             # Define upper edges (wires) for the face generation
             for i in range(self.n_sections):
                 npoints = len(self.blade_coordinates_down[i][0])
@@ -604,8 +612,7 @@ class Blade(object):
         if tip:
             self._check_string(filename=tip)
             generator = BRepOffsetAPI_ThruSections(False, False, 1e-10)
-            generator.SetMaxDegree(1)
-
+            generator.SetMaxDegree(maxDeg)
             # npoints_up == npoints_down
             npoints = len(self.blade_coordinates_down[-1][0])
             vertices_1 = TColgp_HArray1OfPnt(1, npoints)

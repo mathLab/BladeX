@@ -499,6 +499,18 @@ class TestBlade(TestCase):
         self.assertTrue(os.path.isfile('tests/test_datasets/tip.iges'))
         self.addCleanup(os.remove, 'tests/test_datasets/tip.iges')
 
+    def test_iges_blade_maxDeg_exception(self):
+        blade = create_sample_blade_NACA()
+        blade.apply_transformations()
+        with self.assertRaises(ValueError):
+            blade.generate_iges(
+                upper_face=None,
+                lower_face=None,
+                tip=None,
+                maxDeg=-1,
+                display=False,
+                errors=None)
+
     def test_iges_errors_exception(self):
         blade = create_sample_blade_NACA()
         blade.apply_transformations()

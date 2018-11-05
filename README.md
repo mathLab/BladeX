@@ -105,7 +105,8 @@ Here we show a bottom-up parametrized construction of the [Potsdam Propeller Tes
 * [Mahmoud Gadalla](mailto:gadalla.mah@gmail.com)
 * [Marco Tezzele](mailto:marcotez@gmail.com)
 
-under the supervision of [Dr. Andrea Mola](mailto:andrea.mola@sissa.it) and [Prof. Gianluigi Rozza](mailto:gianluigi.rozza@sissa.it).
+under the supervision of [Dr. Andrea Mola](mailto:andrea.mola@sissa.it) and [Prof. Gianluigi Rozza](mailto:gianluigi.rozza@sissa.it) in the framework of the project [PRELICA: Advanced Methodologies for Hydro-acoustic Design of Naval Propulsion](https://mathlab.sissa.it/project/prelica-metodologie-avanzate-la-progettazione-idro-acustica-dell%E2%80%99elica-navale-por-fesr-2017).
+
 
 Contact us by email for further information or questions about **BladeX**, or suggest pull requests. Contributions improving either the code or the documentation are welcome!
 
