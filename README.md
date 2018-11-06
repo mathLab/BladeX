@@ -29,6 +29,8 @@
 * [Documentation](#documentation)
 * [Testing](#testing)
 * [Examples](#examples)
+* [How to cite](#how-to-cite)
+	* [Recent works with BladeX](#recent-works-with-bladex)
 * [Authors and contributors](#authors-and-contributors)
 * [How to contribute](#how-to-contribute)
 	* [Submitting a patch](#submitting-a-patch) 
@@ -98,6 +100,13 @@ Here we show a bottom-up parametrized construction of the [Potsdam Propeller Tes
 <p align="center">
 <em>PPTC blade generation according to the radial distribution of the pitch, rake, skew. The generated blade is then exported to .iges and .stl formats.</em>
 </p>
+
+## How to cite
+
+### Recent works with BladeX
+Here there is a list of the scientific works involving **BladeX** you can consult and/or cite. If you want to add one, please open a PR.
+
+* Tezzele, Demo, Mola, Rozza. *An integrated data-driven computational pipeline with model order reduction for industrial and applied mathematics*. Submitted, 2018. [[arXiv](https://arxiv.org/abs/1810.12364)].
 
 
 ## Authors and contributors
