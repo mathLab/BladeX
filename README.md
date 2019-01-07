@@ -1,5 +1,3 @@
-**BladeX**: Python Package for Blade Deformation
-
 <p align="center">
   <a href="http://mathlab.github.io/BladeX/" target="_blank" >
     <img alt="Python Package for Blade Deformation" src="docs/source/_static/logo_bladex.png" width="200" />
