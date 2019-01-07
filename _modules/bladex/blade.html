@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>bladex.blade &mdash; BladeX 0.0.1 documentation</title>
+  <title>bladex.blade &mdash; BladeX 0.1 documentation</title>
   
 
   
@@ -30,7 +30,7 @@
   
 
   
-    <link rel="top" title="BladeX 0.0.1 documentation" href="../../index.html"/>
+    <link rel="top" title="BladeX 0.1 documentation" href="../../index.html"/>
         <link rel="up" title="Module code" href="../index.html"/> 
 
   
@@ -59,7 +59,7 @@
             
             
               <div class="version">
-                0.0.1
+                0.1
               </div>
             
           
@@ -228,8 +228,8 @@
 <span class="sd">    we generate 12 sectional profiles using NACA airfoils and we need to use</span>
 <span class="sd">    them in two different blade classes, then we should instantiate two class</span>
 <span class="sd">    objects for the profiles, as well as the blade. The following example</span>
-<span class="sd">    explains the fault and the correct implementations (assuming assuming we</span>
-<span class="sd">    already have the arrays radii, chord, pitch, rake, skew):</span>
+<span class="sd">    explains the fault and the correct implementations (assuming we already</span>
+<span class="sd">    have the arrays radii, chord, pitch, rake, skew):</span>
 
 <span class="sd">    INCORRECT IMPLEMENTATION:</span>
 
@@ -358,7 +358,8 @@
 <span class="sd">              \\forall y_i \\in Y`</span>
 
 <span class="sd">        After transformation, the method also fills the numpy.ndarray</span>
-<span class="sd">        &quot;blade_coordinates&quot; with the new :math:`(X, Y, Z)` coordinates.</span>
+<span class="sd">        &quot;blade_coordinates_up&quot; and &quot;blade_coordinates_down&quot; with the new</span>
+<span class="sd">        :math:`(X, Y, Z)` coordinates.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">section</span><span class="p">,</span> <span class="n">radius</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sections</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">radii</span><span class="p">):</span>
             <span class="n">theta_up</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">yup_coordinates</span> <span class="o">/</span> <span class="n">radius</span>
@@ -367,8 +368,8 @@
             <span class="n">y_section_up</span> <span class="o">=</span> <span class="n">radius</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">theta_up</span><span class="p">)</span>
             <span class="n">y_section_down</span> <span class="o">=</span> <span class="n">radius</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">theta_down</span><span class="p">)</span>
 
-            <span class="n">z_section_up</span> <span class="o">=</span> <span class="n">radius</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">theta_up</span><span class="p">)</span>
-            <span class="n">z_section_down</span> <span class="o">=</span> <span class="n">radius</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">theta_down</span><span class="p">)</span>
+            <span class="n">z_section_up</span> <span class="o">=</span> <span class="o">-</span><span class="n">radius</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">theta_up</span><span class="p">)</span>
+            <span class="n">z_section_down</span> <span class="o">=</span> <span class="o">-</span><span class="n">radius</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">theta_down</span><span class="p">)</span>
 
             <span class="bp">self</span><span class="o">.</span><span class="n">blade_coordinates_up</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
                 <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">section</span><span class="o">.</span><span class="n">xup_coordinates</span><span class="p">,</span> <span class="n">y_section_up</span><span class="p">,</span> <span class="n">z_section_up</span><span class="p">]))</span>
@@ -401,8 +402,16 @@
 <span class="sd">               each foil on a cylinder of radius equals to the section radius,</span>
 <span class="sd">               and the cylinder axis is the propeller axis of rotation.</span>
 
-<span class="sd">        :param bool reflect: if true, then reflect the coordinates of all the airfoils</span>
-<span class="sd">            about both X-axis and Y-axis. Default value is True.</span>
+<span class="sd">        :param bool reflect: if true, then reflect the coordinates of all the</span>
+<span class="sd">            airfoils about both X-axis and Y-axis. Default value is True.</span>
+
+<span class="sd">        We note that the implemented transformation operations with the current</span>
+<span class="sd">        Cartesian coordinate system shown in :ref:`mytransformation_operations`</span>
+<span class="sd">        assumes a right-handed propeller. In case of a desired left-handed</span>
+<span class="sd">        propeller the user can either change the code for the negative</span>
+<span class="sd">        Z-coordinates in the cylindrical transformation (i.e.</span>
+<span class="sd">        `_planar_to_cylindrical` private method), or manipulating the</span>
+<span class="sd">        orientation of the generated CAD with respect to the hub.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_sections</span><span class="p">):</span>
             <span class="c1"># Translate reference point into origin</span>
@@ -432,28 +441,157 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_planar_to_cylindrical</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="Blade.plot"><a class="viewcode-back" href="../../blade.html#bladex.blade.Blade.plot">[docs]</a>    <span class="k">def</span> <span class="nf">plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">elev</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">azim</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">outfile</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+<div class="viewcode-block" id="Blade.rotate"><a class="viewcode-back" href="../../blade.html#bladex.blade.Blade.rotate">[docs]</a>    <span class="k">def</span> <span class="nf">rotate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">deg_angle</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">rad_angle</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        3D counter clockwise rotation about the X-axis of the Cartesian</span>
+<span class="sd">        coordinate system, which is the axis of rotation of the propeller hub.</span>
+
+<span class="sd">        The rotation matrix, :math:`R(\\theta)`, is used to perform rotation</span>
+<span class="sd">        in the 3D Euclidean space about the X-axis, which is -- by default --</span>
+<span class="sd">        the propeller axis of rotation.</span>
+
+<span class="sd">        :math:`R(\\theta)` is defined by:</span>
+
+<span class="sd">        .. math::</span>
+<span class="sd">             \\left(\\begin{matrix} 1 &amp; 0 &amp; 0 \\\\</span>
+<span class="sd">             0 &amp; cos (\\theta) &amp; - sin (\\theta) \\\\</span>
+<span class="sd">             0 &amp; sin (\\theta) &amp; cos (\\theta) \\end{matrix}\\right)</span>
+
+<span class="sd">        Given the coordinates of point :math:`P` such that</span>
+
+<span class="sd">        .. math::</span>
+<span class="sd">            P = \\left(\\begin{matrix} x \\\\</span>
+<span class="sd">            y \\\\ z \\end{matrix}\\right),</span>
+
+<span class="sd">        Then, the rotated coordinates will be:</span>
+
+<span class="sd">        .. math::</span>
+<span class="sd">            P^{&#39;} = \\left(\\begin{matrix} x^{&#39;} \\\\</span>
+<span class="sd">                     y^{&#39;} \\\\ z^{&#39;} \\end{matrix}\\right)</span>
+<span class="sd">                  = R (\\theta) \\cdot P</span>
+
+<span class="sd">        :param float deg_angle: angle in degrees. Default value is None</span>
+<span class="sd">        :param float rad_angle: angle in radians. Default value is None</span>
+<span class="sd">        :raises ValueError: if both rad_angle and deg_angle are inserted,</span>
+<span class="sd">            or if neither is inserted</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">blade_coordinates_up</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;You must apply transformations before rotation.&#39;</span><span class="p">)</span>
+
+        <span class="c1"># Check rotation angle</span>
+        <span class="k">if</span> <span class="n">deg_angle</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="ow">and</span> <span class="n">rad_angle</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s1">&#39;You have to pass either the angle in radians or in degrees,&#39;</span> \
+                <span class="s1">&#39; not both.&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">rad_angle</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">cosine</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">rad_angle</span><span class="p">)</span>
+            <span class="n">sine</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">rad_angle</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">deg_angle</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">cosine</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">deg_angle</span><span class="p">))</span>
+            <span class="n">sine</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">deg_angle</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s1">&#39;You have to pass either the angle in radians or in degrees.&#39;</span><span class="p">)</span>
+
+        <span class="c1"># Rotation is always about the X-axis, which is the center if the hub</span>
+        <span class="c1"># according to the implemented transformation procedure</span>
+        <span class="n">rot_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">cosine</span><span class="p">,</span> <span class="o">-</span><span class="n">sine</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">sine</span><span class="p">,</span>
+                               <span class="n">cosine</span><span class="p">])</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_sections</span><span class="p">):</span>
+            <span class="n">coord_matrix_up</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">blade_coordinates_up</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span>
+                                         <span class="bp">self</span><span class="o">.</span><span class="n">blade_coordinates_up</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span>
+                                         <span class="bp">self</span><span class="o">.</span><span class="n">blade_coordinates_up</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">2</span><span class="p">]))</span>
+            <span class="n">coord_matrix_down</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">blade_coordinates_down</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span>
+                                           <span class="bp">self</span><span class="o">.</span><span class="n">blade_coordinates_down</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span>
+                                           <span class="bp">self</span><span class="o">.</span><span class="n">blade_coordinates_down</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">2</span><span class="p">]))</span>
+
+            <span class="n">new_coord_matrix_up</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">rot_matrix</span><span class="p">,</span> <span class="n">coord_matrix_up</span><span class="p">)</span>
+            <span class="n">new_coord_matrix_down</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">rot_matrix</span><span class="p">,</span> <span class="n">coord_matrix_down</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">blade_coordinates_up</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_coord_matrix_up</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">blade_coordinates_up</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_coord_matrix_up</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">blade_coordinates_up</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_coord_matrix_up</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">blade_coordinates_down</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_coord_matrix_down</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">blade_coordinates_down</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_coord_matrix_down</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">blade_coordinates_down</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_coord_matrix_down</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="Blade.plot"><a class="viewcode-back" href="../../blade.html#bladex.blade.Blade.plot">[docs]</a>    <span class="k">def</span> <span class="nf">plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">elev</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">azim</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">outfile</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Plot the generated blade sections.</span>
 
-<span class="sd">        :param int elev: Set the view elevation of the axes. This can be used</span>
+<span class="sd">        :param int elev: set the view elevation of the axes. This can be used</span>
 <span class="sd">            to rotate the axes programatically. &#39;elev&#39; stores the elevation</span>
 <span class="sd">            angle in the z plane. If elev is None, then the initial value is</span>
 <span class="sd">            used which was specified in the mplot3d.Axes3D constructor. Default</span>
 <span class="sd">            value is None</span>
-<span class="sd">        :param int azim: Set the view azimuth angle of the axes. This can be</span>
+<span class="sd">        :param int azim: set the view azimuth angle of the axes. This can be</span>
 <span class="sd">            used to rotate the axes programatically. &#39;azim&#39; stores the azimuth</span>
 <span class="sd">            angle in the x,y plane. If azim is None, then the initial value is</span>
 <span class="sd">            used which was specified in the mplot3d.Axes3D constructor. Default</span>
 <span class="sd">            value is None</span>
+<span class="sd">        :param matplotlib.axes ax: allows to pass the instance of figure axes</span>
+<span class="sd">            to the current plot. This is useful when the user needs to plot the</span>
+<span class="sd">            coordinates of several blade objects on the same figure (see the</span>
+<span class="sd">            example below). If nothing is passed then the method plots on a new</span>
+<span class="sd">            figure axes. Default value is None</span>
 <span class="sd">        :param string outfile: save the plot if a filename string is provided.</span>
-<span class="sd">            Default value is None.</span>
+<span class="sd">            Default value is None</span>
+
+<span class="sd">        EXAMPLE:</span>
+<span class="sd">        Assume we already have the arrays radii, chord, pitch, rake, skew for</span>
+<span class="sd">        10 blade sections.</span>
+
+<span class="sd">        &gt;&gt;&gt; sections_1 = np.asarray([blade.NacaProfile(digits=&#39;0012&#39;)</span>
+<span class="sd">                            for i in range(10)])</span>
+<span class="sd">        &gt;&gt;&gt; blade_1 = blade.Blade(sections=sections,</span>
+<span class="sd">                                  radii=radii,</span>
+<span class="sd">                                  chord_lengths=chord,</span>
+<span class="sd">                                  pitch=pitch,</span>
+<span class="sd">                                  rake=rake,</span>
+<span class="sd">                                  skew_angles=skew)</span>
+<span class="sd">        &gt;&gt;&gt; blade_1.apply_transformations()</span>
+
+<span class="sd">        &gt;&gt;&gt; sections_2 = np.asarray([blade.NacaProfile(digits=&#39;0012&#39;)</span>
+<span class="sd">                            for i in range(10)])</span>
+<span class="sd">        &gt;&gt;&gt; blade_2 = blade.Blade(sections=sections,</span>
+<span class="sd">                                  radii=radii,</span>
+<span class="sd">                                  chord_lengths=chord,</span>
+<span class="sd">                                  pitch=pitch,</span>
+<span class="sd">                                  rake=rake,</span>
+<span class="sd">                                  skew_angles=skew)</span>
+<span class="sd">        &gt;&gt;&gt; blade_2.apply_transformations()</span>
+<span class="sd">        &gt;&gt;&gt; blade_2.rotate(rot_angle_deg=72)</span>
+
+<span class="sd">        &gt;&gt;&gt; fig = plt.figure()</span>
+<span class="sd">        &gt;&gt;&gt; ax = fig.gca(projection=Axes3D.name)</span>
+<span class="sd">        &gt;&gt;&gt; blade_1.plot(ax=ax)</span>
+<span class="sd">        &gt;&gt;&gt; blade_2.plot(ax=ax)</span>
+
+<span class="sd">        On the other hand, if we need to plot for a single blade object,</span>
+<span class="sd">        we can just ignore such parameter, and the method will internally</span>
+<span class="sd">        create a new instance for the figure axes, i.e.</span>
+
+<span class="sd">        &gt;&gt;&gt; sections = np.asarray([blade.NacaProfile(digits=&#39;0012&#39;)</span>
+<span class="sd">                            for i in range(10)])</span>
+<span class="sd">        &gt;&gt;&gt; blade = blade.Blade(sections=sections,</span>
+<span class="sd">                                radii=radii,</span>
+<span class="sd">                                chord_lengths=chord,</span>
+<span class="sd">                                pitch=pitch,</span>
+<span class="sd">                                rake=rake,</span>
+<span class="sd">                                skew_angles=skew)</span>
+<span class="sd">        &gt;&gt;&gt; blade.apply_transformations()</span>
+<span class="sd">        &gt;&gt;&gt; blade.plot()</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">blade_coordinates_up</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;You must apply transformations before plotting.&#39;</span><span class="p">)</span>
-
-        <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
-        <span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">gca</span><span class="p">(</span><span class="n">projection</span><span class="o">=</span><span class="n">Axes3D</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">ax</span><span class="p">:</span>
+            <span class="n">ax</span> <span class="o">=</span> <span class="n">ax</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+            <span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">gca</span><span class="p">(</span><span class="n">projection</span><span class="o">=</span><span class="n">Axes3D</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
         <span class="n">ax</span><span class="o">.</span><span class="n">set_aspect</span><span class="p">(</span><span class="s1">&#39;equal&#39;</span><span class="p">)</span>
 
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_sections</span><span class="p">):</span>
@@ -480,6 +618,7 @@
                       <span class="n">upper_face</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
                       <span class="n">lower_face</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
                       <span class="n">tip</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+                      <span class="n">maxDeg</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
                       <span class="n">display</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
                       <span class="n">errors</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -498,6 +637,8 @@
 <span class="sd">            the blade tip using the BRepOffsetAPI_ThruSections algorithm</span>
 <span class="sd">            in order to close the blade, then exports the generated CAD into</span>
 <span class="sd">            .iges file holding the name &lt;tip_string&gt;.iges. Default value is None</span>
+<span class="sd">        :param int maxDeg: Define the maximal U degree of generated surface.</span>
+<span class="sd">            Default value is 1</span>
 <span class="sd">        :param bool display: if True, then display the generated CAD. Default</span>
 <span class="sd">            value is False</span>
 <span class="sd">        :param string errors: if string is passed then the method writes out</span>
@@ -521,6 +662,9 @@
         <span class="kn">from</span> <span class="nn">OCC.BRepOffsetAPI</span> <span class="kn">import</span> <span class="n">BRepOffsetAPI_ThruSections</span>
         <span class="kn">from</span> <span class="nn">OCC.BRepExtrema</span> <span class="kn">import</span> <span class="n">BRepExtrema_DistShapeShape</span>
 
+        <span class="k">if</span> <span class="n">maxDeg</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;maxDeg argument must be a positive integer.&#39;</span><span class="p">)</span>
+
         <span class="k">if</span> <span class="n">upper_face</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_check_string</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="n">upper_face</span><span class="p">)</span>
             <span class="c1"># Initializes ThruSections algorithm for building a shell passing</span>
@@ -528,6 +672,7 @@
             <span class="c1"># the edges of every two consecutive wires are smoothed out with</span>
             <span class="c1"># a precision criterion = 1e-10</span>
             <span class="n">generator</span> <span class="o">=</span> <span class="n">BRepOffsetAPI_ThruSections</span><span class="p">(</span><span class="bp">False</span><span class="p">,</span> <span class="bp">False</span><span class="p">,</span> <span class="mf">1e-10</span><span class="p">)</span>
+            <span class="n">generator</span><span class="o">.</span><span class="n">SetMaxDegree</span><span class="p">(</span><span class="n">maxDeg</span><span class="p">)</span>
             <span class="c1"># Define upper edges (wires) for the face generation</span>
             <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_sections</span><span class="p">):</span>
                 <span class="n">npoints</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">blade_coordinates_up</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
@@ -565,6 +710,7 @@
             <span class="c1"># the edges of every two consecutive wires are smoothed out with</span>
             <span class="c1"># a precision criterion = 1e-10</span>
             <span class="n">generator</span> <span class="o">=</span> <span class="n">BRepOffsetAPI_ThruSections</span><span class="p">(</span><span class="bp">False</span><span class="p">,</span> <span class="bp">False</span><span class="p">,</span> <span class="mf">1e-10</span><span class="p">)</span>
+            <span class="n">generator</span><span class="o">.</span><span class="n">SetMaxDegree</span><span class="p">(</span><span class="n">maxDeg</span><span class="p">)</span>
             <span class="c1"># Define upper edges (wires) for the face generation</span>
             <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_sections</span><span class="p">):</span>
                 <span class="n">npoints</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">blade_coordinates_down</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
@@ -598,8 +744,7 @@
         <span class="k">if</span> <span class="n">tip</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_check_string</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="n">tip</span><span class="p">)</span>
             <span class="n">generator</span> <span class="o">=</span> <span class="n">BRepOffsetAPI_ThruSections</span><span class="p">(</span><span class="bp">False</span><span class="p">,</span> <span class="bp">False</span><span class="p">,</span> <span class="mf">1e-10</span><span class="p">)</span>
-            <span class="n">generator</span><span class="o">.</span><span class="n">SetMaxDegree</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-
+            <span class="n">generator</span><span class="o">.</span><span class="n">SetMaxDegree</span><span class="p">(</span><span class="n">maxDeg</span><span class="p">)</span>
             <span class="c1"># npoints_up == npoints_down</span>
             <span class="n">npoints</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">blade_coordinates_down</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
             <span class="n">vertices_1</span> <span class="o">=</span> <span class="n">TColgp_HArray1OfPnt</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">npoints</span><span class="p">)</span>
@@ -738,7 +883,8 @@
 <span class="sd">        :param string lower_face: blade lower face.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">upper_face</span> <span class="ow">or</span> <span class="n">lower_face</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Either upper_face or lower_face must not be None.&#39;</span><span class="p">)</span></div>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s1">&#39;Either upper_face or lower_face must not be None.&#39;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Blade._abs_to_norm"><a class="viewcode-back" href="../../blade.html#bladex.blade.Blade._abs_to_norm">[docs]</a>    <span class="k">def</span> <span class="nf">_abs_to_norm</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">D_prop</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -898,8 +1044,8 @@
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2018, BladeX contributors.
-      Last updated on Aug 10, 2018.
+        &copy; Copyright 2018-2019, BladeX contributors.
+      Last updated on Jan 07, 2019.
 
     </p>
   </div>
@@ -921,7 +1067,7 @@
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'../../',
-            VERSION:'0.0.1',
+            VERSION:'0.1',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true

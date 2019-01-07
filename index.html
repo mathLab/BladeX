@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Welcome to BladeX’s documentation! &mdash; BladeX 0.0.1 documentation</title>
+  <title>Welcome to BladeX’s documentation! &mdash; BladeX 0.1 documentation</title>
   
 
   
@@ -30,7 +30,7 @@
   
 
   
-    <link rel="top" title="BladeX 0.0.1 documentation" href="#"/>
+    <link rel="top" title="BladeX 0.1 documentation" href="#"/>
         <link rel="next" title="Code Documentation" href="code.html"/> 
 
   
@@ -59,7 +59,7 @@
             
             
               <div class="version">
-                0.0.1
+                0.1
               </div>
             
           
@@ -131,12 +131,23 @@
             
   <div class="section" id="welcome-to-bladex-s-documentation">
 <h1>Welcome to BladeX&#8217;s documentation!<a class="headerlink" href="#welcome-to-bladex-s-documentation" title="Permalink to this headline">¶</a></h1>
+<a class="reference internal image-reference" href="_images/logo_bladex.png"><img alt="_images/logo_bladex.png" class="align-right" src="_images/logo_bladex.png" style="width: 150px; height: 150px;" /></a>
 <div class="section" id="description">
 <h2>Description<a class="headerlink" href="#description" title="Permalink to this headline">¶</a></h2>
-<p>BladeX is a Python package for blade generation.</p>
-<div class="section" id="installation">
-<h3>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h3>
-<p>BladeX requires numpy, scipy, matplotlib, and sphinx (for the documentation). They can be easily installed via pip.</p>
+<p>BladeX is a Python package for geometrical parametrization and bottom-up construction of propeller blades. It allows to generate and deform a blade based on the radial distribution of its parameters such as pitch, rake, skew, and the sectional foils&#8217; parameters such as chord and camber. The package is ideally suited for parametric simulations on large number of blade deformations. It provides an automated procedure for the CAD generation, hence reducing the time and effort required for modelling. The main scope of BladeX is to deal with propeller blades, however it can be flexible to be applied on further applications with analogous geometrical structures such as aircraft wings, turbomachinery, or wind turbine blades.</p>
+</div>
+<div class="section" id="dependencies-and-installation">
+<h2>Dependencies and installation<a class="headerlink" href="#dependencies-and-installation" title="Permalink to this headline">¶</a></h2>
+<p>BladeX requires numpy, scipy, matplotlib, sphinx (for the documentation), and nose (for the local test). They can be easily installed using pip.</p>
+<p>BladeX is compatible with Python 2.7 and Python 3.6. Moreover, some of the modules require OCC to be installed for the .iges or .stl CAD generation. Please see below for instructions on how to satisfy the OCC requirements. You can also refer to <a class="reference external" href="https://pythonocc.org">pythonocc.org</a> or <a class="reference external" href="https://github.com/tpaviot/pythonocc-core">github.com/tpaviot/pythonocc-core</a> for further instructions.</p>
+<p>Python2.7 OCC installation:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">conda</span> <span class="n">install</span> <span class="o">-</span><span class="n">c</span> <span class="n">conda</span><span class="o">-</span><span class="n">forge</span> <span class="o">-</span><span class="n">c</span> <span class="n">dlr</span><span class="o">-</span><span class="n">sc</span> <span class="o">-</span><span class="n">c</span> <span class="n">pythonocc</span> <span class="o">-</span><span class="n">c</span> <span class="n">oce</span> <span class="n">pythonocc</span><span class="o">-</span><span class="n">core</span><span class="o">==</span><span class="mf">0.18</span><span class="o">.</span><span class="mi">1</span> <span class="n">python</span><span class="o">=</span><span class="mf">2.7</span>
+</pre></div>
+</div>
+<p>Python3.6 OCC installation:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">conda</span> <span class="n">install</span> <span class="o">-</span><span class="n">c</span> <span class="n">conda</span><span class="o">-</span><span class="n">forge</span> <span class="o">-</span><span class="n">c</span> <span class="n">dlr</span><span class="o">-</span><span class="n">sc</span> <span class="o">-</span><span class="n">c</span> <span class="n">pythonocc</span> <span class="o">-</span><span class="n">c</span> <span class="n">oce</span> <span class="n">pythonocc</span><span class="o">-</span><span class="n">core</span><span class="o">==</span><span class="mf">0.18</span><span class="o">.</span><span class="mi">1</span> <span class="n">python</span><span class="o">=</span><span class="mf">3.6</span>
+</pre></div>
+</div>
 <p>The <a class="reference external" href="https://github.com/mathLab/BladeX">official distribution</a> is on GitHub, and you can clone the repository using</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">clone</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">mathLab</span><span class="o">/</span><span class="n">BladeX</span>
 </pre></div>
@@ -152,7 +163,7 @@
 </div>
 </div>
 <div class="section" id="tutorials">
-<h3>Tutorials<a class="headerlink" href="#tutorials" title="Permalink to this headline">¶</a></h3>
+<h2>Tutorials<a class="headerlink" href="#tutorials" title="Permalink to this headline">¶</a></h2>
 <p>We made some tutorial examples. Please refer to the official GitHub repository for the last updates. Here the list of the exported tutorials:</p>
 <ul class="simple">
 <li><a class="reference external" href="tutorial1generatefoils.html">Tutorial 1</a> - Here we show how to prepare a blade 2D sectional profile through generating legacy and custom foils.</li>
@@ -162,7 +173,7 @@
 </ul>
 </div>
 <div class="section" id="developer-s-guide">
-<h3>Developer&#8217;s Guide<a class="headerlink" href="#developer-s-guide" title="Permalink to this headline">¶</a></h3>
+<h2>Developer&#8217;s Guide<a class="headerlink" href="#developer-s-guide" title="Permalink to this headline">¶</a></h2>
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="code.html">Code Documentation</a></li>
@@ -170,7 +181,6 @@
 <li class="toctree-l1"><a class="reference internal" href="contributing.html">How to contribute</a></li>
 <li class="toctree-l1"><a class="reference internal" href="LICENSE.html">License</a></li>
 </ul>
-</div>
 </div>
 </div>
 <div class="section" id="indices-and-tables">
@@ -200,8 +210,8 @@
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2018, BladeX contributors.
-      Last updated on Aug 10, 2018.
+        &copy; Copyright 2018-2019, BladeX contributors.
+      Last updated on Jan 07, 2019.
 
     </p>
   </div>
@@ -223,7 +233,7 @@
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'./',
-            VERSION:'0.0.1',
+            VERSION:'0.1',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true
