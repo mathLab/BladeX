@@ -70,7 +70,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'BladeX'
-copyright = u'2018, BladeX contributors'
+copyright = u'2018-2019, BladeX contributors'
 author = u'BladeX contributors'
 
 # autoclass
@@ -81,7 +81,7 @@ autoclass_content = 'both'
 # built documents.
 #
 # The short X.Y version.
-version = '0.0.1'
+version = '0.1'
 # The full version, including alpha/beta/rc tags.
 release = version
 

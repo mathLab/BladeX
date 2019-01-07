@@ -1,6 +1,11 @@
 Welcome to BladeX's documentation!
 ===================================================
 
+.. image:: _static/logo_bladex.png
+   :height: 150px
+   :width: 150 px
+   :align: right
+
 Description
 ^^^^^^^^^^^^
 
