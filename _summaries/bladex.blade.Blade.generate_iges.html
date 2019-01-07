@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>bladex.blade.Blade.generate_iges &mdash; BladeX 0.0.1 documentation</title>
+  <title>bladex.blade.Blade.generate_iges &mdash; BladeX 0.1 documentation</title>
   
 
   
@@ -30,7 +30,7 @@
   
 
   
-    <link rel="top" title="BladeX 0.0.1 documentation" href="../index.html"/>
+    <link rel="top" title="BladeX 0.1 documentation" href="../index.html"/>
         <link rel="up" title="Blade" href="../blade.html"/>
         <link rel="next" title="bladex.blade.Blade.export_ppg" href="bladex.blade.Blade.export_ppg.html"/>
         <link rel="prev" title="bladex.blade.Blade.apply_transformations" href="bladex.blade.Blade.apply_transformations.html"/> 
@@ -61,7 +61,7 @@
             
             
               <div class="version">
-                0.0.1
+                0.1
               </div>
             
           
@@ -161,7 +161,7 @@
 <h1>bladex.blade.Blade.generate_iges<a class="headerlink" href="#bladex-blade-blade-generate-iges" title="Permalink to this headline">¶</a></h1>
 <dl class="method">
 <dt id="bladex.blade.Blade.generate_iges">
-<code class="descclassname">Blade.</code><code class="descname">generate_iges</code><span class="sig-paren">(</span><em>upper_face=None</em>, <em>lower_face=None</em>, <em>tip=None</em>, <em>display=False</em>, <em>errors=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/bladex/blade.html#Blade.generate_iges"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bladex.blade.Blade.generate_iges" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">Blade.</code><code class="descname">generate_iges</code><span class="sig-paren">(</span><em>upper_face=None</em>, <em>lower_face=None</em>, <em>tip=None</em>, <em>maxDeg=1</em>, <em>display=False</em>, <em>errors=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/bladex/blade.html#Blade.generate_iges"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bladex.blade.Blade.generate_iges" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generate and export the .iges CAD for the blade upper face, lower face,
 and tip. This method requires PythonOCC to be installed.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -181,6 +181,8 @@ the name &lt;lower_face_string&gt;.iges. Default value is None</li>
 the blade tip using the BRepOffsetAPI_ThruSections algorithm
 in order to close the blade, then exports the generated CAD into
 .iges file holding the name &lt;tip_string&gt;.iges. Default value is None</li>
+<li><strong>maxDeg</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; Define the maximal U degree of generated surface.
+Default value is 1</li>
 <li><strong>display</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a>) &#8211; if True, then display the generated CAD. Default
 value is False</li>
 <li><strong>errors</strong> (<a class="reference external" href="http://docs.python.org/2/library/string.html#module-string" title="(in Python v2.7)"><em>string</em></a>) &#8211; if string is passed then the method writes out
@@ -219,8 +221,8 @@ airfoils. Also to be able to identify and close the blade tip.</p>
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2018, BladeX contributors.
-      Last updated on Aug 10, 2018.
+        &copy; Copyright 2018-2019, BladeX contributors.
+      Last updated on Jan 07, 2019.
 
     </p>
   </div>
@@ -242,7 +244,7 @@ airfoils. Also to be able to identify and close the blade tip.</p>
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'../',
-            VERSION:'0.0.1',
+            VERSION:'0.1',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true

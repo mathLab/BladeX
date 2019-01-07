@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>bladex.blade.Blade.apply_transformations &mdash; BladeX 0.0.1 documentation</title>
+  <title>bladex.blade.Blade.apply_transformations &mdash; BladeX 0.1 documentation</title>
   
 
   
@@ -30,7 +30,7 @@
   
 
   
-    <link rel="top" title="BladeX 0.0.1 documentation" href="../index.html"/>
+    <link rel="top" title="BladeX 0.1 documentation" href="../index.html"/>
         <link rel="up" title="Blade" href="../blade.html"/>
         <link rel="next" title="bladex.blade.Blade.generate_iges" href="bladex.blade.Blade.generate_iges.html"/>
         <link rel="prev" title="bladex.blade.Blade._planar_to_cylindrical" href="bladex.blade.Blade._planar_to_cylindrical.html"/> 
@@ -61,7 +61,7 @@
             
             
               <div class="version">
-                0.0.1
+                0.1
               </div>
             
           
@@ -184,11 +184,18 @@ and the cylinder axis is the propeller axis of rotation.</li>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>reflect</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a>) &#8211; if true, then reflect the coordinates of all the airfoils
-about both X-axis and Y-axis. Default value is True.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>reflect</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a>) &#8211; if true, then reflect the coordinates of all the
+airfoils about both X-axis and Y-axis. Default value is True.</td>
 </tr>
 </tbody>
 </table>
+<p>We note that the implemented transformation operations with the current
+Cartesian coordinate system shown in <span class="xref std std-ref">mytransformation_operations</span>
+assumes a right-handed propeller. In case of a desired left-handed
+propeller the user can either change the code for the negative
+Z-coordinates in the cylindrical transformation (i.e.
+<cite>_planar_to_cylindrical</cite> private method), or manipulating the
+orientation of the generated CAD with respect to the hub.</p>
 </dd></dl>
 
 </div>
@@ -212,8 +219,8 @@ about both X-axis and Y-axis. Default value is True.</td>
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2018, BladeX contributors.
-      Last updated on Aug 10, 2018.
+        &copy; Copyright 2018-2019, BladeX contributors.
+      Last updated on Jan 07, 2019.
 
     </p>
   </div>
@@ -235,7 +242,7 @@ about both X-axis and Y-axis. Default value is True.</td>
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'../',
-            VERSION:'0.0.1',
+            VERSION:'0.1',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true

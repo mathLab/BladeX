@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Blade &mdash; BladeX 0.0.1 documentation</title>
+  <title>Blade &mdash; BladeX 0.1 documentation</title>
   
 
   
@@ -30,7 +30,7 @@
   
 
   
-    <link rel="top" title="BladeX 0.0.1 documentation" href="index.html"/>
+    <link rel="top" title="BladeX 0.1 documentation" href="index.html"/>
         <link rel="up" title="Code Documentation" href="code.html"/>
         <link rel="next" title="bladex.blade.Blade._abs_to_norm" href="_summaries/bladex.blade.Blade._abs_to_norm.html"/>
         <link rel="prev" title="Code Documentation" href="code.html"/> 
@@ -61,7 +61,7 @@
             
             
               <div class="version">
-                0.0.1
+                0.1
               </div>
             
           
@@ -290,8 +290,8 @@ the array must be specific to each blade class instance. For example, if
 we generate 12 sectional profiles using NACA airfoils and we need to use
 them in two different blade classes, then we should instantiate two class
 objects for the profiles, as well as the blade. The following example
-explains the fault and the correct implementations (assuming assuming we
-already have the arrays radii, chord, pitch, rake, skew):</p>
+explains the fault and the correct implementations (assuming we already
+have the arrays radii, chord, pitch, rake, skew):</p>
 <p>INCORRECT IMPLEMENTATION:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">sections</span> <span class="o">=</span> <span class="p">[</span><span class="n">bladex</span><span class="o">.</span><span class="n">profiles</span><span class="o">.</span><span class="n">NacaProfile</span><span class="p">(</span><span class="n">digits</span><span class="o">=</span><span class="s1">&#39;0012&#39;</span><span class="p">,</span> <span class="n">n_points</span><span class="o">=</span><span class="mi">240</span><span class="p">,</span>
 <span class="go">                cosine_spacing=True) for i in range(12)]</span>
@@ -457,7 +457,8 @@ cylindrical sections.</p>
 </ul>
 </div></blockquote>
 <p>After transformation, the method also fills the numpy.ndarray
-&#8220;blade_coordinates&#8221; with the new <img class="math" src="_images/math/f664f102404a0938b0d2fc21843059f059a9eeff.png" alt="(X, Y, Z)"/> coordinates.</p>
+&#8220;blade_coordinates_up&#8221; and &#8220;blade_coordinates_down&#8221; with the new
+<img class="math" src="_images/math/f664f102404a0938b0d2fc21843059f059a9eeff.png" alt="(X, Y, Z)"/> coordinates.</p>
 </dd></dl>
 
 <dl class="method">
@@ -485,11 +486,18 @@ and the cylinder axis is the propeller axis of rotation.</li>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>reflect</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a>) &#8211; if true, then reflect the coordinates of all the airfoils
-about both X-axis and Y-axis. Default value is True.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>reflect</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a>) &#8211; if true, then reflect the coordinates of all the
+airfoils about both X-axis and Y-axis. Default value is True.</td>
 </tr>
 </tbody>
 </table>
+<p>We note that the implemented transformation operations with the current
+Cartesian coordinate system shown in <span class="xref std std-ref">mytransformation_operations</span>
+assumes a right-handed propeller. In case of a desired left-handed
+propeller the user can either change the code for the negative
+Z-coordinates in the cylindrical transformation (i.e.
+<cite>_planar_to_cylindrical</cite> private method), or manipulating the
+orientation of the generated CAD with respect to the hub.</p>
 </dd></dl>
 
 <dl class="method">
@@ -524,7 +532,7 @@ format.</li>
 
 <dl class="method">
 <dt>
-<code class="descname">generate_iges</code><span class="sig-paren">(</span><em>upper_face=None</em>, <em>lower_face=None</em>, <em>tip=None</em>, <em>display=False</em>, <em>errors=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bladex/blade.html#Blade.generate_iges"><span class="viewcode-link">[source]</span></a></dt>
+<code class="descname">generate_iges</code><span class="sig-paren">(</span><em>upper_face=None</em>, <em>lower_face=None</em>, <em>tip=None</em>, <em>maxDeg=1</em>, <em>display=False</em>, <em>errors=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bladex/blade.html#Blade.generate_iges"><span class="viewcode-link">[source]</span></a></dt>
 <dd><p>Generate and export the .iges CAD for the blade upper face, lower face,
 and tip. This method requires PythonOCC to be installed.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -544,6 +552,8 @@ the name &lt;lower_face_string&gt;.iges. Default value is None</li>
 the blade tip using the BRepOffsetAPI_ThruSections algorithm
 in order to close the blade, then exports the generated CAD into
 .iges file holding the name &lt;tip_string&gt;.iges. Default value is None</li>
+<li><strong>maxDeg</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; Define the maximal U degree of generated surface.
+Default value is 1</li>
 <li><strong>display</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a>) &#8211; if True, then display the generated CAD. Default
 value is False</li>
 <li><strong>errors</strong> (<a class="reference external" href="http://docs.python.org/2/library/string.html#module-string" title="(in Python v2.7)"><em>string</em></a>) &#8211; if string is passed then the method writes out
@@ -563,26 +573,118 @@ airfoils. Also to be able to identify and close the blade tip.</p>
 
 <dl class="method">
 <dt>
-<code class="descname">plot</code><span class="sig-paren">(</span><em>elev=None</em>, <em>azim=None</em>, <em>outfile=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bladex/blade.html#Blade.plot"><span class="viewcode-link">[source]</span></a></dt>
+<code class="descname">plot</code><span class="sig-paren">(</span><em>elev=None</em>, <em>azim=None</em>, <em>ax=None</em>, <em>outfile=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bladex/blade.html#Blade.plot"><span class="viewcode-link">[source]</span></a></dt>
 <dd><p>Plot the generated blade sections.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>elev</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; Set the view elevation of the axes. This can be used
+<li><strong>elev</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; set the view elevation of the axes. This can be used
 to rotate the axes programatically. &#8216;elev&#8217; stores the elevation
 angle in the z plane. If elev is None, then the initial value is
 used which was specified in the mplot3d.Axes3D constructor. Default
 value is None</li>
-<li><strong>azim</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; Set the view azimuth angle of the axes. This can be
+<li><strong>azim</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; set the view azimuth angle of the axes. This can be
 used to rotate the axes programatically. &#8216;azim&#8217; stores the azimuth
 angle in the x,y plane. If azim is None, then the initial value is
 used which was specified in the mplot3d.Axes3D constructor. Default
 value is None</li>
+<li><strong>ax</strong> (<a class="reference external" href="http://matplotlib.sourceforge.net/api/axes_api.html#module-matplotlib.axes" title="(in Matplotlib v3.0.2)"><em>matplotlib.axes</em></a>) &#8211; allows to pass the instance of figure axes
+to the current plot. This is useful when the user needs to plot the
+coordinates of several blade objects on the same figure (see the
+example below). If nothing is passed then the method plots on a new
+figure axes. Default value is None</li>
 <li><strong>outfile</strong> (<a class="reference external" href="http://docs.python.org/2/library/string.html#module-string" title="(in Python v2.7)"><em>string</em></a>) &#8211; save the plot if a filename string is provided.
-Default value is None.</li>
+Default value is None</li>
 </ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p>EXAMPLE:
+Assume we already have the arrays radii, chord, pitch, rake, skew for
+10 blade sections.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">sections_1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="n">blade</span><span class="o">.</span><span class="n">NacaProfile</span><span class="p">(</span><span class="n">digits</span><span class="o">=</span><span class="s1">&#39;0012&#39;</span><span class="p">)</span>
+<span class="go">                    for i in range(10)])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">blade_1</span> <span class="o">=</span> <span class="n">blade</span><span class="o">.</span><span class="n">Blade</span><span class="p">(</span><span class="n">sections</span><span class="o">=</span><span class="n">sections</span><span class="p">,</span>
+<span class="go">                          radii=radii,</span>
+<span class="go">                          chord_lengths=chord,</span>
+<span class="go">                          pitch=pitch,</span>
+<span class="go">                          rake=rake,</span>
+<span class="go">                          skew_angles=skew)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">blade_1</span><span class="o">.</span><span class="n">apply_transformations</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">sections_2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="n">blade</span><span class="o">.</span><span class="n">NacaProfile</span><span class="p">(</span><span class="n">digits</span><span class="o">=</span><span class="s1">&#39;0012&#39;</span><span class="p">)</span>
+<span class="go">                    for i in range(10)])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">blade_2</span> <span class="o">=</span> <span class="n">blade</span><span class="o">.</span><span class="n">Blade</span><span class="p">(</span><span class="n">sections</span><span class="o">=</span><span class="n">sections</span><span class="p">,</span>
+<span class="go">                          radii=radii,</span>
+<span class="go">                          chord_lengths=chord,</span>
+<span class="go">                          pitch=pitch,</span>
+<span class="go">                          rake=rake,</span>
+<span class="go">                          skew_angles=skew)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">blade_2</span><span class="o">.</span><span class="n">apply_transformations</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">blade_2</span><span class="o">.</span><span class="n">rotate</span><span class="p">(</span><span class="n">rot_angle_deg</span><span class="o">=</span><span class="mi">72</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">gca</span><span class="p">(</span><span class="n">projection</span><span class="o">=</span><span class="n">Axes3D</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">blade_1</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">blade_2</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>On the other hand, if we need to plot for a single blade object,
+we can just ignore such parameter, and the method will internally
+create a new instance for the figure axes, i.e.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">sections</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="n">blade</span><span class="o">.</span><span class="n">NacaProfile</span><span class="p">(</span><span class="n">digits</span><span class="o">=</span><span class="s1">&#39;0012&#39;</span><span class="p">)</span>
+<span class="go">                    for i in range(10)])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">blade</span> <span class="o">=</span> <span class="n">blade</span><span class="o">.</span><span class="n">Blade</span><span class="p">(</span><span class="n">sections</span><span class="o">=</span><span class="n">sections</span><span class="p">,</span>
+<span class="go">                        radii=radii,</span>
+<span class="go">                        chord_lengths=chord,</span>
+<span class="go">                        pitch=pitch,</span>
+<span class="go">                        rake=rake,</span>
+<span class="go">                        skew_angles=skew)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">blade</span><span class="o">.</span><span class="n">apply_transformations</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">blade</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<code class="descname">rotate</code><span class="sig-paren">(</span><em>deg_angle=None</em>, <em>rad_angle=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bladex/blade.html#Blade.rotate"><span class="viewcode-link">[source]</span></a></dt>
+<dd><p>3D counter clockwise rotation about the X-axis of the Cartesian
+coordinate system, which is the axis of rotation of the propeller hub.</p>
+<p>The rotation matrix, <img class="math" src="_images/math/cfe336ede8769c02efbc60461f331efcec155961.png" alt="R(\theta)"/>, is used to perform rotation
+in the 3D Euclidean space about the X-axis, which is &#8211; by default &#8211;
+the propeller axis of rotation.</p>
+<p><img class="math" src="_images/math/cfe336ede8769c02efbc60461f331efcec155961.png" alt="R(\theta)"/> is defined by:</p>
+<div class="math">
+<p><img src="_images/math/b9c28f274fce3341a90a8b625dde6892e63b4bfb.png" alt="\left(\begin{matrix} 1 &amp; 0 &amp; 0 \\
+0 &amp; cos (\theta) &amp; - sin (\theta) \\
+0 &amp; sin (\theta) &amp; cos (\theta) \end{matrix}\right)"/></p>
+</div><p>Given the coordinates of point <img class="math" src="_images/math/9dcbbef8e0f76051d388013b90a95bec3069e484.png" alt="P"/> such that</p>
+<div class="math">
+<p><img src="_images/math/692ea71caf5050658e481945caff5cfd938d429d.png" alt="P = \left(\begin{matrix} x \\
+y \\ z \end{matrix}\right),"/></p>
+</div><p>Then, the rotated coordinates will be:</p>
+<div class="math">
+<p><img src="_images/math/16cc752aab4769834c3c11dabc9e3bd5dde0162e.png" alt="P^{'} = \left(\begin{matrix} x^{'} \\
+         y^{'} \\ z^{'} \end{matrix}\right)
+      = R (\theta) \cdot P"/></p>
+</div><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>deg_angle</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#float" title="(in Python v2.7)"><em>float</em></a>) &#8211; angle in degrees. Default value is None</li>
+<li><strong>rad_angle</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#float" title="(in Python v2.7)"><em>float</em></a>) &#8211; angle in radians. Default value is None</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><strong>ValueError</strong> &#8211; if both rad_angle and deg_angle are inserted,
+or if neither is inserted</p>
 </td>
 </tr>
 </tbody>
@@ -612,8 +714,8 @@ Default value is None.</li>
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2018, BladeX contributors.
-      Last updated on Aug 10, 2018.
+        &copy; Copyright 2018-2019, BladeX contributors.
+      Last updated on Jan 07, 2019.
 
     </p>
   </div>
@@ -635,7 +737,7 @@ Default value is None.</li>
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'./',
-            VERSION:'0.0.1',
+            VERSION:'0.1',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true
