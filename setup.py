@@ -11,18 +11,18 @@ def readme():
 
 setup(
     name='bladex',
-    version='0.0.1',
+    version='0.1.0',
     description='BladeX.',
     long_description=readme(),
     classifiers=[
-        'Development Status :: 0 - Alpha',
+        'Development Status :: 5 - Production/Stable',
         'License :: OSI Approved :: MIT License',
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3.6',
         'Intended Audience :: Science/Research',
         'Topic :: Scientific/Engineering :: Mathematics'
     ],
-    keywords='blade',
+    keywords='blade-generation propeller iges procal',
     url='https://github.com/mathLab/BladeX',
     author='Marco Tezzele, Mahmoud Gadalla',
     author_email='marcotez@gmail.com, mgadalla@sissa.it',
