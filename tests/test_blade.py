@@ -5,6 +5,7 @@ import numpy as np
 import os
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
+from OCC.TopoDS import TopoDS_Shape
 
 
 def create_sample_blade_NACA():
@@ -264,6 +265,18 @@ class TestBlade(TestCase):
     def test_blade_coordinates_down_init(self):
         blade = create_sample_blade_NACA()
         assert len(blade.blade_coordinates_down) == 0
+
+    def test_blade_generated_upper_face_init(self):
+        blade = create_sample_blade_NACA()
+        assert blade.generated_upper_face == None
+
+    def test_blade_generated_lower_face_init(self):
+        blade = create_sample_blade_NACA()
+        assert blade.generated_lower_face == None
+
+    def test_blade_generated_tip_init(self):
+        blade = create_sample_blade_NACA()
+        assert blade.generated_tip == None
 
     def test_planar_to_cylindrical_blade_up(self):
         blade = create_sample_blade_NACA()
@@ -549,6 +562,48 @@ class TestBlade(TestCase):
         self.addCleanup(os.remove, 'tests/test_datasets/lower.iges')
         self.assertTrue(os.path.isfile('tests/test_datasets/errors.txt'))
         self.addCleanup(os.remove, 'tests/test_datasets/errors.txt')
+
+    def test_stl_exception_1(self):
+        blade = create_sample_blade_NACA()
+        blade.apply_transformations()
+        with self.assertRaises(ValueError):
+            blade.generate_stl(min_length=-1, max_length=1, outfile_stl=None)
+
+    def test_stl_exception_2(self):
+        blade = create_sample_blade_NACA()
+        blade.apply_transformations()
+        with self.assertRaises(ValueError):
+            blade.generate_stl(min_length=2, max_length=1, outfile_stl=None)
+
+    def test_stl_generated_upper(self):
+        # Requires OCC to be installed
+        blade = create_sample_blade_NACA()
+        blade.apply_transformations()
+        blade.generated_upper_face = 5
+        blade.generate_stl(min_length=1, max_length=10, outfile_stl=None)
+        self.assertIsInstance(blade.generated_upper_face, TopoDS_Shape)
+
+    def test_stl_generated_lower(self):
+        # Requires OCC to be installed
+        blade = create_sample_blade_NACA()
+        blade.apply_transformations()
+        blade.generated_lower_face = None
+        blade.generate_stl(min_length=1, max_length=10, outfile_stl=None)
+        self.assertIsInstance(blade.generated_lower_face, TopoDS_Shape)
+
+    def test_stl_generated_tip(self):
+        # Requires OCC to be installed
+        blade = create_sample_blade_NACA()
+        blade.apply_transformations()
+        blade.generated_tip = 0
+        blade.generate_stl(min_length=1, max_length=10, outfile_stl=None)
+        self.assertIsInstance(blade.generated_tip, TopoDS_Shape)
+
+    def test_stl_export_exception(self):
+        blade = create_sample_blade_NACA()
+        blade.apply_transformations()
+        with self.assertRaises(ValueError):
+            blade.generate_stl(min_length=1, max_length=10, outfile_stl=55)
 
     def test_abs_to_norm_radii(self):
         blade = create_sample_blade_NACA()

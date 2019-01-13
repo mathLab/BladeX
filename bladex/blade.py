@@ -662,19 +662,18 @@ class Blade(object):
                         vertex = BRepBuilderAPI_MakeVertex(
                             gp_Pnt(
                                 1000 * self.blade_coordinates_up[i][0][j],
-                                1000 * self.blade_coordinates_up[i][1][j],
-                                1000 * self.blade_coordinates_up[i][2][
-                                    j])).Vertex()
+                                1000 * self.blade_coordinates_up[i][1][j], 1000
+                                * self.blade_coordinates_up[i][2][j])).Vertex()
                         projection = BRepExtrema_DistShapeShape(
                             self.generated_upper_face, vertex)
                         projection.Perform()
                         output_string += str(
                             i) + '\t\t\t' + str(j) + '\t\t\t' + str(
-                                1000 * self.blade_coordinates_up[i][0]
-                                [j]) + '\t\t\t'
+                                1000 *
+                                self.blade_coordinates_up[i][0][j]) + '\t\t\t'
                         output_string += str(
-                            1000 * self.blade_coordinates_up[i]
-                            [1][j]) + '\t\t\t' + str(
+                            1000 * self.blade_coordinates_up[i][1]
+                            [j]) + '\t\t\t' + str(
                                 1000 * self.blade_coordinates_up[i][2]
                                 [j]) + '\t\t\t' + str(projection.Value())
                         output_string += '\n'
@@ -691,23 +690,22 @@ class Blade(object):
                             gp_Pnt(
                                 1000 * self.blade_coordinates_down[i][0][j],
                                 1000 * self.blade_coordinates_down[i][1][j],
-                                1000 * self.blade_coordinates_down[i][2][
-                                    j])).Vertex()
+                                1000 *
+                                self.blade_coordinates_down[i][2][j])).Vertex()
                         projection = BRepExtrema_DistShapeShape(
                             self.generated_lower_face, vertex)
                         projection.Perform()
                         output_string += str(
                             i) + '\t\t\t' + str(j) + '\t\t\t' + str(
-                                1000 * self.blade_coordinates_down[i][0]
-                                [j]) + '\t\t\t'
+                                1000 *
+                                self.blade_coordinates_down[i][0][j]) + '\t\t\t'
                         output_string += str(
-                            1000 * self.blade_coordinates_down[i]
-                            [1][j]) + '\t\t\t' + str(
+                            1000 * self.blade_coordinates_down[i][1]
+                            [j]) + '\t\t\t' + str(
                                 1000 * self.blade_coordinates_down[i][2]
                                 [j]) + '\t\t\t' + str(projection.Value())
                         output_string += '\n'
             f.write(output_string)
-
 
     def generate_iges(self,
                       upper_face=None,
@@ -781,7 +779,8 @@ class Blade(object):
             self._check_string(filename=errors)
             self._check_errors(upper_face=upper_face, lower_face=lower_face)
 
-            self. _write_blade_errors(upper_face=upper_face, lower_face=lower_face, errors=errors)
+            self._write_blade_errors(
+                upper_face=upper_face, lower_face=lower_face, errors=errors)
 
         if display:
             display, start_display, add_menu, add_function_to_menu = init_display(
@@ -805,7 +804,7 @@ class Blade(object):
         and http://docs.salome-platform.org/7/gui/SMESH/index.html for
         further details.
 
-        This method requires PythonOCC and SMESH to be installed. 
+        This method requires PythonOCC and SMESH to be installed.
 
         :param double min_length: smallest distance between two nodes. Default
             value is None
@@ -825,24 +824,32 @@ class Blade(object):
         manual mesh healing is recommended by the user (e.g. see
         "Repair > Sewing" in SALOME GUI) for a proper mesh closure.
         """
-        from OCC.SMESH import SMESH_Gen, SMESH_MeshVSLink
-        from OCC.StdMeshers import (StdMeshers_Arithmetic1D, StdMeshers_TrianglePreference,
-                                    StdMeshers_Regular_1D, StdMeshers_Quadrangle_2D,
-                                    StdMeshers_MEFISTO_2D)
+        from OCC.SMESH import SMESH_Gen
+        from OCC.StdMeshers import (
+            StdMeshers_Arithmetic1D, StdMeshers_TrianglePreference,
+            StdMeshers_Regular_1D, StdMeshers_MEFISTO_2D)
         from OCC.BRep import BRep_Builder
         from OCC.TopoDS import TopoDS_Shape, TopoDS_Compound
+
+        if min_length <= 0 or max_length <= 0:
+            raise ValueError('min_length and max_length must be positive.')
+        if min_length >= max_length:
+            raise ValueError('min_length can not be greater than max_length')
 
         # First we check that blade shapes are generated, otherwise we generate
         # them. After that we combine the generated_upper_face,
         # generated_lower_face, and generated_tip into a topological compound
         # that we use to compute the surface mesh
-        if (self.generated_upper_face is None) or not isinstance(self.generated_upper_face, TopoDS_Shape):
+        if (self.generated_upper_face is None) or not isinstance(
+                self.generated_upper_face, TopoDS_Shape):
             # Upper face is generated with a maximal U degree = 1
             self._generate_upper_face(maxDeg=1)
-        if (self.generated_lower_face is None) or not isinstance(self.generated_lower_face, TopoDS_Shape):
+        if (self.generated_lower_face is None) or not isinstance(
+                self.generated_lower_face, TopoDS_Shape):
             # Upper face is generated with a maximal U degree = 1
             self._generate_lower_face(maxDeg=1)
-        if (self.generated_tip is None) or not isinstance(self.generated_tip, TopoDS_Shape):
+        if (self.generated_tip is None) or not isinstance(
+                self.generated_tip, TopoDS_Shape):
             # Upper face is generated with a maximal U degree = 1
             self._generate_tip(maxDeg=1)
 
@@ -851,9 +858,9 @@ class Blade(object):
         aBuilder = BRep_Builder()
         aBuilder.MakeCompound(aCompound)
         # Add shapes
-        aBuilder.Add(aCompound,self.generated_upper_face)
-        aBuilder.Add(aCompound,self.generated_lower_face)
-        aBuilder.Add(aCompound,self.generated_tip)
+        aBuilder.Add(aCompound, self.generated_upper_face)
+        aBuilder.Add(aCompound, self.generated_lower_face)
+        aBuilder.Add(aCompound, self.generated_tip)
 
         # In the following we build the surface mesh according to the given
         # hypotheses
@@ -887,12 +894,14 @@ class Blade(object):
         aMesh.AddHypothesis(aCompound, 2)
         aMesh.AddHypothesis(aCompound, 3)
 
-        #Compute the data
-        aMeshGen.Compute(aMesh, aMesh.GetShapeToMesh())
-
         if outfile_stl is not None:
-            assert isinstance(outfile_stl, str), "outfile_stl must be a valid string."
-            aMesh.ExportSTL(outfile_stl+'.stl', False)
+            if not isinstance(outfile_stl, str):
+                raise ValueError('outfile_stl must be a valid string.')
+
+            #Compute the data
+            aMeshGen.Compute(aMesh, aMesh.GetShapeToMesh())
+            # Export STL
+            aMesh.ExportSTL(outfile_stl + '.stl', False)
 
     @staticmethod
     def _check_string(filename):
