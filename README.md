@@ -45,8 +45,8 @@ See the [**Examples**](#examples) section below and the [**Tutorials**](tutorial
 
 | Package | Version     | How to install (precompiled binaries via conda)                                                                      |
 |---------|-------------|----------------------------------------------------------------------------------------------------------------------|
-| OCC     | ==0.18.1    | Python2.7 `conda install -c conda-forge -c dlr-sc -c pythonocc -c oce pythonocc-core==0.18.1 smesh=6.7.6 python=2.7` |
-| OCC     | ==0.18.1    | Python3.6 `conda install -c conda-forge -c dlr-sc -c pythonocc -c oce pythonocc-core==0.18.1 smesh=6.7.6 python=3.6` |
+| OCC     | ==0.18.1    | Python2.7 `conda install -c conda-forge -c dlr-sc -c pythonocc -c oce pythonocc-core==0.18.1 smesh=6.7.5 python=2.7` |
+| OCC     | ==0.18.1    | Python3.6 `conda install -c conda-forge -c dlr-sc -c pythonocc -c oce pythonocc-core==0.18.1 smesh=6.7.5 python=3.6` |
 
 conda install -c pythonocc -c dlr-sc -c oce smesh=6.7.6
 
