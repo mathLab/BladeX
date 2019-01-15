@@ -36,11 +36,11 @@ The package has already been used within the research project PRELICA, “Advanc
 
 As an example, we show below a bottom-up construction of a benchmark blade called PPTC, and the resulted iges and stl file formats.
 
-![PPTC](../readme/PPTC.png)
+![Bottom-up construction of the PPTC benchmark blade, and the resulted iges and stl file.](../readme/PPTC.png)
 
 Here we have the undeformed reference blade and a couple of deformed configurations obtained by moving some control points defining the skew and chord length radial distributions.
 
-![Deformations](../readme/blade_deformations.png)
+![Undeformed blade, on the left, and two deformed configurations.](../readme/blade_deformations.png)
 
 # Acknowledgements
 This work was partially supported by the project PRELICA, “Advanced methodologies for hydro-acoustic design of naval propulsion”, supported by Regione FVG, POR-FESR 2014-2020, Piano Operativo Regionale Fondo Europeo per lo Sviluppo Regionale, and by European Union Funding for Research and Innovation — Horizon 2020 Program — in the framework of European Research Council Executive Agency: H2020 ERC CoG 2015 AROMA-CFD project 681447 “Advanced Reduced Order Methods with Applications in Computational Fluid Dynamics” P.I. Gianluigi Rozza.
