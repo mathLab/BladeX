@@ -25,7 +25,7 @@ setup(
     keywords='blade-generation propeller iges procal',
     url='https://github.com/mathLab/BladeX',
     author='Marco Tezzele, Mahmoud Gadalla',
-    author_email='marcotez@gmail.com, mgadalla@sissa.it',
+    author_email='marcotez@gmail.com, gadalla.mah@gmail.com',
     license='MIT',
     packages=['bladex'],
     install_requires=[
