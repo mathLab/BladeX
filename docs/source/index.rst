@@ -21,12 +21,12 @@ BladeX is compatible with Python 2.7 and Python 3.6. Moreover, some of the modul
 Python2.7 OCC installation:
 ::
 
-  conda install -c conda-forge -c dlr-sc -c pythonocc -c oce pythonocc-core==0.18.1 python=2.7
+  conda install -c conda-forge -c dlr-sc -c pythonocc -c oce pythonocc-core==0.18.1 smesh=6.7.5 python=2.7
 
 Python3.6 OCC installation:
 ::
 
-  conda install -c conda-forge -c dlr-sc -c pythonocc -c oce pythonocc-core==0.18.1 python=3.6
+  conda install -c conda-forge -c dlr-sc -c pythonocc -c oce pythonocc-core==0.18.1 smesh=6.7.5 python=3.6
 
 
 The `official distribution <https://github.com/mathLab/BladeX>`_ is on GitHub, and you can clone the repository using

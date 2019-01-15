@@ -16,6 +16,7 @@ Ndinterpolator
 	RBF.thin_plate_spline
 	RBF.weights_matrix
 	reconstruct_f
+	scipy_bspline
 	
 
 .. automodule:: bladex.ndinterpolator
