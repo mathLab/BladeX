@@ -90,13 +90,20 @@
 <li class="toctree-l3"><a class="reference internal" href="_summaries/bladex.blade.Blade._check_params.html">bladex.blade.Blade._check_params</a></li>
 <li class="toctree-l3"><a class="reference internal" href="_summaries/bladex.blade.Blade._check_string.html">bladex.blade.Blade._check_string</a></li>
 <li class="toctree-l3"><a class="reference internal" href="_summaries/bladex.blade.Blade._compute_pitch_angle.html">bladex.blade.Blade._compute_pitch_angle</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_summaries/bladex.blade.Blade._generate_lower_face.html">bladex.blade.Blade._generate_lower_face</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_summaries/bladex.blade.Blade._generate_tip.html">bladex.blade.Blade._generate_tip</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_summaries/bladex.blade.Blade._generate_upper_face.html">bladex.blade.Blade._generate_upper_face</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_summaries/bladex.blade.Blade._import_occ_libs.html">bladex.blade.Blade._import_occ_libs</a></li>
 <li class="toctree-l3"><a class="reference internal" href="_summaries/bladex.blade.Blade._induced_rake_from_skew.html">bladex.blade.Blade._induced_rake_from_skew</a></li>
 <li class="toctree-l3"><a class="reference internal" href="_summaries/bladex.blade.Blade._norm_to_abs.html">bladex.blade.Blade._norm_to_abs</a></li>
 <li class="toctree-l3"><a class="reference internal" href="_summaries/bladex.blade.Blade._planar_to_cylindrical.html">bladex.blade.Blade._planar_to_cylindrical</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_summaries/bladex.blade.Blade._write_blade_errors.html">bladex.blade.Blade._write_blade_errors</a></li>
 <li class="toctree-l3"><a class="reference internal" href="_summaries/bladex.blade.Blade.apply_transformations.html">bladex.blade.Blade.apply_transformations</a></li>
 <li class="toctree-l3"><a class="reference internal" href="_summaries/bladex.blade.Blade.generate_iges.html">bladex.blade.Blade.generate_iges</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_summaries/bladex.blade.Blade.generate_stl.html">bladex.blade.Blade.generate_stl</a></li>
 <li class="toctree-l3"><a class="reference internal" href="_summaries/bladex.blade.Blade.export_ppg.html">bladex.blade.Blade.export_ppg</a></li>
 <li class="toctree-l3"><a class="reference internal" href="_summaries/bladex.blade.Blade.plot.html">bladex.blade.Blade.plot</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_summaries/bladex.blade.Blade.rotate.html">bladex.blade.Blade.rotate</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="deform.html">Deformation</a></li>
@@ -179,6 +186,18 @@
 <tr class="row-odd"><td><a class="reference internal" href="_summaries/bladex.blade.Blade._compute_pitch_angle.html#bladex.blade.Blade._compute_pitch_angle" title="bladex.blade.Blade._compute_pitch_angle"><code class="xref py py-obj docutils literal"><span class="pre">Blade._compute_pitch_angle</span></code></a></td>
 <td>Private method that computes the pitch angle from the linear pitch for all blade sections.</td>
 </tr>
+<tr class="row-even"><td><a class="reference internal" href="_summaries/bladex.blade.Blade._generate_lower_face.html#bladex.blade.Blade._generate_lower_face" title="bladex.blade.Blade._generate_lower_face"><code class="xref py py-obj docutils literal"><span class="pre">Blade._generate_lower_face</span></code></a></td>
+<td>Private method to generate the blade lower face.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="_summaries/bladex.blade.Blade._generate_tip.html#bladex.blade.Blade._generate_tip" title="bladex.blade.Blade._generate_tip"><code class="xref py py-obj docutils literal"><span class="pre">Blade._generate_tip</span></code></a></td>
+<td>Private method to generate the surface that closing the blade tip.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="_summaries/bladex.blade.Blade._generate_upper_face.html#bladex.blade.Blade._generate_upper_face" title="bladex.blade.Blade._generate_upper_face"><code class="xref py py-obj docutils literal"><span class="pre">Blade._generate_upper_face</span></code></a></td>
+<td>Private method to generate the blade upper face.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="_summaries/bladex.blade.Blade._import_occ_libs.html#bladex.blade.Blade._import_occ_libs" title="bladex.blade.Blade._import_occ_libs"><code class="xref py py-obj docutils literal"><span class="pre">Blade._import_occ_libs</span></code></a></td>
+<td>Private static method to import specific modules from the OCC package.</td>
+</tr>
 <tr class="row-even"><td><a class="reference internal" href="_summaries/bladex.blade.Blade._induced_rake_from_skew.html#bladex.blade.Blade._induced_rake_from_skew" title="bladex.blade.Blade._induced_rake_from_skew"><code class="xref py py-obj docutils literal"><span class="pre">Blade._induced_rake_from_skew</span></code></a></td>
 <td>Private method that computes the induced rake from skew for all the blade sections, according to <span class="xref std std-ref">mytransformation_operations</span>.</td>
 </tr>
@@ -188,17 +207,26 @@
 <tr class="row-even"><td><a class="reference internal" href="_summaries/bladex.blade.Blade._planar_to_cylindrical.html#bladex.blade.Blade._planar_to_cylindrical" title="bladex.blade.Blade._planar_to_cylindrical"><code class="xref py py-obj docutils literal"><span class="pre">Blade._planar_to_cylindrical</span></code></a></td>
 <td>Private method that transforms the 2D planar airfoils into 3D cylindrical sections.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="_summaries/bladex.blade.Blade.apply_transformations.html#bladex.blade.Blade.apply_transformations" title="bladex.blade.Blade.apply_transformations"><code class="xref py py-obj docutils literal"><span class="pre">Blade.apply_transformations</span></code></a></td>
+<tr class="row-odd"><td><a class="reference internal" href="_summaries/bladex.blade.Blade._write_blade_errors.html#bladex.blade.Blade._write_blade_errors" title="bladex.blade.Blade._write_blade_errors"><code class="xref py py-obj docutils literal"><span class="pre">Blade._write_blade_errors</span></code></a></td>
+<td>Private method to write the errors between the generated foil points in 3D space from the parametric transformations, and their projections on the generated blade faces from the OCC algorithm.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="_summaries/bladex.blade.Blade.apply_transformations.html#bladex.blade.Blade.apply_transformations" title="bladex.blade.Blade.apply_transformations"><code class="xref py py-obj docutils literal"><span class="pre">Blade.apply_transformations</span></code></a></td>
 <td>Generate a bottom-up constructed propeller blade based on the airfoil transformations, see <span class="xref std std-ref">mytransformation_operations</span>.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="_summaries/bladex.blade.Blade.generate_iges.html#bladex.blade.Blade.generate_iges" title="bladex.blade.Blade.generate_iges"><code class="xref py py-obj docutils literal"><span class="pre">Blade.generate_iges</span></code></a></td>
+<tr class="row-odd"><td><a class="reference internal" href="_summaries/bladex.blade.Blade.generate_iges.html#bladex.blade.Blade.generate_iges" title="bladex.blade.Blade.generate_iges"><code class="xref py py-obj docutils literal"><span class="pre">Blade.generate_iges</span></code></a></td>
 <td>Generate and export the .iges CAD for the blade upper face, lower face, and tip.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="_summaries/bladex.blade.Blade.generate_stl.html#bladex.blade.Blade.generate_stl" title="bladex.blade.Blade.generate_stl"><code class="xref py py-obj docutils literal"><span class="pre">Blade.generate_stl</span></code></a></td>
+<td>Generate and export the .STL surface mesh for the blade as a whole, including the upper face, lower face and tip.</td>
 </tr>
 <tr class="row-odd"><td><a class="reference internal" href="_summaries/bladex.blade.Blade.export_ppg.html#bladex.blade.Blade.export_ppg" title="bladex.blade.Blade.export_ppg"><code class="xref py py-obj docutils literal"><span class="pre">Blade.export_ppg</span></code></a></td>
 <td>Export the generated blade parameters and sectional profiles into .ppg format.</td>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="_summaries/bladex.blade.Blade.plot.html#bladex.blade.Blade.plot" title="bladex.blade.Blade.plot"><code class="xref py py-obj docutils literal"><span class="pre">Blade.plot</span></code></a></td>
 <td>Plot the generated blade sections.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="_summaries/bladex.blade.Blade.rotate.html#bladex.blade.Blade.rotate" title="bladex.blade.Blade.rotate"><code class="xref py py-obj docutils literal"><span class="pre">Blade.rotate</span></code></a></td>
+<td>3D counter clockwise rotation about the X-axis of the Cartesian</td>
 </tr>
 </tbody>
 </table>
@@ -411,6 +439,54 @@ all blade sections.</p>
 
 <dl class="method">
 <dt>
+<code class="descname">_generate_lower_face</code><span class="sig-paren">(</span><em>maxDeg</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bladex/blade.html#Blade._generate_lower_face"><span class="viewcode-link">[source]</span></a></dt>
+<dd><p>Private method to generate the blade lower face.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>maxDeg</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; Define the maximal U degree of generated surface</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<code class="descname">_generate_tip</code><span class="sig-paren">(</span><em>maxDeg</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bladex/blade.html#Blade._generate_tip"><span class="viewcode-link">[source]</span></a></dt>
+<dd><p>Private method to generate the surface that closing the blade tip.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>maxDeg</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; Define the maximal U degree of generated surface</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<code class="descname">_generate_upper_face</code><span class="sig-paren">(</span><em>maxDeg</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bladex/blade.html#Blade._generate_upper_face"><span class="viewcode-link">[source]</span></a></dt>
+<dd><p>Private method to generate the blade upper face.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>maxDeg</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; Define the maximal U degree of generated surface</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt>
+<em class="property">static </em><code class="descname">_import_occ_libs</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/bladex/blade.html#Blade._import_occ_libs"><span class="viewcode-link">[source]</span></a></dt>
+<dd><p>Private static method to import specific modules from the OCC package.</p>
+</dd></dl>
+
+<dl class="method">
+<dt>
 <code class="descname">_induced_rake_from_skew</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/bladex/blade.html#Blade._induced_rake_from_skew"><span class="viewcode-link">[source]</span></a></dt>
 <dd><p>Private method that computes the induced rake from skew for all the
 blade sections, according to <span class="xref std std-ref">mytransformation_operations</span>.</p>
@@ -459,6 +535,36 @@ cylindrical sections.</p>
 <p>After transformation, the method also fills the numpy.ndarray
 &#8220;blade_coordinates_up&#8221; and &#8220;blade_coordinates_down&#8221; with the new
 <img class="math" src="_images/math/f664f102404a0938b0d2fc21843059f059a9eeff.png" alt="(X, Y, Z)"/> coordinates.</p>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<code class="descname">_write_blade_errors</code><span class="sig-paren">(</span><em>upper_face</em>, <em>lower_face</em>, <em>errors</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bladex/blade.html#Blade._write_blade_errors"><span class="viewcode-link">[source]</span></a></dt>
+<dd><p>Private method to write the errors between the generated foil points in
+3D space from the parametric transformations, and their projections on
+the generated blade faces from the OCC algorithm.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>upper_face</strong> (<a class="reference external" href="http://docs.python.org/2/library/string.html#module-string" title="(in Python v2.7)"><em>string</em></a>) &#8211; if string is passed then the method generates
+the blade upper surface using the BRepOffsetAPI_ThruSections
+algorithm, then exports the generated CAD into .iges file holding
+the name &lt;upper_face_string&gt;.iges</li>
+<li><strong>lower_face</strong> (<a class="reference external" href="http://docs.python.org/2/library/string.html#module-string" title="(in Python v2.7)"><em>string</em></a>) &#8211; if string is passed then the method generates
+the blade lower surface using the BRepOffsetAPI_ThruSections
+algorithm, then exports the generated CAD into .iges file holding
+the name &lt;lower_face_string&gt;.iges</li>
+<li><strong>errors</strong> (<a class="reference external" href="http://docs.python.org/2/library/string.html#module-string" title="(in Python v2.7)"><em>string</em></a>) &#8211; if string is passed then the method writes out
+the distances between each discrete point used to construct the
+blade and the nearest point on the CAD that is perpendicular to
+that point</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
@@ -569,6 +675,44 @@ that point. Default value is None</li>
 in order from the blade root to the blade tip, so that generate_iges
 method can build the CAD surface that passes through the corresponding
 airfoils. Also to be able to identify and close the blade tip.</p>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<code class="descname">generate_stl</code><span class="sig-paren">(</span><em>min_length=None</em>, <em>max_length=None</em>, <em>outfile_stl=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bladex/blade.html#Blade.generate_stl"><span class="viewcode-link">[source]</span></a></dt>
+<dd><p>Generate and export the .STL surface mesh for the blade as a whole,
+including the upper face, lower face and tip. The method utilizes
+modules from OCC SMESH which is standalone mesh framework based on
+SALOME mesher project. Please refer to <a class="reference external" href="https://github.com/tpaviot">https://github.com/tpaviot</a>
+and <a class="reference external" href="http://docs.salome-platform.org/7/gui/SMESH/index.html">http://docs.salome-platform.org/7/gui/SMESH/index.html</a> for
+further details.</p>
+<p>This method requires PythonOCC and SMESH to be installed.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>min_length</strong> (<em>double</em>) &#8211; smallest distance between two nodes. Default
+value is None</li>
+<li><strong>max_length</strong> (<em>double</em>) &#8211; largest distance between two nodes. Default
+value is None</li>
+<li><strong>outfile_stl</strong> (<a class="reference external" href="http://docs.python.org/2/library/string.html#module-string" title="(in Python v2.7)"><em>string</em></a>) &#8211; if string is passed then the method exports
+the generated 2D surface mesh into .stl file holding the name
+&lt;outfile_stl&gt;.stl. Default value is None</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p>We note that since the current implementation performs triangulation
+based on a topological compound that combines the blade 3 generated
+shapes without &#8220;fusion&#8221;, it may happen that the generated triangulation
+of the upper and lower blade faces do not share the same exact nodes
+on the joint edge/wire resulting from the faces intersection. The
+current implementation can be enough for visualization purpose. However
+if the generated mesh is intended for computational analysis then a
+manual mesh healing is recommended by the user (e.g. see
+&#8220;Repair &gt; Sewing&#8221; in SALOME GUI) for a proper mesh closure.</p>
 </dd></dl>
 
 <dl class="method">
@@ -715,7 +859,7 @@ or if neither is inserted</p>
   <div role="contentinfo">
     <p>
         &copy; Copyright 2018-2019, BladeX contributors.
-      Last updated on Jan 07, 2019.
+      Last updated on Jan 15, 2019.
 
     </p>
   </div>
