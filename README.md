@@ -100,6 +100,15 @@ Here we show a bottom-up parametrized construction of the [Potsdam Propeller Tes
 <em>PPTC blade generation according to the radial distribution of the pitch, rake, skew. The generated blade is then exported to .iges and .stl formats.</em>
 </p>
 
+Two possible deformed geometry configurations, to show the capabilities of the package, are presented here:
+
+<p align="center">
+<img src="readme/blade_deformations.png" alt>
+</p>
+<p align="center">
+<em>Undeformed reference blade on the left, and a couple of deformed configurations obtained by moving some control points defining the skew and chord length radial distributions.</em>
+</p>
+
 ## How to cite
 
 ### Recent works with BladeX
