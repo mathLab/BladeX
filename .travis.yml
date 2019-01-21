@@ -9,16 +9,13 @@ matrix:
     include:
         - os: linux
           python: 2.7
-          env: TOXENV=py27 CONDA_PY=27
+          env: TOXENV=py27
         - os: linux
           python: 3.6
-          env: TOXENV=py36 CONDA_PY=36
+          env: TOXENV=py36
         - os: osx
           language: generic
-          env: TOXENV=py27 CONDA_PY=27
-        - os: osx
-          language: generic
-          env: TOXENV=py36 CONDA_PY=36
+          env: TOXENV=py27
           
 before_script:
     - "export DISPLAY=:99.0"
