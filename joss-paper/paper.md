@@ -1,5 +1,5 @@
 ---
-title: 'BladeX: Python Blade Deformation'
+title: 'BladeX: Python Blade Morphing'
 tags:
  - Python
  - Blade construction
