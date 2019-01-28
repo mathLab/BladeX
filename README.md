@@ -30,6 +30,7 @@
 * [How to cite](#how-to-cite)
 	* [Recent works with BladeX](#recent-works-with-bladex)
 * [Authors and contributors](#authors-and-contributors)
+* [Support](#support)
 * [How to contribute](#how-to-contribute)
 	* [Submitting a patch](#submitting-a-patch) 
 * [License](#license)
@@ -57,14 +58,13 @@ The official distribution is on GitHub, and you can clone the repository using
 
 To install the package just type:
 ```bash
-> python setup.py install
+> pip install git+https://github.com/mathLab/BladeX.git
 ```
 
-To uninstall the package you have to rerun the installation and record the installed files in order to remove them:
+To uninstall the package you can use pip again:
 
 ```bash
-> python setup.py install --record installed_files.txt
-> cat installed_files.txt | xargs rm -rf
+> pip uninstall bladex
 ```
 
 ## Documentation
@@ -123,8 +123,9 @@ Here there is a list of the scientific works involving **BladeX** you can consul
 
 under the supervision of [Dr. Andrea Mola](mailto:andrea.mola@sissa.it) and [Prof. Gianluigi Rozza](mailto:gianluigi.rozza@sissa.it) in the framework of the project [PRELICA: Advanced Methodologies for Hydro-acoustic Design of Naval Propulsion](https://mathlab.sissa.it/project/prelica-metodologie-avanzate-la-progettazione-idro-acustica-dell%E2%80%99elica-navale-por-fesr-2017).
 
+## Support
 
-Contact us by email for further information or questions about **BladeX**, or suggest pull requests. Contributions improving either the code or the documentation are welcome!
+Contact us by email for further information or questions about **BladeX**. Feel free to suggest pull requests or to open GitHub issues. Contributions improving either the code or the documentation are welcome!
 
 
 ## How to contribute
