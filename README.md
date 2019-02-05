@@ -4,6 +4,9 @@
   </a>
 </p>
 <p align="center">
+	<a href="https://doi.org/10.21105/joss.01203" target="_blank">
+        <img alt="JOSS DOI" src="http://joss.theoj.org/papers/10.21105/joss.01203/status.svg">
+    </a>
     <a href="LICENSE.rst" target="_blank">
         <img alt="Software License" src="https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square">
     </a>
@@ -56,12 +59,17 @@ The official distribution is on GitHub, and you can clone the repository using
 > git clone https://github.com/mathLab/BladeX
 ```
 
-To install the package just type:
+To install the latest version of the package just type:
 ```bash
 > pip install git+https://github.com/mathLab/BladeX.git
 ```
 
-To uninstall the package you can use pip again:
+Otherwise to install your own local branch you can use the `setup.py` file
+```bash
+> python setup.py install
+```
+
+To uninstall the package just use pip again:
 
 ```bash
 > pip uninstall bladex
@@ -109,6 +117,23 @@ Two possible deformed geometry configurations, to show the capabilities of the p
 </p>
 
 ## How to cite
+If you use this package in your publications please cite the package as follows:
+
+Gadalla et al., (2019). BladeX: Python Blade Morphing. Journal of Open Source Software, 4(34), 1203, https://doi.org/10.21105/joss.01203
+
+Or if you use LaTeX:
+```tex
+@article{gadalla19bladex,
+  Author = {Gadalla, Mahmoud and Tezzele, Marco and Mola, Andrea and Rozza, Gianluigi},
+  Title = {{BladeX: Python Blade Morphing}},
+  Journal = {The Journal of Open Source Software},
+  Volume = {4},
+  Number = {34},
+  Pages = {1203},
+  Year = {2019},
+  Doi = {https://doi.org/10.21105/joss.01203}
+}
+```
 
 ### Recent works with BladeX
 Here there is a list of the scientific works involving **BladeX** you can consult and/or cite. If you want to add one, please open a PR.
