@@ -138,9 +138,9 @@ Or if you use LaTeX:
 ### Recent works with BladeX
 Here there is a list of the scientific works involving **BladeX** you can consult and/or cite. If you want to add one, please open a PR.
 
-* Mola, Tezzele, Gadalla, Valdenazzi, Grassi, Padovan, Rozza. *Efficient reduction in shape parameter space dimension for ship propeller blade design*. In Proceedings of MARINE 2019: VIII International Conference on Computational Methods in Marine Engineering, pages 201–212, 2019. [[DOI](https://congress.cimne.com/marine2019/frontal/Doc/EbookMarine2019.pdf)] [[arXiv](https://arxiv.org/abs/1905.09815)].
+* Mola, Tezzele, Gadalla, Valdenazzi, Grassi, Padovan, Rozza. *Efficient reduction in shape parameter space dimension for ship propeller blade design*. In Proceedings of MARINE 2019: VIII International Conference on Computational Methods in Marine Engineering, pages 201–212, 2019. [[DOI](https://congress.cimne.com/marine2019/frontal/Doc/EbookMarine2019.pdf)] [[arXiv](https://arxiv.org/abs/1905.09815)] [[bibitem](readme/mola2019marine.bib)].
 
-* Tezzele, Demo, Mola, Rozza. *An integrated data-driven computational pipeline with model order reduction for industrial and applied mathematics*. Submitted, 2018. [[arXiv](https://arxiv.org/abs/1810.12364)].
+* Tezzele, Demo, Mola, Rozza. *An integrated data-driven computational pipeline with model order reduction for industrial and applied mathematics*. Submitted, 2018. [[arXiv](https://arxiv.org/abs/1810.12364)] [[bibitem](readme/tezzele2018ecmi.bib)].
 
 
 ## Authors and contributors
