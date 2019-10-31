@@ -43,6 +43,15 @@
 
 See the [**Examples**](#examples) section below and the [**Tutorials**](tutorials/README.md) to have an idea of the potential of this package.
 
+Below you can find a list of interesting and useful other available packages:
+* **PyGeM**: Python library for Geometrical Morphing, that uses free form deformation to parametrize and morph complex geometries, [https://github.com/mathLab/PyGeM](https://github.com/mathLab/PyGeM).
+* **PyDMD**: Python library for Dynamic Mode Decomposition, for a data-driven model simplification based on spatiotemporal coherent structures, [https://github.com/mathLab/PyDMD](https://github.com/mathLab/PyDMD).
+* **RBniCS**: reduced order modelling in FEniCS, is an implementation in FEniCS of several reduced order modelling techniques for parametrized problems, [https://github.com/mathLab/RBniCS](https://github.com/mathLab/RBniCS).
+* **EZyRB**: Easy Reduced Basis method, is a python library for the Model Order Reduction based on baricentric triangulation for the selection of the parameter points and on Proper Orthogonal Decomposition for the selection of the modes, [https://github.com/mathLab/EZyRB](https://github.com/mathLab/EZyRB).
+* **ITHACA-FV**: In real Time Highly Advanced Computational Applications for Finite Volumes, is C++ library based on the finite volume solver OpenFOAM. It consists of the implementation of several reduced order modeling techniques for parametrized problems, [https://github.com/mathLab/ITHACA-FV](https://github.com/mathLab/ITHACA-FV).
+* **ITHACA-DG**: In real Time Highly Advanced Computational Applications for Discontinuous Galerkin Methods, is C++ library based on the Discontinuous Galerkin Methods solver HopeFOAM. It consists of the implementation of reduced order modeling techniques for parametrized problems, [https://github.com/mathLab/ITHACA-DG](https://github.com/mathLab/ITHACA-DG).
+* **ITHACA-SEM**: In real Time Highly Advanced Computational Applications for Spectral Element Methods, is C++ library based on the spectral element solver Nektar++. It consists of the implementation of several reduced order modeling techniques for parametrized problems, [https://github.com/mathLab/ITHACA-SEM](https://github.com/mathLab/ITHACA-SEM).
+
 ## Dependencies and installation
 **BladeX** requires `numpy`, `scipy`, `matplotlib`, `sphinx` (for the documentation), and `nose` (for the local test). They can be easily installed using `pip`. 
 **BladeX** is compatible with Python 2.7 and Python 3.6. Moreover, some of the modules require `OCC` to be installed for the `.iges` or `.stl` CAD generation. Please see the table below for instructions on how to satisfy the `OCC` requirements. You can also refer to `pythonocc.org` or `github.com/tpaviot/pythonocc-core` for further instructions.
