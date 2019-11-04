@@ -36,7 +36,7 @@
 * [Support](#support)
 * [How to contribute](#how-to-contribute)
 	* [Submitting a patch](#submitting-a-patch)
-* [Reduced order modelling mathLab's packages](#Reduced-order-modelling-mathLab's-packages)
+* [Reduced order modelling mathLab's packages](#reduced-order-modelling-mathLab's-packages)
 * [License](#license)
 
 ## Description
@@ -199,7 +199,7 @@ We'd love to accept your patches and contributions to this project. There are ju
 
 ## Reduced order modelling mathLab's packages
 
-Below you can find a list of interesting and useful other available packages:
+Below you can find a list of useful reduced order modelling packages from SISSA mathLab group:
 * **PyGeM**: Python library for Geometrical Morphing, that uses free form deformation to parametrize and morph complex geometries, [https://github.com/mathLab/PyGeM](https://github.com/mathLab/PyGeM).
 * **PyDMD**: Python library for Dynamic Mode Decomposition, for a data-driven model simplification based on spatiotemporal coherent structures, [https://github.com/mathLab/PyDMD](https://github.com/mathLab/PyDMD).
 * **RBniCS**: reduced order modelling in FEniCS, is an implementation in FEniCS of several reduced order modelling techniques for parametrized problems, [https://github.com/mathLab/RBniCS](https://github.com/mathLab/RBniCS).
