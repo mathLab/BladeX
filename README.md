@@ -36,7 +36,7 @@
 * [Support](#support)
 * [How to contribute](#how-to-contribute)
 	* [Submitting a patch](#submitting-a-patch)
-* [MathLab packages of reduced order models](#mathlab-packages-of-reduced-order-models)
+* [SISSA mathLab packages for reduced order modeling](#sissa-mathlab-packages-for-reduced-order-modeling)
 * [License](#license)
 
 ## Description
@@ -197,7 +197,7 @@ We'd love to accept your patches and contributions to this project. There are ju
 [well-formed commit messages]: http://tbaggery.com/2008/04/19/a-note-about-git-commit-messages.html
 [pull request]: https://help.github.com/articles/creating-a-pull-request
 
-## MathLab packages of reduced order models
+## SISSA mathLab packages for reduced order modeling
 
 Below you can find a list of useful reduced order modelling packages from SISSA mathLab group:
 * **PyGeM**: Python library for Geometrical Morphing, that uses free form deformation to parametrize and morph complex geometries, [https://github.com/mathLab/PyGeM](https://github.com/mathLab/PyGeM).
