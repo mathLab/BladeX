@@ -870,7 +870,7 @@ class Blade(object):
         """
         Generate a solid blade assembling the upper face, lower face, tip and
         root using the BRepBuilderAPI_MakeSolid algorithm. 
-        This method requires (7.4.0) to be installed.
+        This method requires PythonOCC (7.4.0) to be installed.
 
         :param int max_deg: Define the maximal U degree of generated surface.
             Default value is 1
@@ -925,7 +925,7 @@ class Blade(object):
         solid_maker = BRepBuilderAPI_MakeSolid()
         solid_maker.Add(OCC.Core.TopoDS.topods_Shell(result_shell))
         if not solid_maker.IsDone():
-            raise RuntimeError('Solid maker undone')
+            raise RuntimeError('Unsuccessful assembling of solid blade')
         result_solid = solid_maker.Solid()
        	return result_solid 
 
