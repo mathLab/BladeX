@@ -5,13 +5,14 @@ language: python
 
 service: docker
 
-matrix:
+jobs:
     include:
         - os: linux
           python: 3.6
           env: TOXENV=py36
         - os: osx
           language: generic
+          osx_image: xcode11.2
           env: TOXENV=py36
           
 before_script:
