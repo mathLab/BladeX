@@ -6,7 +6,6 @@ import os
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 from OCC.Core.TopoDS import TopoDS_Shape, TopoDS_Solid
-from OCC.Extend.DataExchange import write_stl_file
 
 
 def create_sample_blade_NACA():
@@ -651,8 +650,8 @@ class TestBlade(TestCase):
             root=None,
             display=False,
             errors=None)
-        self.assertTrue(os.path.isfile('tests/test_datasets/tip.iges'))
-        self.addCleanup(os.remove, 'tests/test_datasets/tip.iges')
+        self.assertTrue(os.path.isfile('tests/test_datasets/tip.stl'))
+        self.addCleanup(os.remove, 'tests/test_datasets/tip.stl')
 
     def test_stl_root_not_string(self):
         blade = create_sample_blade_NACA()
@@ -709,7 +708,7 @@ class TestBlade(TestCase):
         blade = create_sample_blade_NACA_10()
         blade.apply_transformations()
         blade.generate_stl(
-            upper_face='upper',
+            upper_face='tests/test_datasets/upper',
             lower_face=None,
             tip=None,
             root=None,
@@ -795,7 +794,7 @@ class TestBlade(TestCase):
                 display=False,
                 errors='tests/test_datasets/errors')
     
-    def test_blade_solid(self):
+    def test_generate_blade_solid(self):
         blade = create_sample_blade_NACA()
         blade.apply_transformations()
         blade_solid = blade.generate_blade_solid(max_deg=2, display=False, 
