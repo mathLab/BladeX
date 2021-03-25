@@ -1,6 +1,6 @@
 from unittest import TestCase
 import bladex.profiles as pr
-import bladex.blade as bl
+import blade as bl
 import numpy as np
 import os
 import matplotlib.pyplot as plt
@@ -277,7 +277,7 @@ class TestBlade(TestCase):
     def test_blade_generated_tip_init(self):
         blade = create_sample_blade_NACA()
         assert blade.generated_tip == None
-        
+
     def test_blade_generated_root_init(self):
         blade = create_sample_blade_NACA()
         assert blade.generated_root == None
@@ -775,7 +775,7 @@ class TestBlade(TestCase):
         blade.apply_transformations()
         with self.assertRaises(ValueError):
             blade.generate_stl_smesh(min_length=1, max_length=10, outfile_stl=55)
-            
+
     def test_blade_solid_max_deg_exception(self):
         blade = create_sample_blade_NACA()
         blade.apply_transformations()
@@ -784,7 +784,7 @@ class TestBlade(TestCase):
                 max_deg=-1,
                 display=False,
                 errors=None)
-            
+
     def test_blade_solid_errors_exception(self):
         blade = create_sample_blade_NACA()
         blade.apply_transformations()
@@ -793,7 +793,7 @@ class TestBlade(TestCase):
                 max_deg=-1,
                 display=False,
                 errors='tests/test_datasets/errors')
-    
+
     def test_generate_blade_solid(self):
         blade = create_sample_blade_NACA()
         blade.apply_transformations()

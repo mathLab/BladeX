@@ -5,72 +5,71 @@ import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 
-
 class Blade(object):
     """
     Bottom-up parametrized blade construction.
     
     Given the following parameters of a propeller blade:
-        
+
         - :math:`(X, Y)` coordinates of the blade cylindrical sections after
           being expanded in 2D to create airfoils.
-          
+
         - Radial distance :math:`(r_i)` from the propeller axis of rotation
           to each cylindrical section.
-          
+
         - Pitch angle :math:`(\\varphi)`, for each cylindrical section.
-        
+
         - Rake :math:`(k)`, in distance units, for each cylindrical section.
-        
+
         - Skew angle :math:`(\\theta_s)`, for each cylindrical section.
-        
+
     then, a bottom-up construction procedure is performed by applying series of
     transformation operations on the airfoils according to the provided
     parameters, to end up with a 3D CAD model of the blade, which can be
     exported into IGES format. Also surface or volume meshes can be obtained.
-    
+
     Useful definitions on the propeller geometry:
-        
+
         - Blade cylindrical section: the cross section of a blade cut by a
           cylinder whose centerline is the propeller axis of rotation.
           We may also refer as "radial section".
-          
+
         - Pitch :math:`(P)`: the linear distance that a propeller would move in
           one revolution with no slippage. The geometric pitch angle
           :math:`(\\varphi)` is the angle between the pitch reference line
           and a line perpendicular to the propeller axis of rotation.
-          
+
         .. math::
             tan (\\varphi) = \\frac{\\text{pitch}}
             {\\text{propeller circumference}} = \\frac{P}{2 \\pi r}
-            
+
         - Rake: the fore or aft slant of the blade with respect to a line
           perpendicular to the propeller axis of rotation.
-          
+
         - Skew: the transverse sweeping of a blade such that viewing the blades
           from fore or aft would show an asymmetrical shape.
-          
+
     References:
-        
+
     - Carlton, J. Marine propellers and propulsion. Butterworth-Heinemann, 2012.
       http://navalex.com/downloads/Michigan_Wheel_Propeller_Geometry.pdf
-      
+
     - J. Babicz. Wartsila Encyclopedia of Ship Technology. 2nd ed. Wartsila
       Corporation. 2015.
-      
+
     .. _transformation_operations:
-        
+
     Transformation operations according to the provided parameters:
-        
+
     .. figure:: ../../readme/transformations.png
        :scale: 75 %
        :alt: transformations
-       
+
        Airfoil 2D transformations corresponding to the pitch, rake, and skew of
        the blade expanded cylindrical section.
-       
+
     --------------------------
-    
+
     :param array_like sections: 1D array, each element is an object of the
         BaseProfile class at specific radial section.
     :param array_like radii: 1D array, contains the radii values of the
@@ -83,13 +82,13 @@ class Blade(object):
         radial section of the blade.
     :param array_like skew_angles: 1D array, contains the skew angles
         (in degrees) for each radial section of the blade.
-        
+
     Note that, each of the previous array_like parameters must be consistent
     with the other parameters in terms of the radial ordering of the blade
     sections. In particular, an array_like elements must follow the radial
     distribution of the blade sections starting from the blade root and ends up
     with the blade tip since the blade surface generator depends on that order.
-    
+
     Finally, beware that the profiles class objects in the array 'sections'
     undergo several transformations that affect their coordinates. Therefore
     the array must be specific to each blade class instance. For example, if
@@ -98,9 +97,9 @@ class Blade(object):
     objects for the profiles, as well as the blade. The following example
     explains the fault and the correct implementations (assuming we already
     have the arrays radii, chord, pitch, rake, skew):
-        
+
     INCORRECT IMPLEMENTATION:
-        
+
     >>> sections = [bladex.profiles.NacaProfile(digits='0012', n_points=240,
                     cosine_spacing=True) for i in range(12)]
     >>> blade_1 = Blade(
@@ -119,12 +118,12 @@ class Blade(object):
                     rake=rake,
                     skew_angles=skew)
     >>> blade_2.apply_transformations()
-    
+
     The previous implementation would lead into erroneous blade coordinates due
     to the transformed data in the array sections
-    
+
     CORRECT IMPLEMENTATION:
-        
+
     >>> sections_1 = [bladex.profiles.NacaProfile(digits='0012', n_points=240,
                       cosine_spacing=True) for i in range(12)]
     >>> sections_2 = [bladex.profiles.NacaProfile(digits='0012', n_points=240,
@@ -198,7 +197,7 @@ class Blade(object):
         """
         Private method that computes the pitch angle from the linear pitch for
         all blade sections.
-        
+
         :return: pitch angle in radians
         :rtype: numpy.ndarray
         """
@@ -208,7 +207,7 @@ class Blade(object):
         """
         Private method that computes the induced rake from skew for all the
         blade sections, according to :ref:`mytransformation_operations`.
-        
+
         :return: induced rake from skew
         :rtype: numpy.ndarray
         """
@@ -219,17 +218,17 @@ class Blade(object):
         """
         Private method that transforms the 2D planar airfoils into 3D
         cylindrical sections.
-        
+
         The cylindrical transformation is defined by the following formulas:
-            
+
             - :math:`x = x_{i} \\qquad \\forall x_i \\in X`
-            
+
             - :math:`y = r \\sin\\left( \\frac{y_i}{r} \\right) \\qquad
               \\forall y_i \\in Y`
-              
+
             - :math:`z = -r \\cos\\left( \\frac{y_i}{r} \\right) \\qquad
               \\forall y_i \\in Y`
-              
+
         After transformation, the method also fills the numpy.ndarray
         "blade_coordinates_up" and "blade_coordinates_down" with the new
         :math:`(X, Y, Z)` coordinates.
@@ -255,29 +254,29 @@ class Blade(object):
         """
         Generate a bottom-up constructed propeller blade based on the airfoil
         transformations, see :ref:`mytransformation_operations`.
-        
+
         The order of the transformation operations is as follows:
-            
+
             1. Translate airfoils by reference points into origin.
-            
+
             2. Scale X, Y coordinates by a factor of the chord length. Also
                reflect the airfoils if necessary.
-               
+
             3. Rotate the airfoils counter-clockwise according to the local
                pitch angles. Beware of the orientation system.
-               
+
             4. Translate airfoils along X-axis by a magnitude of the local
                rake. Perform another translation for the skew-induced rake.
-               
+
             5. Translate airfoils along Y-axis by a magnitude of the skewness.
-            
+
             6. Transform the 2D airfoils into cylindrical sections, by laying
                each foil on a cylinder of radius equals to the section radius,
                and the cylinder axis is the propeller axis of rotation.
-               
+
         :param bool reflect: if true, then reflect the coordinates of all the
             airfoils about both X-axis and Y-axis. Default value is True.
-        
+
         We note that the implemented transformation operations with the current
         Cartesian coordinate system shown in :ref:`mytransformation_operations`
         assumes a right-handed propeller. In case of a desired left-handed
@@ -318,36 +317,36 @@ class Blade(object):
         """
         3D counter clockwise rotation about the X-axis of the Cartesian
         coordinate system, which is the axis of rotation of the propeller hub.
-        
+
         The rotation matrix, :math:`R(\\theta)`, is used to perform rotation
         in the 3D Euclidean space about the X-axis, which is -- by default --
         the propeller axis of rotation.
-        
+
         :math:`R(\\theta)` is defined by:
-            
+
         .. math::
              \\left(\\begin{matrix} 1 & 0 & 0 \\\\
              0 & cos (\\theta) & - sin (\\theta) \\\\
              0 & sin (\\theta) & cos (\\theta) \\end{matrix}\\right)
-                 
+
         Given the coordinates of point :math:`P` such that
-        
+
         .. math::
             P = \\left(\\begin{matrix} x \\\\
             y \\\\ z \\end{matrix}\\right),
-                
+
         Then, the rotated coordinates will be:
-            
+
         .. math::
             P^{'} = \\left(\\begin{matrix} x^{'} \\\\
                      y^{'} \\\\ z^{'} \\end{matrix}\\right)
                   = R (\\theta) \\cdot P
-                  
+
         :param float deg_angle: angle in degrees. Default value is None
         :param float rad_angle: angle in radians. Default value is None
         :raises ValueError: if both rad_angle and deg_angle are inserted,
             or if neither is inserted
-            
+
         """
         if not self.blade_coordinates_up:
             raise ValueError('You must apply transformations before rotation.')
@@ -394,7 +393,7 @@ class Blade(object):
     def plot(self, elev=None, azim=None, ax=None, outfile=None):
         """
         Plot the generated blade sections.
-        
+
         :param int elev: set the view elevation of the axes. This can be used
             to rotate the axes programatically. 'elev' stores the elevation
             angle in the z plane. If elev is None, then the initial value is
@@ -412,11 +411,11 @@ class Blade(object):
             figure axes. Default value is None
         :param string outfile: save the plot if a filename string is provided.
             Default value is None
-            
+
         EXAMPLE:
         Assume we already have the arrays radii, chord, pitch, rake, skew for
         10 blade sections.
-        
+
         >>> sections_1 = np.asarray([blade.NacaProfile(digits='0012')
                             for i in range(10)])
         >>> blade_1 = blade.Blade(sections=sections,
@@ -426,7 +425,7 @@ class Blade(object):
                                   rake=rake,
                                   skew_angles=skew)
         >>> blade_1.apply_transformations()
-        
+
         >>> sections_2 = np.asarray([blade.NacaProfile(digits='0012')
                             for i in range(10)])
         >>> blade_2 = blade.Blade(sections=sections,
@@ -437,16 +436,16 @@ class Blade(object):
                                   skew_angles=skew)
         >>> blade_2.apply_transformations()
         >>> blade_2.rotate(rot_angle_deg=72)
-        
+
         >>> fig = plt.figure()
         >>> ax = fig.gca(projection=Axes3D.name)
         >>> blade_1.plot(ax=ax)
         >>> blade_2.plot(ax=ax)
-        
+
         On the other hand, if we need to plot for a single blade object,
         we can just ignore such parameter, and the method will internally
         create a new instance for the figure axes, i.e.
-        
+
         >>> sections = np.asarray([blade.NacaProfile(digits='0012')
                             for i in range(10)])
         >>> blade = blade.Blade(sections=sections,
@@ -509,7 +508,7 @@ class Blade(object):
     def _generate_upper_face(self, max_deg):
         """
         Private method to generate the blade upper face.
-        
+
         :param int max_deg: Define the maximal U degree of generated surface
         """
         self._import_occ_libs()
@@ -547,7 +546,7 @@ class Blade(object):
     def _generate_lower_face(self, max_deg):
         """
         Private method to generate the blade lower face.
-        
+
         :param int max_deg: Define the maximal U degree of generated surface
         """
         self._import_occ_libs()
@@ -585,7 +584,7 @@ class Blade(object):
     def _generate_tip(self, max_deg):
         """
         Private method to generate the surface that closing the blade tip.
-        
+
         :param int max_deg: Define the maximal U degree of generated surface
         """
         self._import_occ_libs()
@@ -681,7 +680,7 @@ class Blade(object):
         Private method to write the errors between the generated foil points in
         3D space from the parametric transformations, and their projections on
         the generated blade faces from the OCC algorithm.
-        
+
         :param string upper_face: if string is passed then the method generates
             the blade upper surface using the BRepOffsetAPI_ThruSections
             algorithm, then exports the generated CAD into .iges file holding
@@ -768,7 +767,7 @@ class Blade(object):
         """
         Generate and export the .iges CAD for the blade upper face, lower face,
         tip and root. This method requires PythonOCC (7.4.0) to be installed.
-        
+
         :param string upper_face: if string is passed then the method generates
             the blade upper surface using the BRepOffsetAPI_ThruSections
             algorithm, then exports the generated CAD into .iges file holding
@@ -795,7 +794,7 @@ class Blade(object):
             the distances between each discrete point used to construct the
             blade and the nearest point on the CAD that is perpendicular to
             that point. Default value is None
-            
+
         We note that the blade object must have its radial sections be arranged
         in order from the blade root to the blade tip, so that generate_iges
         method can build the CAD surface that passes through the corresponding
@@ -831,7 +830,7 @@ class Blade(object):
             iges_writer = IGESControl_Writer()
             iges_writer.AddShape(self.generated_tip)
             iges_writer.Write(tip + '.iges')
-        
+
         if root:
             self._check_string(filename=root)
             self._generate_root(max_deg=max_deg)
@@ -839,7 +838,7 @@ class Blade(object):
             iges_writer = IGESControl_Writer()
             iges_writer.AddShape(self.generated_root)
             iges_writer.Write(root + '.iges')
-        
+
         if errors:
             # Write out errors between discrete points and constructed faces
             self._check_string(filename=errors)
@@ -914,7 +913,7 @@ class Blade(object):
             display.DisplayShape(self.generated_tip, update=True)
             display.DisplayShape(self.generated_root, update=True)
             start_display()
-            
+
         sewer = BRepBuilderAPI_Sewing(1e-2)
         sewer.Add(self.generated_upper_face)
         sewer.Add(self.generated_lower_face)
@@ -937,9 +936,9 @@ class Blade(object):
         SALOME mesher project. Please refer to https://github.com/tpaviot
         and http://docs.salome-platform.org/7/gui/SMESH/index.html for
         further details.
-        
+
         This method requires PythonOCC and SMESH to be installed.
-        
+
         :param double min_length: smallest distance between two nodes. Default
             value is None
         :param double max_length: largest distance between two nodes. Default
@@ -947,7 +946,7 @@ class Blade(object):
         :param string outfile_stl: if string is passed then the method exports
             the generated 2D surface mesh into .stl file holding the name
             <outfile_stl>.stl. Default value is None
-            
+
         We note that since the current implementation performs triangulation
         based on a topological compound that combines the blade 3 generated
         shapes without "fusion", it may happen that the generated triangulation
@@ -1036,7 +1035,7 @@ class Blade(object):
             aMeshGen.Compute(aMesh, aMesh.GetShapeToMesh())
             # Export STL
             aMesh.ExportSTL(outfile_stl + '.stl', False)
-    
+
     def generate_stl(self, upper_face=None,
                       lower_face=None,
                       tip=None,
@@ -1047,7 +1046,7 @@ class Blade(object):
         """
         Generate and export the .STL files for upper face, lower face, tip
         and root. This method requires PythonOCC (7.4.0) to be installed.
-        
+
         :param string upper_face: if string is passed then the method generates
             the blade upper surface using the BRepOffsetAPI_ThruSections
             algorithm, then exports the generated CAD into .stl file holding
@@ -1074,7 +1073,7 @@ class Blade(object):
             the distances between each discrete point used to construct the
             blade and the nearest point on the CAD that is perpendicular to
             that point. Default value is None
-            
+
         We note that the blade object must have its radial sections be arranged
         in order from the blade root to the blade tip, so that generate_stl
         method can build the CAD surface that passes through the corresponding
@@ -1084,31 +1083,31 @@ class Blade(object):
         import os
         from OCC.Extend.DataExchange import write_stl_file
         from OCC.Display.SimpleGui import init_display
-        
+
         if upper_face:
             self._check_string(filename=upper_face)
             self._generate_upper_face(max_deg=max_deg)
             # Write STL
             write_stl_file(self.generated_upper_face, upper_face + '.stl')
-        
+
         if lower_face:
             self._check_string(filename=lower_face)
             self._generate_lower_face(max_deg=max_deg)
             # Write STL
             write_stl_file(self.generated_lower_face, lower_face + '.stl')
-        
+
         if tip:
             self._check_string(filename=tip)
             self._generate_tip(max_deg=max_deg)
             # Write STL
             write_stl_file(self.generated_tip, tip + '.stl')
- 
+
         if root:
             self._check_string(filename=root)
             self._generate_root(max_deg=max_deg)
             # Write STL
             write_stl_file(self.generated_root, root + '.stl')
-            
+
         if errors:
             # Write out errors between discrete points and constructed faces
             self._check_string(filename=errors)
@@ -1132,13 +1131,13 @@ class Blade(object):
                 display.DisplayShape(self.generated_root, update=True)
             start_display()
 
-        
-    
+
+
     @staticmethod
     def _check_string(filename):
         """
         Private method to check if the parameter type is string
-        
+
         :param string filename: filename of the generated .iges surface
         """
         if not isinstance(filename, str):
@@ -1149,7 +1148,7 @@ class Blade(object):
         """
         Private method to check if either the blade upper face or lower face
         is passed in the generate_iges method. Otherwise it raises an exception
-        
+
         :param string upper_face: blade upper face.
         :param string lower_face: blade lower face.
         """
@@ -1160,7 +1159,7 @@ class Blade(object):
     def _abs_to_norm(self, D_prop):
         """
         Private method to normalize the blade parameters.
-        
+
         :param float D_prop: propeller diameter
         """
         self.radii = self.radii * 2. / D_prop
@@ -1172,7 +1171,7 @@ class Blade(object):
         """
         Private method that converts the normalized blade parameters into the
         actual values.
-        
+
         :param float D_prop: propeller diameter
         """
         self.radii = self.radii * D_prop / 2.
@@ -1189,7 +1188,7 @@ class Blade(object):
         """
         Export the generated blade parameters and sectional profiles into
         .ppg format.
-        
+
         :param string filename: name of the exported file. Default is
             'data/data_out.ppg'
         :param float D_prop: propeller diameter
