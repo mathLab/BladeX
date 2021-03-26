@@ -5,7 +5,7 @@ import numpy as np
 import os
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
-from OCC.TopoDS import TopoDS_Shape
+from OCC.Core.TopoDS import TopoDS_Shape, TopoDS_Solid
 
 
 def create_sample_blade_NACA():
@@ -278,6 +278,10 @@ class TestBlade(TestCase):
         blade = create_sample_blade_NACA()
         assert blade.generated_tip == None
 
+    def test_blade_generated_root_init(self):
+        blade = create_sample_blade_NACA()
+        assert blade.generated_root == None
+
     def test_planar_to_cylindrical_blade_up(self):
         blade = create_sample_blade_NACA()
         blade._planar_to_cylindrical()
@@ -473,6 +477,7 @@ class TestBlade(TestCase):
                 upper_face=upper,
                 lower_face=None,
                 tip=None,
+                root=None,
                 display=False,
                 errors=None)
 
@@ -485,6 +490,7 @@ class TestBlade(TestCase):
                 upper_face=None,
                 lower_face=lower,
                 tip=None,
+                root=None,
                 display=False,
                 errors=None)
 
@@ -497,6 +503,7 @@ class TestBlade(TestCase):
                 upper_face=None,
                 lower_face=None,
                 tip=tip,
+                root=None,
                 display=False,
                 errors=None)
 
@@ -507,12 +514,39 @@ class TestBlade(TestCase):
             upper_face=None,
             lower_face=None,
             tip='tests/test_datasets/tip',
+            root=None,
             display=False,
             errors=None)
         self.assertTrue(os.path.isfile('tests/test_datasets/tip.iges'))
         self.addCleanup(os.remove, 'tests/test_datasets/tip.iges')
 
-    def test_iges_blade_maxDeg_exception(self):
+    def test_iges_root_not_string(self):
+        blade = create_sample_blade_NACA()
+        blade.apply_transformations()
+        root = 1
+        with self.assertRaises(Exception):
+            blade.generate_iges(
+                upper_face=None,
+                lower_face=None,
+                tip=None,
+                root=root,
+                display=False,
+                errors=None)
+
+    def test_iges_blade_root_generate(self):
+        blade = create_sample_blade_NACA()
+        blade.apply_transformations()
+        blade.generate_iges(
+            upper_face=None,
+            lower_face=None,
+            tip=None,
+            root='tests/test_datasets/root',
+            display=False,
+            errors=None)
+        self.assertTrue(os.path.isfile('tests/test_datasets/root.iges'))
+        self.addCleanup(os.remove, 'tests/test_datasets/root.iges')
+
+    def test_iges_blade_max_deg_exception(self):
         blade = create_sample_blade_NACA()
         blade.apply_transformations()
         with self.assertRaises(ValueError):
@@ -520,7 +554,8 @@ class TestBlade(TestCase):
                 upper_face=None,
                 lower_face=None,
                 tip=None,
-                maxDeg=-1,
+                root=None,
+                max_deg=-1,
                 display=False,
                 errors=None)
 
@@ -532,6 +567,7 @@ class TestBlade(TestCase):
                 upper_face=None,
                 lower_face=None,
                 tip=None,
+                root=None,
                 display=False,
                 errors='tests/test_datasets/errors')
 
@@ -542,6 +578,7 @@ class TestBlade(TestCase):
             upper_face='tests/test_datasets/upper',
             lower_face=None,
             tip=None,
+            root=None,
             display=False,
             errors='tests/test_datasets/errors')
         self.assertTrue(os.path.isfile('tests/test_datasets/upper.iges'))
@@ -556,6 +593,7 @@ class TestBlade(TestCase):
             upper_face=None,
             lower_face='tests/test_datasets/lower',
             tip=None,
+            root=None,
             display=False,
             errors='tests/test_datasets/errors')
         self.assertTrue(os.path.isfile('tests/test_datasets/lower.iges'))
@@ -563,47 +601,205 @@ class TestBlade(TestCase):
         self.assertTrue(os.path.isfile('tests/test_datasets/errors.txt'))
         self.addCleanup(os.remove, 'tests/test_datasets/errors.txt')
 
-    def test_stl_exception_1(self):
+    def test_stl_upper_blade_not_string(self):
+        blade = create_sample_blade_NACA()
+        blade.apply_transformations()
+        upper = 1
+        with self.assertRaises(Exception):
+            blade.generate_stl(
+                upper_face=upper,
+                lower_face=None,
+                tip=None,
+                root=None,
+                display=False,
+                errors=None)
+
+    def test_stl_lower_blade_not_string(self):
+        blade = create_sample_blade_NACA()
+        blade.apply_transformations()
+        lower = 1
+        with self.assertRaises(Exception):
+            blade.generate_stl(
+                upper_face=None,
+                lower_face=lower,
+                tip=None,
+                root=None,
+                display=False,
+                errors=None)
+
+    def test_stl_tip_not_string(self):
+        blade = create_sample_blade_NACA()
+        blade.apply_transformations()
+        tip = 1
+        with self.assertRaises(Exception):
+            blade.generate_stl(
+                upper_face=None,
+                lower_face=None,
+                tip=tip,
+                root=None,
+                display=False,
+                errors=None)
+
+    def test_stl_blade_tip_generate(self):
+        blade = create_sample_blade_NACA()
+        blade.apply_transformations()
+        blade.generate_stl(
+            upper_face=None,
+            lower_face=None,
+            tip='tests/test_datasets/tip',
+            root=None,
+            display=False,
+            errors=None)
+        self.assertTrue(os.path.isfile('tests/test_datasets/tip.stl'))
+        self.addCleanup(os.remove, 'tests/test_datasets/tip.stl')
+
+    def test_stl_root_not_string(self):
+        blade = create_sample_blade_NACA()
+        blade.apply_transformations()
+        root = 1
+        with self.assertRaises(Exception):
+            blade.generate_stl(
+                upper_face=None,
+                lower_face=None,
+                tip=None,
+                root=root,
+                display=False,
+                errors=None)
+
+    def test_stl_blade_root_generate(self):
+        blade = create_sample_blade_NACA()
+        blade.apply_transformations()
+        blade.generate_stl(
+            upper_face=None,
+            lower_face=None,
+            tip=None,
+            root='tests/test_datasets/root',
+            display=False,
+            errors=None)
+        self.assertTrue(os.path.isfile('tests/test_datasets/root.stl'))
+        self.addCleanup(os.remove, 'tests/test_datasets/root.stl')
+
+    def test_stl_blade_max_deg_exception(self):
         blade = create_sample_blade_NACA()
         blade.apply_transformations()
         with self.assertRaises(ValueError):
-            blade.generate_stl(min_length=-1, max_length=1, outfile_stl=None)
+            blade.generate_stl(
+                upper_face=None,
+                lower_face=None,
+                tip=None,
+                root=None,
+                max_deg=-1,
+                display=False,
+                errors=None)
 
-    def test_stl_exception_2(self):
+    def test_stl_errors_exception(self):
         blade = create_sample_blade_NACA()
         blade.apply_transformations()
         with self.assertRaises(ValueError):
-            blade.generate_stl(min_length=2, max_length=1, outfile_stl=None)
+            blade.generate_stl(
+                upper_face=None,
+                lower_face=None,
+                tip=None,
+                root=None,
+                display=False,
+                errors='tests/test_datasets/errors')
 
-    def test_stl_generated_upper(self):
+    def test_stl_generate_errors_upper(self):
+        blade = create_sample_blade_NACA_10()
+        blade.apply_transformations()
+        blade.generate_stl(
+            upper_face='tests/test_datasets/upper',
+            lower_face=None,
+            tip=None,
+            root=None,
+            display=False,
+            errors='tests/test_datasets/errors')
+        self.assertTrue(os.path.isfile('tests/test_datasets/upper.stl'))
+        self.addCleanup(os.remove, 'tests/test_datasets/upper.stl')
+        self.assertTrue(os.path.isfile('tests/test_datasets/errors.txt'))
+        self.addCleanup(os.remove, 'tests/test_datasets/errors.txt')
+
+    def test_stl_generate_errors_lower(self):
+        blade = create_sample_blade_NACA_10()
+        blade.apply_transformations()
+        blade.generate_stl(
+            upper_face=None,
+            lower_face='tests/test_datasets/lower',
+            tip=None,
+            root=None,
+            display=False,
+            errors='tests/test_datasets/errors')
+        self.assertTrue(os.path.isfile('tests/test_datasets/lower.stl'))
+        self.addCleanup(os.remove, 'tests/test_datasets/lower.stl')
+        self.assertTrue(os.path.isfile('tests/test_datasets/errors.txt'))
+        self.addCleanup(os.remove, 'tests/test_datasets/errors.txt')
+
+    def test_stl_smesh_exception_1(self):
+        blade = create_sample_blade_NACA()
+        blade.apply_transformations()
+        with self.assertRaises(ValueError):
+            blade.generate_stl_smesh(min_length=-1, max_length=1, outfile_stl=None)
+
+    def test_stl_smesh_exception_2(self):
+        blade = create_sample_blade_NACA()
+        blade.apply_transformations()
+        with self.assertRaises(ValueError):
+            blade.generate_stl_smesh(min_length=2, max_length=1, outfile_stl=None)
+
+    def test_stl_smesh_generated_upper(self):
         # Requires OCC to be installed
         blade = create_sample_blade_NACA()
         blade.apply_transformations()
         blade.generated_upper_face = 5
-        blade.generate_stl(min_length=1, max_length=10, outfile_stl=None)
+        blade.generate_stl_smesh(min_length=1, max_length=10, outfile_stl=None)
         self.assertIsInstance(blade.generated_upper_face, TopoDS_Shape)
 
-    def test_stl_generated_lower(self):
+    def test_stl_smesh_generated_lower(self):
         # Requires OCC to be installed
         blade = create_sample_blade_NACA()
         blade.apply_transformations()
         blade.generated_lower_face = None
-        blade.generate_stl(min_length=1, max_length=10, outfile_stl=None)
+        blade.generate_stl_smesh(min_length=1, max_length=10, outfile_stl=None)
         self.assertIsInstance(blade.generated_lower_face, TopoDS_Shape)
 
-    def test_stl_generated_tip(self):
+    def test_stl_smesh_generated_tip(self):
         # Requires OCC to be installed
         blade = create_sample_blade_NACA()
         blade.apply_transformations()
         blade.generated_tip = 0
-        blade.generate_stl(min_length=1, max_length=10, outfile_stl=None)
+        blade.generate_stl_smesh(min_length=1, max_length=10, outfile_stl=None)
         self.assertIsInstance(blade.generated_tip, TopoDS_Shape)
 
-    def test_stl_export_exception(self):
+    def test_stl_smesh_export_exception(self):
         blade = create_sample_blade_NACA()
         blade.apply_transformations()
         with self.assertRaises(ValueError):
-            blade.generate_stl(min_length=1, max_length=10, outfile_stl=55)
+            blade.generate_stl_smesh(min_length=1, max_length=10, outfile_stl=55)
+
+    def test_blade_solid_max_deg_exception(self):
+        blade = create_sample_blade_NACA()
+        blade.apply_transformations()
+        with self.assertRaises(ValueError):
+            blade.generate_blade_solid(
+                max_deg=-1,
+                display=False,
+                errors=None)
+
+    def test_blade_solid_errors_exception(self):
+        blade = create_sample_blade_NACA()
+        blade.apply_transformations()
+        with self.assertRaises(ValueError):
+            blade.generate_blade_solid(
+                max_deg=-1,
+                display=False,
+                errors='tests/test_datasets/errors')
+
+    def test_generate_blade_solid(self):
+        blade = create_sample_blade_NACA()
+        blade.apply_transformations()
+        blade_solid = blade.generate_blade_solid(max_deg=2, display=False, 
+                                                 errors=None)
+        self.assertIsInstance(blade_solid, TopoDS_Solid)
 
     def test_abs_to_norm_radii(self):
         blade = create_sample_blade_NACA()
