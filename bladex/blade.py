@@ -226,22 +226,22 @@ class Blade(object):
             - :math:`y = r \\sin\\left( \\frac{y_i}{r} \\right) \\qquad
               \\forall y_i \\in Y`
 
-            - :math:`z = -r \\cos\\left( \\frac{y_i}{r} \\right) \\qquad
+            - :math:`z = r \\cos\\left( \\frac{y_i}{r} \\right) \\qquad
               \\forall y_i \\in Y`
 
         After transformation, the method also fills the numpy.ndarray
         "blade_coordinates_up" and "blade_coordinates_down" with the new
         :math:`(X, Y, Z)` coordinates.
         """
-        for section, radius in zip(self.sections, self.radii):
+        for section, radius in zip(self.sections[::-1], self.radii[::-1]):
             theta_up = section.yup_coordinates / radius
             theta_down = section.ydown_coordinates / radius
 
             y_section_up = radius * np.sin(theta_up)
             y_section_down = radius * np.sin(theta_down)
 
-            z_section_up = -radius * np.cos(theta_up)
-            z_section_down = -radius * np.cos(theta_down)
+            z_section_up = radius * np.cos(theta_up)
+            z_section_down = radius * np.cos(theta_down)
 
             self.blade_coordinates_up.append(
                 np.array([section.xup_coordinates, y_section_up, z_section_up]))
@@ -464,7 +464,7 @@ class Blade(object):
         else:
             fig = plt.figure()
             ax = fig.gca(projection=Axes3D.name)
-        ax.set_aspect('equal')
+        ax.set_aspect('auto')
 
         for i in range(self.n_sections):
             ax.plot(self.blade_coordinates_up[i][0],
@@ -474,7 +474,7 @@ class Blade(object):
                     self.blade_coordinates_down[i][1],
                     self.blade_coordinates_down[i][2])
 
-        plt.axis('equal')
+        plt.axis('auto')
         ax.set_xlabel('X axis')
         ax.set_ylabel('Y axis')
         ax.set_zlabel('radii axis')

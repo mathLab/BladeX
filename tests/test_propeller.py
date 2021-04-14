@@ -132,12 +132,18 @@ class TestPropeller(TestCase):
         with self.assertRaises(Exception):
             prop.generate_propeller(propeller_and_shaft)
 
-    def test_generate_propeller(self):
+    def test_generate_propeller_iges(self):
         sh = Shaft("tests/test_datasets/shaft.iges")
-        prop = create_sample_blade_NACApptc()                                      errors=None)
+        prop = create_sample_blade_NACApptc()
         prop = Propeller(sh, prop, 4)
-        prop.generate_propeller("tests/test_datasets/propeller_and_shaft")
+        prop.generate_propeller_iges("tests/test_datasets/propeller_and_shaft")
         self.assertTrue(os.path.isfile('tests/test_datasets/propeller_and_shaft.iges'))
         self.addCleanup(os.remove, 'tests/test_datasets/propeller_and_shaft.iges')
+
+    def test_generate_propeller_stl(self):
+        sh = Shaft("tests/test_datasets/shaft.iges")
+        prop = create_sample_blade_NACApptc()
+        prop = Propeller(sh, prop, 4)
+        prop.generate_propeller_stl("tests/test_datasets/propeller_and_shaft")
         self.assertTrue(os.path.isfile('tests/test_datasets/propeller_and_shaft.stl'))
         self.addCleanup(os.remove, 'tests/test_datasets/propeller_and_shaft.stl')
