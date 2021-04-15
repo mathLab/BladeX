@@ -19,9 +19,9 @@ class Propeller(object):
 
     :param shaft.Shaft shaft: shaft to be added to the propeller
     :param blade.Blade blade: blade of the propeller
-    :param int n_blades: number of blades componing the propeller
+    :param int n_blades: number of blades composing the propeller
     :cvar OCC.Core.TopoDS.TopoDS_Solid shaft_solid: solid shaft
-    :cvar OCC.Core.TopoDS.TopoDS_Shell: propeller with shaft shell
+    :cvar OCC.Core.TopoDS.TopoDS_Shell sewed_full_body: propeller with shaft shell
     """
 
     def __init__(self, shaft, blade, n_blades):
@@ -70,7 +70,7 @@ class Propeller(object):
         Export the .stl CAD for the propeller with shaft.
 
         :param string filename: path (with the file extension) where to store 
-        the .stl CAD for the propeller and shaft
+            the .stl CAD for the propeller and shaft
         :raises RuntimeError: if the solid assembling of blades is not 
             completed successfully
         """

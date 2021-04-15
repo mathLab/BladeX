@@ -8,6 +8,8 @@ class Shaft(object):
     """
     Bottom-up parametrized shaft construction.
 
+    :param string filename: path (with the file extension) of a .iges file with 
+        stored shaft information.
     :cvar string filename: path (with the file extension) of a .iges file with 
         stored shaft information.
     """
