@@ -15,28 +15,27 @@ from OCC.Display.SimpleGui import init_display
 class Propeller(object):
     """
     Bottom-up parametrized propeller (including shaft) construction.
+    The constructor requires PythonOCC to be installed.
 
     :param shaft.Shaft shaft: shaft to be added to the propeller
     :param blade.Blade blade: blade of the propeller
     :param int n_blades: number of blades componing the propeller
+    :cvar OCC.Core.TopoDS.TopoDS_Solid shaft_solid: solid shaft
+    :cvar OCC.Core.TopoDS.TopoDS_Shell: propeller with shaft shell
     """
 
     def __init__(self, shaft, blade, n_blades):
-        self.shaft_solid = shaft.generate_shaft_solid()
+        self.shaft_solid = shaft.generate_solid()
         blade.apply_transformations(reflect=True)
-        blade_solid = blade.generate_blade_solid(max_deg=2,
-                                                 display=False,
-                                                 errors=None)
+        blade_solid = blade.generate_solid(max_deg=2, 
+                                           display=False, 
+                                           errors=None)
         blades = []
         blades.append(blade_solid)
         for i in range(n_blades-1):
-            rot_dir = gp_Dir(1.0, 0.0, 0.0)
-            origin = gp_Pnt(0.0, 0.0, 0.0)        
-            rot_axis = gp_Ax1(origin, rot_dir)
-            transf = gp_Trsf()
-            transf.SetRotation(rot_axis, float(i+1)*2.0*np.pi/float(n_blades));
-            transformer = BRepBuilderAPI_Transform(blade_solid, transf);
-            blades.append(transformer.Shape())
+            blade.rotate(rad_angle=1.0*2.0*np.pi/float(n_blades))
+            blade_solid = blade.generate_solid(max_deg=2, display=False, errors=None)
+            blades.append(blade_solid)
         blades_combined = blades[0]
         for i in range(len(blades)-1):
             boolean_union = BRepAlgoAPI_Fuse(blades_combined, blades[i+1])
@@ -53,40 +52,34 @@ class Propeller(object):
         sewer.Perform()
         self.sewed_full_body = sewer.SewedShape()
 
-    def generate_propeller_iges(self, propeller_and_shaft, display=False):
+    def generate_iges(self, filename):
         """
-        Export and plot the .iges CAD for the propeller with shaft.
-        This method requires PythonOCC to be installed.
+        Export the .iges CAD for the propeller with shaft.
 
+        :param string filename: path (with the file extension) where to store 
+            the .iges CAD for the propeller and shaft
         :raises RuntimeError: if the solid assembling of blades is not 
             completed successfully
-        :param string propeller_and_shaft: path where to store the .iges CAD 
-            for the propeller and shaft
-        :param bool display: if True, then display the propeller with shaft. 
-            Default value is False
         """
         iges_writer = IGESControl_Writer()
         iges_writer.AddShape(self.sewed_full_body)
-        iges_writer.Write(propeller_and_shaft + '.iges')
-        if display:
-            display, start_display, add_menu, add_function_to_menu = init_display()
-            display.DisplayShape(self.sewed_full_body, update=True)
-            start_display()
+        iges_writer.Write(filename)
 
-    def generate_propeller_stl(self, propeller_and_shaft, display=False):
+    def generate_stl(self, filename):
         """
-        Export and plot the .stl CAD for the propeller with shaft.
-        This method requires PythonOCC and numpy-stl to be installed.
+        Export the .stl CAD for the propeller with shaft.
 
+        :param string filename: path (with the file extension) where to store 
+        the .stl CAD for the propeller and shaft
         :raises RuntimeError: if the solid assembling of blades is not 
             completed successfully
-        :param string propeller_and_shaft: path where to store the .stl CAD 
-            for the propeller and shaft
-        :param bool display: if True, then display the propeller with shaft. 
-            Default value is False
         """
-        write_stl_file(self.sewed_full_body, propeller_and_shaft + '.stl')
-        if display:
-            display, start_display, add_menu, add_function_to_menu = init_display()
-            display.DisplayShape(self.sewed_full_body, update=True)
-            start_display()
+        write_stl_file(self.sewed_full_body, filename)
+
+    def display(self):
+        """
+        Display the propeller with shaft.
+        """
+        display, start_display, add_menu, add_function_to_menu = init_display()
+        display.DisplayShape(self.sewed_full_body, update=True)
+        start_display()

@@ -8,19 +8,17 @@ class Shaft(object):
     """
     Bottom-up parametrized shaft construction.
 
-    :param string shaft_path: path of a .iges file with stored shaft information.
-    :param bool display: if True, then display the shaft. Default value is False.
+    :cvar string filename: path (with the file extension) of a .iges file with 
+        stored shaft information.
     """
 
-    def __init__(self, shaft_path, display=False):
-        self.shaft_path = shaft_path
-        self.display = display
+    def __init__(self, filename):
+        self.filename = filename
 
-    def generate_shaft_solid(self):
+    def generate_solid(self):
         """
-        Generate an assembled solid shaft using the 
-        BRepBuilderAPI_MakeSolid  algorithm. 
-        This method requires PythonOCC to be installed.
+        Generate an assembled solid shaft using the BRepBuilderAPI_MakeSolid  
+        algorithm. This method requires PythonOCC to be installed.
 
         :raises RuntimeError: if the assembling of the solid shaft is not 
             completed successfully
@@ -28,7 +26,7 @@ class Shaft(object):
         :rtype: OCC.Core.TopoDS.TopoDS_Solid
         """
         iges_reader = IGESControl_Reader()
-        iges_reader.ReadFile(self.shaft_path)
+        iges_reader.ReadFile(self.filename)
         iges_reader.TransferRoots()
         shaft_compound = iges_reader.Shape()
         sewer = BRepBuilderAPI_Sewing(1e-2)
@@ -40,8 +38,13 @@ class Shaft(object):
         if not shaft_solid_maker.IsDone():
             raise RuntimeError('Unsuccessful assembling of solid shaft')
         shaft_solid = shaft_solid_maker.Solid()
-        if self.display:
-            display, start_display, add_menu, add_function_to_menu = init_display()
-            display.DisplayShape(shaft_solid, update=True)
-            start_display()
         return shaft_solid
+
+    def display(self):
+        """
+        Display the shaft.
+        """
+        shaft_solid = self.generate_solid()
+        display, start_display, add_menu, add_function_to_menu = init_display()
+        display.DisplayShape(shaft_solid, update=True)
+        start_display()

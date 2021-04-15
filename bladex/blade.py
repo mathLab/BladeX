@@ -862,7 +862,7 @@ class Blade(object):
                 display.DisplayShape(self.generated_root, update=True)
             start_display()
 
-    def generate_blade_solid(self,
+    def generate_solid(self,
                              max_deg=1,
                              display=False,
                              errors=None):

@@ -8,7 +8,11 @@ class TestShaft(TestCase):
     Test case for the Shaft class.
     """
 
-    def test_generate_shaft_solid(self):
+    def test_generate_solid(self):
         sh = Shaft("tests/test_datasets/shaft.iges")
-        shaft_solid = sh.generate_shaft_solid()
+        shaft_solid = sh.generate_solid()
         self.assertIsInstance(shaft_solid, TopoDS_Solid)
+
+    def test_display(self):
+        sh = Shaft("tests/test_datasets/shaft.iges")
+        sh.display()

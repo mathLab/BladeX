@@ -124,26 +124,40 @@ class TestPropeller(TestCase):
         with self.assertRaises(ValueError):
             prop._check_params()
 
-    def test_generate_propeller_not_string(self):
+    def test_generate_iges_not_string(self):
         sh = Shaft("tests/test_datasets/shaft.iges")
         prop = create_sample_blade_NACApptc()
         prop = Propeller(sh, prop, 1)
         propeller_and_shaft = 1
         with self.assertRaises(Exception):
-            prop.generate_propeller(propeller_and_shaft)
+            prop.generate_iges(propeller_and_shaft)
 
-    def test_generate_propeller_iges(self):
+    def test_generate_stl_not_string(self):
+        sh = Shaft("tests/test_datasets/shaft.iges")
+        prop = create_sample_blade_NACApptc()
+        prop = Propeller(sh, prop, 1)
+        propeller_and_shaft = 1
+        with self.assertRaises(Exception):
+            prop.generate_stl(propeller_and_shaft)
+
+    def test_generate_iges(self):
         sh = Shaft("tests/test_datasets/shaft.iges")
         prop = create_sample_blade_NACApptc()
         prop = Propeller(sh, prop, 4)
-        prop.generate_propeller_iges("tests/test_datasets/propeller_and_shaft")
+        prop.generate_iges("tests/test_datasets/propeller_and_shaft.iges")
         self.assertTrue(os.path.isfile('tests/test_datasets/propeller_and_shaft.iges'))
         self.addCleanup(os.remove, 'tests/test_datasets/propeller_and_shaft.iges')
 
-    def test_generate_propeller_stl(self):
+    def test_generate_stl(self):
         sh = Shaft("tests/test_datasets/shaft.iges")
         prop = create_sample_blade_NACApptc()
         prop = Propeller(sh, prop, 4)
-        prop.generate_propeller_stl("tests/test_datasets/propeller_and_shaft")
+        prop.generate_stl("tests/test_datasets/propeller_and_shaft.stl")
         self.assertTrue(os.path.isfile('tests/test_datasets/propeller_and_shaft.stl'))
         self.addCleanup(os.remove, 'tests/test_datasets/propeller_and_shaft.stl')
+        
+    def test_display(self):
+        sh = Shaft("tests/test_datasets/shaft.iges")
+        prop = create_sample_blade_NACApptc()
+        prop = Propeller(sh, prop, 4)
+        prop.display()
