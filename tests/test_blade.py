@@ -776,28 +776,28 @@ class TestBlade(TestCase):
         with self.assertRaises(ValueError):
             blade.generate_stl_smesh(min_length=1, max_length=10, outfile_stl=55)
 
-    def test_blade_solid_max_deg_exception(self):
+    def test_solid_max_deg_exception(self):
         blade = create_sample_blade_NACA()
         blade.apply_transformations()
         with self.assertRaises(ValueError):
-            blade.generate_blade_solid(
+            blade.generate_solid(
                 max_deg=-1,
                 display=False,
                 errors=None)
 
-    def test_blade_solid_errors_exception(self):
+    def test_solid_errors_exception(self):
         blade = create_sample_blade_NACA()
         blade.apply_transformations()
         with self.assertRaises(ValueError):
-            blade.generate_blade_solid(
+            blade.generate_solid(
                 max_deg=-1,
                 display=False,
                 errors='tests/test_datasets/errors')
 
-    def test_generate_blade_solid(self):
+    def test_generate_solid(self):
         blade = create_sample_blade_NACA()
         blade.apply_transformations()
-        blade_solid = blade.generate_blade_solid(max_deg=2, display=False, 
+        blade_solid = blade.generate_solid(max_deg=2, display=False, 
                                                  errors=None)
         self.assertIsInstance(blade_solid, TopoDS_Solid)
 
