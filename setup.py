@@ -17,7 +17,6 @@ setup(
     classifiers=[
         'Development Status :: 5 - Production/Stable',
         'License :: OSI Approved :: MIT License',
-        'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3.6',
         'Intended Audience :: Science/Research',
         'Topic :: Scientific/Engineering :: Mathematics'
@@ -29,7 +28,7 @@ setup(
     license='MIT',
     packages=['bladex'],
     install_requires=[
-        'numpy', 'scipy', 'matplotlib', 'Sphinx==1.4', 'sphinx_rtd_theme'
+        'numpy', 'scipy', 'matplotlib', 'Sphinx', 'sphinx_rtd_theme'
     ],
     test_suite='nose.collector',
     tests_require=['nose'],

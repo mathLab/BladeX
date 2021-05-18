@@ -18,6 +18,10 @@ class TestShaft(TestCase):
         shaft_solid = sh.generate_solid()
         self.assertIsInstance(shaft_solid, TopoDS_Solid)
 
+    def test_exception(self):
+    	sh = Shaft("tests/test_datasets/parameters.prm")
+    	sh.generate_solid()
+
     def test_display_01(self):
         sh = Shaft("tests/test_datasets/shaft.iges")
         sh.display()
