@@ -1,5 +1,6 @@
 import os
 from OCC.Core.IGESControl import IGESControl_Reader
+from OCC.Extend.DataExchange import read_stl_file
 from OCC.Core.BRepBuilderAPI import BRepBuilderAPI_MakeSolid, BRepBuilderAPI_Sewing
 import OCC.Core.TopoDS
 from OCC.Display.SimpleGui import init_display
@@ -8,9 +9,9 @@ class Shaft(object):
     """
     Bottom-up parametrized shaft construction.
 
-    :param string filename: path (with the file extension) of a .iges file with 
+    :param string filename: path (with the file extension) of a .stl or .iges file with 
         stored shaft information.
-    :cvar string filename: path (with the file extension) of a .iges file with 
+    :cvar string filename: path (with the file extension) of a .stl or .iges file with 
         stored shaft information.
     """
 
@@ -27,10 +28,16 @@ class Shaft(object):
         :return: solid shaft
         :rtype: OCC.Core.TopoDS.TopoDS_Solid
         """
-        iges_reader = IGESControl_Reader()
-        iges_reader.ReadFile(self.filename)
-        iges_reader.TransferRoots()
-        shaft_compound = iges_reader.Shape()
+        ext = os.path.splitext(self.filename)[1][1:]
+        if ext == 'stl':
+        	shaft_compound = read_stl_file(self.filename)
+        elif ext == 'iges':
+        	iges_reader = IGESControl_Reader()
+        	iges_reader.ReadFile(self.filename)
+        	iges_reader.TransferRoots()
+        	shaft_compound = iges_reader.Shape()
+        else:
+        	raise Exception('The shaft file is not in iges/stl formats')
         sewer = BRepBuilderAPI_Sewing(1e-2)
         sewer.Add(shaft_compound)
         sewer.Perform()
