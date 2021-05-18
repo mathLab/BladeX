@@ -13,6 +13,7 @@ class Shaft(object):
         stored shaft information.
     :cvar string filename: path (with the file extension) of a .stl or .iges file with 
         stored shaft information.
+    :raises Exception: if the extension in the filename is not in .stl or .iges formats.
     """
 
     def __init__(self, filename):
