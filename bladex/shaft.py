@@ -29,13 +29,15 @@ class Shaft(object):
         :rtype: OCC.Core.TopoDS.TopoDS_Solid
         """
         ext = os.path.splitext(self.filename)[1][1:]
-        if ext=='stl':
+        if ext == 'stl':
         	shaft_compound = read_stl_file(self.filename)
-        elif ext=='iges':
+        elif ext == 'iges':
         	iges_reader = IGESControl_Reader()
         	iges_reader.ReadFile(self.filename)
         	iges_reader.TransferRoots()
         	shaft_compound = iges_reader.Shape()
+        else:
+        	raise Exception('The shaft file is not in iges/stl formats')
         sewer = BRepBuilderAPI_Sewing(1e-2)
         sewer.Add(shaft_compound)
         sewer.Perform()
