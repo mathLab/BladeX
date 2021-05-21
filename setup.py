@@ -1,5 +1,23 @@
 from setuptools import setup
+import os
+import sys
 
+meta = {}
+with open("bladex/meta.py") as fp:
+    exec(fp.read(), meta)
+
+# Package meta-data.
+NAME = meta['__title__']
+DESCRIPTION = 'Python Blade Morphing'
+URL = 'https://github.com/mathLab/BladeX'
+MAIL = meta['__mail__']
+AUTHOR = meta['__author__']
+VERSION = meta['__version__']
+KEYWORDS='blade-generation propeller iges procal'
+
+REQUIRED = [
+    'numpy', 'scipy', 'matplotlib', 'Sphinx', 'sphinx_rtd_theme',
+]
 
 def readme():
     """
@@ -8,29 +26,25 @@ def readme():
     with open('README.md') as f:
         return f.read()
 
-
 setup(
-    name='bladex',
-    version='0.1.0',
-    description='BladeX.',
+    name=NAME,
+    version=VERSION,
+    description=DESCRIPTION,
     long_description=readme(),
     classifiers=[
         'Development Status :: 5 - Production/Stable',
         'License :: OSI Approved :: MIT License',
-        'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3.6',
         'Intended Audience :: Science/Research',
         'Topic :: Scientific/Engineering :: Mathematics'
     ],
-    keywords='blade-generation propeller iges procal',
-    url='https://github.com/mathLab/BladeX',
-    author='Marco Tezzele, Mahmoud Gadalla',
-    author_email='marcotez@gmail.com, gadalla.mah@gmail.com',
+    keywords=KEYWORDS,
+    url=URL,
+    author=AUTHOR,
+    author_email=MAIL,
     license='MIT',
-    packages=['bladex'],
-    install_requires=[
-        'numpy', 'scipy', 'matplotlib', 'Sphinx==1.4', 'sphinx_rtd_theme'
-    ],
+    packages=[NAME],
+    install_requires=REQUIRED,
     test_suite='nose.collector',
     tests_require=['nose'],
     include_package_data=True,

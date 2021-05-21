@@ -3,6 +3,7 @@ BladeX init
 """
 __all__ = ['profilebase', 'profiles', 'blade', 'shaft', 'propeller', 'deform', 'params', 'ndinterpolator']
 
+from .meta import *
 from .profilebase import ProfileBase
 from .profiles import CustomProfile, NacaProfile
 from .blade import Blade

@@ -1,13 +1,9 @@
 """
 Module for the propeller with shaft bottom-up parametrized construction.
 """
-import os
 import numpy as np
-from bladex import Blade, Shaft
-import OCC.Core.TopoDS
-from OCC.Core.gp import gp_Dir, gp_Pnt, gp_Ax1, gp_Trsf
-from OCC.Core.IGESControl import IGESControl_Reader, IGESControl_Writer
-from OCC.Core.BRepBuilderAPI import BRepBuilderAPI_Transform, BRepBuilderAPI_Sewing
+from OCC.Core.IGESControl import IGESControl_Writer
+from OCC.Core.BRepBuilderAPI import BRepBuilderAPI_Sewing
 from OCC.Core.BRepAlgoAPI import BRepAlgoAPI_Fuse
 from OCC.Extend.DataExchange import write_stl_file
 from OCC.Display.SimpleGui import init_display
@@ -46,7 +42,6 @@ class Propeller(object):
         boolean_union = BRepAlgoAPI_Fuse(self.shaft_solid, blades_combined)
         boolean_union.Build()
         result_compound = boolean_union.Shape()
-        section_edges = boolean_union.SectionEdges()
         sewer = BRepBuilderAPI_Sewing(1e-2)
         sewer.Add(result_compound)
         sewer.Perform()
