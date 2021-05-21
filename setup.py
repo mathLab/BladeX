@@ -8,7 +8,7 @@ with open("bladex/meta.py") as fp:
 
 # Package meta-data.
 NAME = meta['__title__']
-DESCRIPTION = 'BladeX.'
+DESCRIPTION = 'Python Blade Morphing'
 URL = 'https://github.com/mathLab/BladeX'
 MAIL = meta['__mail__']
 AUTHOR = meta['__author__']
