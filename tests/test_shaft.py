@@ -22,15 +22,15 @@ class TestShaft(TestCase):
         sh = Shaft("tests/test_datasets/shaft.iges")
         sh.display()
 
+    def test_display_02(self):
+        sh = Shaft("tests/test_datasets/shaft.stl")
+        sh.display()
+
     def test_exception(self):
     	sh = Shaft("tests/test_datasets/parameters.prm")
     	with self.assertRaises(Exception):
             sh.generate_solid()
 
-    def test_display_02(self):
-        sh = Shaft("tests/test_datasets/shaft.stl")
-        sh.display()
-
     def test_init(self):
         sh = Shaft("tests/test_datasets/shaft.iges")
-        assert sh.filename == "data/shaft.iges"
+        assert sh.filename == "tests/test_datasets/shaft.iges"
