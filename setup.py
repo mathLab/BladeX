@@ -1,6 +1,4 @@
 from setuptools import setup
-import os
-import sys
 
 meta = {}
 with open("bladex/meta.py") as fp:
