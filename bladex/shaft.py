@@ -55,6 +55,6 @@ class Shaft(object):
         Display the shaft.
         """
         shaft_solid = self.generate_solid()
-        display, start_display, add_menu, add_function_to_menu = init_display()
+        display, start_display = init_display()[:2]
         display.DisplayShape(shaft_solid, update=True)
         start_display()
