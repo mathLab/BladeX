@@ -75,6 +75,6 @@ class Propeller(object):
         """
         Display the propeller with shaft.
         """
-        display, start_display, _, _ = init_display()
+        display, start_display = init_display()[:2]
         display.DisplayShape(self.sewed_full_body, update=True)
         start_display()
