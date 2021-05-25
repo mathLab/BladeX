@@ -8,7 +8,7 @@ from mpl_toolkits.mplot3d import Axes3D
 class Blade(object):
     """
     Bottom-up parametrized blade construction.
-    
+
     Given the following parameters of a propeller blade:
 
         - :math:`(X, Y)` coordinates of the blade cylindrical sections after
@@ -778,12 +778,12 @@ class Blade(object):
             the name <lower_face_string>.iges. Default value is None
         :param string tip: if string is passed then the method generates
             the blade tip using the BRepOffsetAPI_ThruSections algorithm
-            in order to close the blade at the tip, then exports the generated 
-            CAD into .iges file holding the name <tip_string>.iges. 
+            in order to close the blade at the tip, then exports the generated
+            CAD into .iges file holding the name <tip_string>.iges.
             Default value is None
         :param string root: if string is passed then the method generates
             the blade root using the BRepOffsetAPI_ThruSections algorithm
-            in order to close the blade at the root, then exports the generated 
+            in order to close the blade at the root, then exports the generated
             CAD into .iges file holding the name <tip_string>.iges. 
             Default value is None
         :param int max_deg: Define the maximal U degree of generated surface.
@@ -868,7 +868,7 @@ class Blade(object):
                              errors=None):
         """
         Generate a solid blade assembling the upper face, lower face, tip and
-        root using the BRepBuilderAPI_MakeSolid algorithm. 
+        root using the BRepBuilderAPI_MakeSolid algorithm.
         This method requires PythonOCC (7.4.0) to be installed.
 
         :param int max_deg: Define the maximal U degree of generated surface.
@@ -879,12 +879,11 @@ class Blade(object):
             the distances between each discrete point used to construct the
             blade and the nearest point on the CAD that is perpendicular to
             that point. Default value is None
-        :raises RuntimeError: if the assembling of the solid blade is not 
+        :raises RuntimeError: if the assembling of the solid blade is not
             completed successfully
         """
-        from OCC.Core.IGESControl import IGESControl_Writer
         from OCC.Display.SimpleGui import init_display
-        from OCC.Core.TopoDS import TopoDS_Shape, TopoDS_Shell
+        from OCC.Core.TopoDS import TopoDS_Shell
         import OCC.Core.TopoDS
 
         if max_deg <= 0:
@@ -926,7 +925,7 @@ class Blade(object):
         if not solid_maker.IsDone():
             raise RuntimeError('Unsuccessful assembling of solid blade')
         result_solid = solid_maker.Solid()
-       	return result_solid 
+       	return result_solid
 
     def generate_stl_smesh(self, min_length=None, max_length=None, outfile_stl=None):
         """
@@ -1012,11 +1011,8 @@ class Blade(object):
         # Longest distance between 2 points
         an1DHypothesis.SetLength(max_length, True)
         # Regular Interpolation
-        an1DAlgo = StdMeshers_Regular_1D(1, 0, aMeshGen)
         # Adding 2D hypothesis and algorithms
         # 2D surface mesh -- Triangulations
-        a2dHypothseis = StdMeshers_TrianglePreference(2, 0, aMeshGen)
-        a2dAlgo = StdMeshers_MEFISTO_2D(3, 0, aMeshGen)
 
         #Calculate mesh for the topological compound containing the 3 shapes
         aMesh.ShapeToMesh(aCompound)
@@ -1040,8 +1036,8 @@ class Blade(object):
                       lower_face=None,
                       tip=None,
                       root=None,
-                      max_deg=1, 
-                      display=False, 
+                      max_deg=1,
+                      display=False,
                       errors=None):
         """
         Generate and export the .STL files for upper face, lower face, tip
@@ -1057,7 +1053,7 @@ class Blade(object):
             the name <lower_face_string>.stl. Default value is None
         :param string tip: if string is passed then the method generates
             the blade tip using the BRepOffsetAPI_ThruSections algorithm
-            in order to close the blade at the tip, then exports the generated 
+            in order to close the blade at the tip, then exports the generated
             CAD into .stl file holding the name <tip_string>.stl. 
             Default value is None
         :param string root: if string is passed then the method generates
@@ -1080,7 +1076,6 @@ class Blade(object):
         airfoils. Also to be able to identify and close the blade tip and root.
         """
 
-        import os
         from OCC.Extend.DataExchange import write_stl_file
         from OCC.Display.SimpleGui import init_display
 
