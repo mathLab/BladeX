@@ -1079,6 +1079,9 @@ class Blade(object):
         from OCC.Extend.DataExchange import write_stl_file
         from OCC.Display.SimpleGui import init_display
 
+        if max_deg <= 0:
+            raise ValueError('max_deg argument must be a positive integer.')
+
         if upper_face:
             self._check_string(filename=upper_face)
             self._generate_upper_face(max_deg=max_deg)

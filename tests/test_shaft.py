@@ -26,3 +26,6 @@ class TestShaft(TestCase):
     def test_init(self):
         sh = Shaft("tests/test_datasets/shaft.iges")
         assert sh.filename == "tests/test_datasets/shaft.iges"
+
+    def test_isdisplay(self):
+        assert hasattr(Shaft, "display") == True

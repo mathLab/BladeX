@@ -155,3 +155,6 @@ class TestPropeller(TestCase):
         prop.generate_stl("tests/test_datasets/propeller_and_shaft.stl")
         self.assertTrue(os.path.isfile('tests/test_datasets/propeller_and_shaft.stl'))
         self.addCleanup(os.remove, 'tests/test_datasets/propeller_and_shaft.stl')
+
+    def test_isdisplay(self):
+        assert hasattr(Propeller, "display") == True
