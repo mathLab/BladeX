@@ -54,7 +54,7 @@ install:
     - echo $DYLD_LIBRARY_PATH
     - echo $PATH
     - python --version
-    - conda install --yes -c conda-forge pythonocc-core=7.4.0 smesh numpy scipy matplotlib pip nose sip=4.18 setuptools coveralls python=3.7;
+    - conda install --yes -c conda-forge pythonocc-core=7.4.0 numpy scipy matplotlib pip nose sip=4.18 setuptools coveralls python=3.7;
     - python setup.py install
 
 script:

@@ -927,111 +927,6 @@ class Blade(object):
         result_solid = solid_maker.Solid()
        	return result_solid
 
-    def generate_stl_smesh(self, min_length=None, max_length=None, outfile_stl=None):
-        """
-        Generate and export the .STL surface mesh for the blade as a whole,
-        including the upper face, lower face and tip. The method utilizes
-        modules from OCC SMESH which is standalone mesh framework based on
-        SALOME mesher project. Please refer to https://github.com/tpaviot
-        and http://docs.salome-platform.org/7/gui/SMESH/index.html for
-        further details.
-
-        This method requires PythonOCC and SMESH to be installed.
-
-        :param double min_length: smallest distance between two nodes. Default
-            value is None
-        :param double max_length: largest distance between two nodes. Default
-            value is None
-        :param string outfile_stl: if string is passed then the method exports
-            the generated 2D surface mesh into .stl file holding the name
-            <outfile_stl>.stl. Default value is None
-
-        We note that since the current implementation performs triangulation
-        based on a topological compound that combines the blade 3 generated
-        shapes without "fusion", it may happen that the generated triangulation
-        of the upper and lower blade faces do not share the same exact nodes
-        on the joint edge/wire resulting from the faces intersection. The
-        current implementation can be enough for visualization purpose. However
-        if the generated mesh is intended for computational analysis then a
-        manual mesh healing is recommended by the user (e.g. see
-        "Repair > Sewing" in SALOME GUI) for a proper mesh closure.
-        """
-        from OCC.SMESH import SMESH_Gen
-        from OCC.StdMeshers import (
-            StdMeshers_Arithmetic1D, StdMeshers_TrianglePreference,
-            StdMeshers_Regular_1D, StdMeshers_MEFISTO_2D)
-        from OCC.Core.BRep import BRep_Builder
-        from OCC.Core.TopoDS import TopoDS_Shape, TopoDS_Compound
-
-        if min_length <= 0 or max_length <= 0:
-            raise ValueError('min_length and max_length must be positive.')
-        if min_length >= max_length:
-            raise ValueError('min_length can not be greater than max_length')
-
-        # First we check that blade shapes are generated, otherwise we generate
-        # them. After that we combine the generated_upper_face,
-        # generated_lower_face, and generated_tip into a topological compound
-        # that we use to compute the surface mesh
-        if (self.generated_upper_face is None) or not isinstance(
-                self.generated_upper_face, TopoDS_Shape):
-            # Upper face is generated with a maximal U degree = 1
-            self._generate_upper_face(max_deg=1)
-        if (self.generated_lower_face is None) or not isinstance(
-                self.generated_lower_face, TopoDS_Shape):
-            # Upper face is generated with a maximal U degree = 1
-            self._generate_lower_face(max_deg=1)
-        if (self.generated_tip is None) or not isinstance(
-                self.generated_tip, TopoDS_Shape):
-            # Upper face is generated with a maximal U degree = 1
-            self._generate_tip(max_deg=1)
-
-        # Now we regroup all the shapes into a TopoDS_Compound
-        aCompound = TopoDS_Compound()
-        aBuilder = BRep_Builder()
-        aBuilder.MakeCompound(aCompound)
-        # Add shapes
-        aBuilder.Add(aCompound, self.generated_upper_face)
-        aBuilder.Add(aCompound, self.generated_lower_face)
-        aBuilder.Add(aCompound, self.generated_tip)
-
-        # In the following we build the surface mesh according to the given
-        # hypotheses
-        aMeshGen = SMESH_Gen()
-        aMesh = aMeshGen.CreateMesh(0, True)
-        # Adding 1D hypothesis and algorithms
-        # Wire discretization. Nodes are distributed based on Arithmetic1D
-        # hypothesis which allows to split edges into segments with a length
-        # that changes in arithmetic progression (Lk = Lk-1 + d) beginning
-        # from a given min length and up to a given max length. More about
-        # 1D hypotheses can be viewed through:
-        # http://docs.salome-platform.org/7/gui/SMESH/a1d_meshing_hypo_page.html
-        an1DHypothesis = StdMeshers_Arithmetic1D(0, 0, aMeshGen)
-        # Smallest distance between 2 points
-        an1DHypothesis.SetLength(min_length, False)
-        # Longest distance between 2 points
-        an1DHypothesis.SetLength(max_length, True)
-        # Regular Interpolation
-        # Adding 2D hypothesis and algorithms
-        # 2D surface mesh -- Triangulations
-
-        #Calculate mesh for the topological compound containing the 3 shapes
-        aMesh.ShapeToMesh(aCompound)
-
-        #Assign hyptothesis to mesh
-        aMesh.AddHypothesis(aCompound, 0)
-        aMesh.AddHypothesis(aCompound, 1)
-        aMesh.AddHypothesis(aCompound, 2)
-        aMesh.AddHypothesis(aCompound, 3)
-
-        if outfile_stl is not None:
-            if not isinstance(outfile_stl, str):
-                raise ValueError('outfile_stl must be a valid string.')
-
-            #Compute the data
-            aMeshGen.Compute(aMesh, aMesh.GetShapeToMesh())
-            # Export STL
-            aMesh.ExportSTL(outfile_stl + '.stl', False)
-
     def generate_stl(self, upper_face=None,
                       lower_face=None,
                       tip=None,
@@ -1078,6 +973,9 @@ class Blade(object):
 
         from OCC.Extend.DataExchange import write_stl_file
         from OCC.Display.SimpleGui import init_display
+
+        if max_deg <= 0:
+            raise ValueError('max_deg argument must be a positive integer.')
 
         if upper_face:
             self._check_string(filename=upper_face)

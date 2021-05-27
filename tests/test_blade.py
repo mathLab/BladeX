@@ -353,8 +353,8 @@ class TestBlade(TestCase):
         blade.apply_transformations()
         blade.rotate(deg_angle=90)
         rotated_coordinates = np.array([
-            0.23913475, 0.20945559, 0.16609993, 0.11970761, 0.07154874,
-            0.02221577, -0.02796314, -0.07881877, -0.13030229, -0.18246808
+            0.2969784,  0.2653103,  0.2146533, 0.1597801, 0.1024542,
+            0.0434981, -0.0166326, -0.0777027, -0.1396447, -0.202534
         ])
         np.testing.assert_almost_equal(blade.blade_coordinates_up[0][0],
                                        rotated_coordinates)
@@ -364,8 +364,8 @@ class TestBlade(TestCase):
         blade.apply_transformations()
         blade.rotate(deg_angle=90)
         rotated_coordinates = np.array([
-            0.3488408, 0.37407923, 0.38722075, 0.39526658, 0.39928492,
-            0.39980927, 0.39716902, 0.39160916, 0.38335976, 0.3726862
+            -0.409087 , -0.449122 , -0.4720087, -0.4872923, -0.4963637,
+            -0.4999122, -0.4983684, -0.4920609, -0.4813081, -0.4664844
         ])
         np.testing.assert_almost_equal(blade.blade_coordinates_up[0][1],
                                        rotated_coordinates)
@@ -375,8 +375,8 @@ class TestBlade(TestCase):
         blade.apply_transformations()
         blade.rotate(deg_angle=90)
         rotated_coordinates = np.array([
-            0.19572966, 0.14165003, 0.1003, 0.06135417, 0.02390711, -0.01235116,
-            -0.04750545, -0.08150009, -0.11417222, -0.14527558
+            0.2874853, 0.2197486, 0.1649479, 0.1120097, 0.0601922,
+            0.0093686, -0.04036, -0.0887472, -0.1354346, -0.1799786
         ])
         np.testing.assert_almost_equal(blade.blade_coordinates_up[0][2],
                                        rotated_coordinates)
@@ -386,8 +386,8 @@ class TestBlade(TestCase):
         blade.apply_transformations()
         blade.rotate(rad_angle=np.pi / 2.0)
         rotated_coordinates = np.array([
-            0.29697841, 0.2176438, 0.15729805, 0.10116849, 0.04749167,
-            -0.00455499, -0.05542713, -0.10535969, -0.15442047, -0.20253397
+            0.23913475, 0.17512439, 0.12479053, 0.07749333, 0.03196268,
+            -0.01239386, -0.05590447, -0.09873836, -0.14094435, -0.18246808
         ])
         np.testing.assert_almost_equal(blade.blade_coordinates_down[1][0],
                                        rotated_coordinates)
@@ -397,8 +397,8 @@ class TestBlade(TestCase):
         blade.apply_transformations()
         blade.rotate(rad_angle=np.pi / 2.0)
         rotated_coordinates = np.array([
-            0.40908705, 0.42570092, 0.44956113, 0.47048031, 0.48652991,
-            0.49660315, 0.49999921, 0.49627767, 0.48516614, 0.4664844
+            -0.3488408, -0.3576312, -0.3719492, -0.3844258, -0.3936846,
+            -0.3989522, -0.3997457, -0.3957593, -0.3867917, -0.3726862
         ])
         np.testing.assert_almost_equal(blade.blade_coordinates_down[1][1],
                                        rotated_coordinates)
@@ -408,8 +408,8 @@ class TestBlade(TestCase):
         blade.apply_transformations()
         blade.rotate(rad_angle=np.pi / 2.0)
         rotated_coordinates = np.array([
-            0.28748529, 0.26225699, 0.21884879, 0.16925801, 0.11527639,
-            0.05818345, -0.00088808, -0.0608972, -0.1208876, -0.17997863
+            0.19572966, 0.17916459, 0.14715217, 0.11052969, 0.07079877,
+            0.02893379, -0.01426232, -0.05809137, -0.10194212, -0.14527558
         ])
         np.testing.assert_almost_equal(blade.blade_coordinates_down[1][2],
                                        rotated_coordinates)
@@ -733,48 +733,6 @@ class TestBlade(TestCase):
         self.addCleanup(os.remove, 'tests/test_datasets/lower.stl')
         self.assertTrue(os.path.isfile('tests/test_datasets/errors.txt'))
         self.addCleanup(os.remove, 'tests/test_datasets/errors.txt')
-
-    def test_stl_smesh_exception_1(self):
-        blade = create_sample_blade_NACA()
-        blade.apply_transformations()
-        with self.assertRaises(ValueError):
-            blade.generate_stl_smesh(min_length=-1, max_length=1, outfile_stl=None)
-
-    def test_stl_smesh_exception_2(self):
-        blade = create_sample_blade_NACA()
-        blade.apply_transformations()
-        with self.assertRaises(ValueError):
-            blade.generate_stl_smesh(min_length=2, max_length=1, outfile_stl=None)
-
-    def test_stl_smesh_generated_upper(self):
-        # Requires OCC to be installed
-        blade = create_sample_blade_NACA()
-        blade.apply_transformations()
-        blade.generated_upper_face = 5
-        blade.generate_stl_smesh(min_length=1, max_length=10, outfile_stl=None)
-        self.assertIsInstance(blade.generated_upper_face, TopoDS_Shape)
-
-    def test_stl_smesh_generated_lower(self):
-        # Requires OCC to be installed
-        blade = create_sample_blade_NACA()
-        blade.apply_transformations()
-        blade.generated_lower_face = None
-        blade.generate_stl_smesh(min_length=1, max_length=10, outfile_stl=None)
-        self.assertIsInstance(blade.generated_lower_face, TopoDS_Shape)
-
-    def test_stl_smesh_generated_tip(self):
-        # Requires OCC to be installed
-        blade = create_sample_blade_NACA()
-        blade.apply_transformations()
-        blade.generated_tip = 0
-        blade.generate_stl_smesh(min_length=1, max_length=10, outfile_stl=None)
-        self.assertIsInstance(blade.generated_tip, TopoDS_Shape)
-
-    def test_stl_smesh_export_exception(self):
-        blade = create_sample_blade_NACA()
-        blade.apply_transformations()
-        with self.assertRaises(ValueError):
-            blade.generate_stl_smesh(min_length=1, max_length=10, outfile_stl=55)
 
     def test_solid_max_deg_exception(self):
         blade = create_sample_blade_NACA()
