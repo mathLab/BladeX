@@ -286,7 +286,7 @@ class TestBlade(TestCase):
         blade = create_sample_blade_NACA()
         blade._planar_to_cylindrical()
         blade_coordinates_up_expected = np.load(
-            'test_datasets/planar_to_cylindrical_blade_up.npy')
+            'tests/test_datasets/planar_to_cylindrical_blade_up.npy')
         np.testing.assert_almost_equal(blade.blade_coordinates_up,
                                        blade_coordinates_up_expected)
 
@@ -294,7 +294,7 @@ class TestBlade(TestCase):
         blade = create_sample_blade_NACA()
         blade._planar_to_cylindrical()
         blade_coordinates_down_expected = np.load(
-            'test_datasets/planar_to_cylindrical_blade_down.npy')
+            'tests/test_datasets/planar_to_cylindrical_blade_down.npy')
         np.testing.assert_almost_equal(blade.blade_coordinates_down,
                                        blade_coordinates_down_expected)
 
@@ -302,7 +302,7 @@ class TestBlade(TestCase):
         blade = create_sample_blade_NACA()
         blade.apply_transformations(reflect=True)
         blade_coordinates_up_expected = np.load(
-            'test_datasets/blade_up_after_transformation_reflect.npy')
+            'tests/test_datasets/blade_up_after_transformation_reflect.npy')
         np.testing.assert_almost_equal(blade.blade_coordinates_up,
                                        blade_coordinates_up_expected)
 
@@ -310,7 +310,7 @@ class TestBlade(TestCase):
         blade = create_sample_blade_NACA()
         blade.apply_transformations(reflect=True)
         blade_coordinates_down_expected = np.load(
-            'test_datasets/blade_down_after_transformation_reflect.npy')
+            'tests/test_datasets/blade_down_after_transformation_reflect.npy')
         np.testing.assert_almost_equal(blade.blade_coordinates_down,
                                        blade_coordinates_down_expected)
 
@@ -318,7 +318,7 @@ class TestBlade(TestCase):
         blade = create_sample_blade_NACA()
         blade.apply_transformations(reflect=False)
         blade_coordinates_up_expected = np.load(
-            'test_datasets/blade_up_after_transformation_no_reflect.npy')
+            'tests/test_datasets/blade_up_after_transformation_no_reflect.npy')
         np.testing.assert_almost_equal(blade.blade_coordinates_up,
                                        blade_coordinates_up_expected)
 
@@ -326,7 +326,7 @@ class TestBlade(TestCase):
         blade = create_sample_blade_NACA()
         blade.apply_transformations(reflect=False)
         blade_coordinates_down_expected = np.load(
-            'test_datasets/blade_down_after_transformation_no_reflect.npy'
+            'tests/test_datasets/blade_down_after_transformation_no_reflect.npy'
         )
         np.testing.assert_almost_equal(blade.blade_coordinates_down,
                                        blade_coordinates_down_expected)
@@ -733,48 +733,6 @@ class TestBlade(TestCase):
         self.addCleanup(os.remove, 'tests/test_datasets/lower.stl')
         self.assertTrue(os.path.isfile('tests/test_datasets/errors.txt'))
         self.addCleanup(os.remove, 'tests/test_datasets/errors.txt')
-
-    def test_stl_smesh_exception_1(self):
-        blade = create_sample_blade_NACA()
-        blade.apply_transformations()
-        with self.assertRaises(ValueError):
-            blade.generate_stl_smesh(min_length=-1, max_length=1, outfile_stl=None)
-
-    def test_stl_smesh_exception_2(self):
-        blade = create_sample_blade_NACA()
-        blade.apply_transformations()
-        with self.assertRaises(ValueError):
-            blade.generate_stl_smesh(min_length=2, max_length=1, outfile_stl=None)
-
-    def test_stl_smesh_generated_upper(self):
-        # Requires OCC to be installed
-        blade = create_sample_blade_NACA()
-        blade.apply_transformations()
-        blade.generated_upper_face = 5
-        blade.generate_stl_smesh(min_length=1, max_length=10, outfile_stl=None)
-        self.assertIsInstance(blade.generated_upper_face, TopoDS_Shape)
-
-    def test_stl_smesh_generated_lower(self):
-        # Requires OCC to be installed
-        blade = create_sample_blade_NACA()
-        blade.apply_transformations()
-        blade.generated_lower_face = None
-        blade.generate_stl_smesh(min_length=1, max_length=10, outfile_stl=None)
-        self.assertIsInstance(blade.generated_lower_face, TopoDS_Shape)
-
-    def test_stl_smesh_generated_tip(self):
-        # Requires OCC to be installed
-        blade = create_sample_blade_NACA()
-        blade.apply_transformations()
-        blade.generated_tip = 0
-        blade.generate_stl_smesh(min_length=1, max_length=10, outfile_stl=None)
-        self.assertIsInstance(blade.generated_tip, TopoDS_Shape)
-
-    def test_stl_smesh_export_exception(self):
-        blade = create_sample_blade_NACA()
-        blade.apply_transformations()
-        with self.assertRaises(ValueError):
-            blade.generate_stl_smesh(min_length=1, max_length=10, outfile_stl=55)
 
     def test_solid_max_deg_exception(self):
         blade = create_sample_blade_NACA()
