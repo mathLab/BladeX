@@ -12,7 +12,7 @@ class ProfileBase(object):
     Base sectional profile of the propeller blade.
 
     Each sectional profile is a 2D airfoil that is split into two parts: the
-    upper and lower parts. The coordiates of each part is represented by two
+    upper and lower parts. The coordinates of each part is represented by two
     arrays corresponding to the X and Y components in the 2D coordinate system.
     Such coordinates can be either generated using NACA functions, or be
     inserted directly by the user as custom profiles.
@@ -44,6 +44,12 @@ class ProfileBase(object):
         self.ydown_coordinates = None
         self.chord_line = None
         self.camber_line = None
+        self.chord_percentage = None
+        self.camber_percentage = None
+        self.thickness_percentage = None
+        self.chord_length = None
+        self.camber_max = None
+        self.thickness_max = None
         self.leading_edge = np.zeros(2)
         self.trailing_edge = np.zeros(2)
 
