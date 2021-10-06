@@ -44,12 +44,6 @@ class ProfileBase(object):
         self.ydown_coordinates = None
         self.chord_line = None
         self.camber_line = None
-        self.chord_percentage = None
-        self.camber_percentage = None
-        self.thickness_percentage = None
-        self.chord_length = None
-        self.camber_max = None
-        self.thickness_max = None
         self.leading_edge = np.zeros(2)
         self.trailing_edge = np.zeros(2)
 
