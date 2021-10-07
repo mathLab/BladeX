@@ -1,9 +1,7 @@
 from unittest import TestCase
 import os
 import numpy as np
-import bladex.profiles as pr
-import bladex.blade as bl
-from bladex import NacaProfile, Shaft, Propeller
+from bladex import NacaProfile, Shaft, Propeller, Blade
 from smithers.io.obj import ObjHandler
 from smithers.io.stlhandler import STLHandler
 
@@ -23,7 +21,7 @@ def create_sample_blade_NACApptc():
                           -7.440779, -7.3840979, -5.0367916, -1.3257914,
                           1.0856404, 4.1448947, 7.697235, 9.5368917,
                           11.397609])
-    return bl.Blade(
+    return Blade(
         sections=sections,
         radii=radii,
         chord_lengths=chord_lengths,
@@ -39,7 +37,7 @@ class TestPropeller(TestCase):
 
     def test_sections_inheritance_NACApptc(self):
         prop= create_sample_blade_NACApptc()
-        self.assertIsInstance(prop.sections[0], pr.NacaProfile)
+        self.assertIsInstance(prop.sections[0], NacaProfile)
 
     def test_radii_NACApptc(self):
         prop = create_sample_blade_NACApptc()

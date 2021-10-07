@@ -12,7 +12,7 @@ class ProfileBase(object):
     Base sectional profile of the propeller blade.
 
     Each sectional profile is a 2D airfoil that is split into two parts: the
-    upper and lower parts. The coordiates of each part is represented by two
+    upper and lower parts. The coordinates of each part is represented by two
     arrays corresponding to the X and Y components in the 2D coordinate system.
     Such coordinates can be either generated using NACA functions, or be
     inserted directly by the user as custom profiles.
