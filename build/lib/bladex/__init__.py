@@ -1,7 +1,7 @@
 """
 BladeX init
 """
-__all__ = ['profilebase', 'nacaprofile', 'customprofile', 'blade', 'shaft', 'propeller', 'deform', 'params', 'ndinterpolator']
+__all__ = ['profilebase', 'nacaprofile','customprofile', 'blade', 'shaft', 'propeller', 'deform', 'params', 'ndinterpolator']
 
 from .meta import *
 from .profilebase import ProfileBase

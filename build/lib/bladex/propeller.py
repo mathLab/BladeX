@@ -176,7 +176,7 @@ class Propeller(object):
         # this is needed because indexes start at 1
         obj_instance.polygons += 1
 
-        ObjHandler.write(obj_instance, filename)
+        ObjHandler.write(filename, obj_instance)
 
     def display(self):
         """

@@ -1,7 +1,7 @@
 from unittest import TestCase
-import bladex.profiles as pr
 import bladex.blade as bl
 import numpy as np
+from bladex import NacaProfile, CustomProfile
 import os
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
@@ -9,7 +9,7 @@ from OCC.Core.TopoDS import TopoDS_Shape, TopoDS_Solid
 
 
 def create_sample_blade_NACA():
-    sections = np.asarray([pr.NacaProfile(digits='0012') for i in range(10)])
+    sections = np.asarray([NacaProfile(digits='0012') for i in range(10)])
     radii = np.arange(0.4, 1.31, 0.1)
     chord_lengths = np.concatenate((np.arange(0.55, 1.1, 0.15),
                                     np.arange(1.03, 0.9, -0.03),
@@ -28,7 +28,7 @@ def create_sample_blade_NACA():
 
 def create_sample_blade_NACA_10():
     sections = np.asarray(
-        [pr.NacaProfile(digits='0012', n_points=10) for i in range(2)])
+        [NacaProfile(digits='0012', n_points=10) for i in range(2)])
     radii = np.array([0.4, 0.5])
     chord_lengths = np.array([0.55, 0.7])
     pitch = np.array([3.0, 3.2])
@@ -49,7 +49,7 @@ def create_sample_blade_custom():
     xdown = np.linspace(-1.0, 1.0, 5)
     ydown = np.zeros(5)
     sections = np.asarray([
-        pr.CustomProfile(xup=xup, yup=yup, xdown=xdown, ydown=ydown)
+        CustomProfile(xup=xup, yup=yup, xdown=xdown, ydown=ydown)
         for i in range(10)
     ])
     radii = np.arange(0.4, 1.31, 0.1)
@@ -77,11 +77,11 @@ class TestBlade(TestCase):
 
     def test_sections_inheritance_naca(self):
         blade = create_sample_blade_NACA()
-        self.assertIsInstance(blade.sections[0], pr.NacaProfile)
+        self.assertIsInstance(blade.sections[0], NacaProfile)
 
     def test_sections_inheritance_custom(self):
         blade = create_sample_blade_custom()
-        self.assertIsInstance(blade.sections[0], pr.CustomProfile)
+        self.assertIsInstance(blade.sections[0], CustomProfile)
 
     def test_sections_1_naca(self):
         blade = create_sample_blade_NACA()
@@ -165,7 +165,7 @@ class TestBlade(TestCase):
 
     def test_sections_list_to_ndarray(self):
         blade = create_sample_blade_NACA()
-        blade.sections = [pr.NacaProfile(digits='0012') for i in range(10)]
+        blade.sections = [NacaProfile(digits='0012') for i in range(10)]
         blade._check_params()
         self.assertIsInstance(blade.sections, np.ndarray)
 
