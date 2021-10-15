@@ -154,8 +154,8 @@ class CustomProfile(ProfileBase):
       
         #compute the coordinates starting from a single section data and parameters
         for j in range(0,n_pos,1):
-            self.xup_coordinates[j] = (self.chord_percentage[j]-self.thickness_percentage[j]*np.sin(m_angle[j])*self.thickness_max)*self.chord_len
-            self.xdown_coordinates[j] = (self.chord_percentage[j]+self.thickness_percentage[j]*np.sin(m_angle[j])*self.thickness_max)*self.chord_len
+            self.xup_coordinates[j] = (self.chord_percentage[j]-self.thickness_percentage[j]*np.sin(m_angle[j])*self.thickness_max)
+            self.xdown_coordinates[j] = (self.chord_percentage[j]+self.thickness_percentage[j]*np.sin(m_angle[j])*self.thickness_max)
             self.yup_coordinates[j] = (self.camber_percentage[j]*self.camber_max+self.thickness_percentage[j]*self.thickness_max*np.cos(m_angle[j]))*self.chord_len
             self.ydown_coordinates[j] = (self.camber_percentage[j]*self.camber_max-self.thickness_percentage[j]*self.thickness_max*np.cos(m_angle[j]))*self.chord_len
        
