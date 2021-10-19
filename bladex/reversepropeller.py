@@ -128,23 +128,38 @@ def point_inside_polygon(x, y, poly, include_edges=True):
 
 class ReversePropeller(object):
     """
-    INPUT DATA:
+    Extraction of the parameters of a blade and reconstruction of the parametrized
+    blade and of the entire propeller.
+
+    Given the IGES file of the blade, the following parameters are extracted:
+    
+        - :math:`(X, Y)` coordinates of the blade cylindrical sections after
+          being expanded in 2D to create airfoils.
+
+        - Chord length, for each cylindrical section.
+
+        - Pitch :math:`(P)`, for each cylindrical section.
+
+        - Rake :math:`(k)`, in distance units, for each cylindrical section.
+
+        - Skew angle :math:`(\\theta_s)`, for each cylindrical section, expressed
+          in degrees.
+
+    The parameters can be saved in a csv file with the method
+    'save_global_parameters' and used to reconstruct the blade, which is saved
+    in a IGES file (method 'reconstruct_blade'). 
+    The coordinates of each section can be extracted with the method 
+    'reconstruct_sections'. 
+    Given the shaft, the whole propeller can be reconstructed and saved in a 
+    IGES file with the method 'reconstruct_propeller'.
+    
+    -------------------------- 
         
-      - filename: path to the IGES file of the blade;
-      - radii_list: list of radii (in mm) at which one wants to know the values of the 
-                    properties of the blade sections;
-      - num_points_top_bottom: number of points used to interpolate the profiles.
-      
-      OUTPUT:
-          
-      - the properties of the blade (chord length, pitch, rake, skew angles)
-        at each section considered, printed and saved into a csv file with the 
-        method 'save_global_parameters('filename.csv')';
-      - the IGES file of the reconstructed blade, through the method 
-        'reconstruct_blade'.
-      - the IGES file of the reconstructed propeller, through the method 
-        'reconstruct_propeller', giving as input the number of blades and the 
-        name of the shaft IGES file.
+    :param filename: path to the IGES file of the blade.       
+    :param list radii_list: list which contains the radii values of the
+        sectional profiles.
+    :param num_points_top_bottom: number of points used to interpolate each 
+        sectional profile.      
     """
     def __init__(self, filename, radii_list, num_points_top_bottom):
 
@@ -169,6 +184,7 @@ class ReversePropeller(object):
         self.chord_length_list = []
         self.blade_solid = None
         self.blade_compound = None
+        self.tolerance_solid = 5e-2
         self._extract_solid_from_file()
         self.xup = np.zeros((self.num_sections, self.num_points_top_bottom))
         self.xdown = np.zeros((self.num_sections, self.num_points_top_bottom))
@@ -183,6 +199,8 @@ class ReversePropeller(object):
             self.bounds = None
             self.cylinder_lateral_face = None
             self.cylinder_lateral_surface = None
+            self.linear_tolerance = 1e-3
+            self.conversion_unit = 1000
             self._build_cylinder(radius)
             self._build_intersection_cylinder_blade(radius)
             self.leading_edge_point = []
@@ -226,14 +244,12 @@ class ReversePropeller(object):
         iges_reader.ReadFile(self.iges_file)
         iges_reader.TransferRoots()
         self.blade_compound = iges_reader.Shape()
-        sewer = BRepBuilderAPI_Sewing(5e-2)
+        sewer = BRepBuilderAPI_Sewing(self.tolerance_solid)
         sewer.Add(self.blade_compound)
         sewer.Perform()
         result_sewed_blade = sewer.SewedShape()
-        # print("Propeller free edges: ",sewer.NbFreeEdges())
         blade_solid_maker = BRepBuilderAPI_MakeSolid()
         blade_solid_maker.Add(OCC.Core.TopoDS.topods_Shell(result_sewed_blade))
-        # print("Solid done?",blade_solid_maker.IsDone())
         if (blade_solid_maker.IsDone()):
             self.blade_solid = blade_solid_maker.Solid()
         else:
@@ -241,12 +257,14 @@ class ReversePropeller(object):
 
     def _build_cylinder(self, radius):
         """
-        Private method that builds the cylinder that intersects the blade at a 
-        specific radius. This method is applied to all the radii in the list 
-        given as input.
+        Private method that builds the cylinder which  intersects the blade at a 
+        specific cylindrical section. 
+        Argument 'radius' is the radius value corresponding to the cylindrical section
+        taken into account.
+        This method is applied to all the radii in list 'radii_list' given as input.
         """
-        axis = gp_Ax2(gp_Pnt(-500, 0.0, 0.0), gp_Dir(1.0, 0.0, 0.0))
-        self.cylinder = BRepPrimAPI_MakeCylinder(axis, radius, 1000).Shape()
+        axis = gp_Ax2(gp_Pnt(-0.5*self.conversion_unit, 0.0, 0.0), gp_Dir(1.0, 0.0, 0.0))
+        self.cylinder = BRepPrimAPI_MakeCylinder(axis, radius, 1*self.conversion_unit).Shape()
         faceCount = 0
         faces_explorer = TopExp_Explorer(self.cylinder, TopAbs_FACE)
 
@@ -262,13 +280,13 @@ class ReversePropeller(object):
             surface = BRep_Tool.Surface(OCC.Core.TopoDS.topods_Face(nurbs_face))
             self.bounds = 0.0
             self.bounds = surface.Bounds()
-
+            
             # Compute the normal curve to the surfaces, specifying the bounds considered,
             # the maximum order of the derivative we want to compute, the linear tolerance
             normal = GeomLProp_SLProps(surface,
                                        (self.bounds[0] + self.bounds[1]) / 2.0,
                                        (self.bounds[2] + self.bounds[3]) / 2.0,
-                                       1, 1e-3).Normal()
+                                       1, self.linear_tolerance).Normal()
             if (normal * axis.Direction() == 0):
                 self.cylinder_lateral_face = face
                 self.cylinder_lateral_surface = surface
@@ -295,7 +313,6 @@ class ReversePropeller(object):
         edgeList = TopTools_ListOfShape()
         while edgeExplorer.More():
             edgeCount = edgeCount + 1
-            # print("Section edge: ",edgeCount)
             edge = topods.Edge(edgeExplorer.Current())
             edgeList.Append(edge)
             edgeExplorer.Next()
@@ -346,7 +363,6 @@ class ReversePropeller(object):
             self.bounds[3] = max(self.bounds[3], p[1])
         # Create the Voronoi diagram for the 2D points
         vor = Voronoi(self.param_plane_points)
-        #voronoi_plot_2d(vor) # plotting for each section
         vor_points = []
         min_u = 1e8
         self.start = vor.vertices[0]
@@ -529,7 +545,6 @@ class ReversePropeller(object):
             OCC.Core.TopoDS.topods_Wire(full_camber_wire))
         self.full_camber_length = GCPnts_AbscissaPoint.Length(
             self.full_camber_curve_adaptor)
-        # print("Camber line length: ",self.full_camber_length)
 
     def _initial_leading_trailing_edges_plane(self, radius):
         """
@@ -870,21 +885,19 @@ class ReversePropeller(object):
         """
         display, start_display, add_menu, add_function_to_menu = init_display()
         for radius in self.radii_list:
-            # Display the lateral face of the cylinder at each radius
-            display.DisplayShape(self.cylinder_lateral_face, update=True)
-            # Display the camber points, leading and trailing edges in space
+           
             display.DisplayShape(BRepBuilderAPI_MakeVertex(
                 self.leading_edge_point).Vertex(),
-                                 update=True,
-                                 color="ORANGE")
+                                  update=True,
+                                  color="ORANGE")
             display.DisplayShape(BRepBuilderAPI_MakeVertex(
                 self.trailing_edge_point).Vertex(),
-                                 update=True,
-                                 color="GREEN")
+                                  update=True,
+                                  color="GREEN")
             # Display the camber points, leading and trailing edges projected on plane
             display.DisplayShape(self.camber_curve_edge,
-                                 update=True,
-                                 color="GREEN")
+                                  update=True,
+                                  color="GREEN")
             display.DisplayShape(self.edge_3d, update=True, color="RED")
             display.DisplayShape(self.first_edge, update=True, color="BLUE1")
             display.DisplayShape(self.last_edge, update=True, color="BLUE1")
