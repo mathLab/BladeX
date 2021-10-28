@@ -1024,7 +1024,48 @@ class Blade(object):
                 display.DisplayShape(self.generated_root, update=True)
             start_display()
 
+    def generate_stl_blade(self, filename):
+        """
+        Generate and export the .STL file for the entire blade.
+        This method requires PythonOCC (7.4.0) to be installed.
+        """
+        from OCC.Core.BRepBuilderAPI import BRepBuilderAPI_Sewing
+        from OCC.Extend.DataExchange import write_stl_file
+        
+        self.apply_transformations(reflect=True)
+        
+        self._generate_upper_face(max_deg=1)
+        self._generate_lower_face(max_deg=1)
+        self._generate_root(max_deg=1)
+        self._generate_tip(max_deg=1)
+        
+        sewer = BRepBuilderAPI_Sewing(1e-2)
+        sewer.Add(self.generated_upper_face) 
+        sewer.Add(self.generated_lower_face) 
+        sewer.Add(self.generated_root)
+        sewer.Add(self.generated_tip) 
+        sewer.Perform()
+        self.sewed_full = sewer.SewedShape()
+      
+        write_stl_file(self.sewed_full, filename)       
+   
+    def generate_iges_blade(self, filename):
+        """
+        Generate and export the .IGES file for the entire blade.
+        This method requires PythonOCC (7.4.0) to be installed.
+        """
+        from OCC.Core.IGESControl import IGESControl_Writer
 
+        self._generate_upper_face(max_deg=1)
+        self._generate_lower_face(max_deg=1)
+        self._generate_root(max_deg=1)
+        self._generate_tip(max_deg=1)
+        iges_writer = IGESControl_Writer()
+        iges_writer.AddShape(self.generated_upper_face)
+        iges_writer.AddShape(self.generated_lower_face)
+        iges_writer.AddShape(self.generated_root)
+        iges_writer.AddShape(self.generated_tip)
+        iges_writer.Write(filename)
 
     @staticmethod
     def _check_string(filename):
