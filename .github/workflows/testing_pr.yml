@@ -33,8 +33,13 @@ jobs:
 
     - name: Install Python dependencies
       run: |
-        conda install --yes pythonocc-core=7.4.0 numpy scipy matplotlib
+        conda install --yes pythonocc-core=7.4.0 numpy scipy matplotlib pytest vtk
+        git clone https://github.com/mathLab/Smithers
+        cd Smithers
+        python setup.py install
+        cd ..
+        ls
     
     - name: Test with pytest
       run: |
-        python3 -m pytest
+        python -m pytest tests

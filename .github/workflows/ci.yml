@@ -24,7 +24,7 @@ jobs:
 
     - name: Install Python dependencies
       run: |
-        conda install --yes pythonocc-core=7.4.0 numpy scipy matplotlib
+        conda install --yes pythonocc-core=7.4.0 numpy scipy matplotlib pytest pytest-cov
     
     - name: Test with pytest
       env:
