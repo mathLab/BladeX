@@ -24,7 +24,11 @@ jobs:
 
     - name: Install Python dependencies
       run: |
-        conda install --yes pythonocc-core=7.4.0 numpy scipy matplotlib pytest pytest-cov
+        conda install --yes pythonocc-core=7.4.0 numpy scipy matplotlib pytest vtk
+        git clone https://github.com/mathLab/Smithers
+        cd Smithers
+        python setup.py install
+        cd ..
     
     - name: Test with pytest
       env:
@@ -35,3 +39,9 @@ jobs:
         curl -s https://coverage.codacy.com/get.sh -o CodacyCoverageReporter.sh
         chmod +x CodacyCoverageReporter.sh
         ./CodacyCoverageReporter.sh report -r cobertura.xml  -t $CODACY_API_TOKEN
+
+    
+    - name: Test with pytest
+      run: |
+        python -m pytest tests
+
