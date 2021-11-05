@@ -24,7 +24,7 @@ jobs:
 
     - name: Install Python dependencies
       run: |
-        conda install --yes pythonocc-core=7.4.0 numpy scipy matplotlib pytest vtk
+        conda install --yes pythonocc-core=7.4.0 numpy scipy matplotlib pytest pytest-cov vtk
         git clone https://github.com/mathLab/Smithers
         cd Smithers
         python setup.py install
