@@ -45,7 +45,7 @@
 See the [**Examples**](#examples) section below and the [**Tutorials**](tutorials/README.md) to have an idea of the potential of this package.
 
 ## Dependencies and installation
-**BladeX** requires `numpy`, `scipy`, `matplotlib`, `sphinx` (for the documentation), and `nose` (for the local test). They can be easily installed using `pip`. 
+**BladeX** requires `numpy`, `scipy`, `matplotlib`, `sphinx` (for the documentation), and `pytest` (for the local test). They can be easily installed using `pip`. 
 **BladeX** is compatible with Python 3.6. Moreover, some of the modules require `OCC` to be installed for the `.iges` or `.stl` CAD generation. This requirement cannot be satisfied through `pip`, but the precompiled binaries are available on `conda` using the command:
 
 ```bash
@@ -67,7 +67,7 @@ To install the latest version of the package just type:
 
 Otherwise to install your own local branch you can use the `setup.py` file
 ```bash
-> python setup.py install
+> pip install -e .
 ```
 
 To uninstall the package just use pip again:
@@ -89,12 +89,12 @@ The generated html can be found in `docs/build/html`. Open up the `index.html` y
 
 ## Testing
 
-We are using Travis CI for continuous intergration testing. You can check out the current status [here](https://travis-ci.org/mathLab/BladeX).
+We are using Github Actions for continuous intergration testing. You can check out the current status [here](https://github.com/mathLab/BladeX/actions/workflows/testing_pr.yml).
 
 To run tests locally:
 
 ```bash
-> python test.py
+> pytest
 ```
 
 ## Examples
