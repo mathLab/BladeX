@@ -35,6 +35,7 @@ jobs:
       run: |
         conda install --yes pythonocc-core=7.4.0
         python3 -m pip install --upgrade pip
+        python3 -m pip install smithers[vtk]
         python3 -m pip install .[test]
 
     - name: Test with pytest
