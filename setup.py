@@ -14,7 +14,7 @@ VERSION = meta['__version__']
 KEYWORDS = 'blade-generation propeller iges procal'
 
 REQUIRED = [
-    'numpy', 'scipy', 'matplotlib', 'Sphinx', 'sphinx_rtd_theme',
+    'numpy', 'scipy', 'matplotlib', 'Sphinx', 'sphinx_rtd_theme', 'smithers'
 ]
 
 EXTRAS = {
