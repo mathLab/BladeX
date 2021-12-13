@@ -163,7 +163,7 @@ class TestPropeller(TestCase):
         prop.generate_obj("tests/test_datasets/propeller_and_shaft.obj", region_selector='by_coords')
 
         data = ObjHandler.read('tests/test_datasets/propeller_and_shaft.obj')
-        assert data.regions == ['blades', 'shaftHead', 'shaftTail']
+        assert set(data.regions) == set(['blades', 'shaftHead', 'shaftTail'])
 
         # we want 0 to be the first index
         data.polygons = np.asarray(data.polygons) - 1
