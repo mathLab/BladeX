@@ -163,7 +163,7 @@ class TestPropeller(TestCase):
         prop.generate_obj("tests/test_datasets/propeller_and_shaft.obj", region_selector='by_coords')
 
         data = ObjHandler.read('tests/test_datasets/propeller_and_shaft.obj')
-        assert data.regions == ['propellerTip','propellerStem']
+        assert data.regions == ['blades', 'shaftHead', 'shaftTail']
 
         # we want 0 to be the first index
         data.polygons = np.asarray(data.polygons) - 1
@@ -193,7 +193,7 @@ class TestPropeller(TestCase):
         prop.generate_obj("tests/test_datasets/propeller_and_shaft.obj", region_selector='blades_and_stem')
 
         data = ObjHandler.read('tests/test_datasets/propeller_and_shaft.obj')
-        assert data.regions == ['propellerTip','propellerStem']
+        assert data.regions == ['blades', 'shaft']
 
         tip_polygons = np.asarray(data.polygons[:data.regions_change_indexes[1][0]]) - 1
         stem_polygons = np.asarray(data.polygons[data.regions_change_indexes[1][0]:]) - 1
