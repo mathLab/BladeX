@@ -169,7 +169,7 @@ class TestPropeller(TestCase):
         data.polygons = np.asarray(data.polygons) - 1
 
         tip_poly = data.polygons[:data.regions_change_indexes[1][0]]
-        stem_poly = data.polygons[data.regions_change_indexes[1][0]:]
+        stem_poly = data.polygons[data.regions_change_indexes[2][0]:]
 
         blades_stl = STLHandler.read('/tmp/temp_blades.stl')
         shaft_stl = STLHandler.read('/tmp/temp_shaft.stl')
@@ -180,9 +180,9 @@ class TestPropeller(TestCase):
         )
         unique_vertices = np.unique(all_vertices, axis=0)
         np.testing.assert_almost_equal(data.vertices, unique_vertices, decimal=3)
-
+        
+       
         blades_min_x = np.min(blades_stl['points'][:,0])
-
         assert np.all(data.vertices[np.asarray(tip_poly).flatten()][:,0] >= blades_min_x)
         assert not any(np.all(data.vertices[np.asarray(stem_poly).flatten()][:,0].reshape(-1,data.polygons.shape[1]) >= blades_min_x, axis=1))
 
