@@ -80,7 +80,7 @@ class Propeller(object):
         """
         write_stl_file(self.sewed_full_body, filename)
 
-    def generate_obj(self, filename, region_selector="by_coords"):
+    def generate_obj(self, filename, region_selector="by_coords", **kwargs):
         """
         Export the .obj CAD for the propeller with shaft. The resulting
         file contains two regions: `propellerTip` and `propellerStem`, selected
@@ -148,11 +148,24 @@ class Propeller(object):
         blades_cells = np.asarray(blades["cells"]) + len(shaft["points"])
 
         if region_selector == "blades_and_stem":
-            append_cells(blades_cells, region_name="propellerTip")
-            append_cells(shaft_cells, region_name="propellerStem")
+            defaultKwargs = {'blades_name' : 'blades', 'shaft_name' : 'shaft'}
+            kwargs = {**defaultKwargs, **kwargs}
+            append_cells(blades_cells, region_name=kwargs['blades_name'])
+            append_cells(shaft_cells, region_name=kwargs['shaft_name'])
+            
         elif region_selector == "by_coords":
+            defaultKwargs = {'blades_name' : 'blades', 'shafthead_name' : 'shaftHead', 'shafttail_name' : 'shaftTail'}
+            kwargs = {**defaultKwargs, **kwargs}
             minimum_blades_x = np.min(blades["points"][:, 0])
-            tip_boolean_array = shaft["points"][:, 0] >= minimum_blades_x
+            maximum_blades_x = np.max(blades["points"][:, 0])
+            shaft_x = shaft["points"][:, 0]
+            
+            if np.count_nonzero(shaft_x > maximum_blades_x) >= np.count_nonzero(shaft_x < maximum_blades_x):
+                tip_boolean_array = shaft["points"][:, 0] <= maximum_blades_x
+            
+            elif np.count_nonzero(shaft_x < maximum_blades_x) > np.count_nonzero(shaft_x > maximum_blades_x):
+                tip_boolean_array = shaft["points"][:, 0] >= minimum_blades_x
+                
             shaft_cells_tip = np.all(
                 tip_boolean_array[shaft_cells.flatten()].reshape(
                     -1, shaft_cells.shape[1]
@@ -161,14 +174,16 @@ class Propeller(object):
             )
 
             append_cells(
-                np.concatenate(
-                    [blades_cells, shaft_cells[shaft_cells_tip]], axis=0
-                ),
-                region_name="propellerTip",
+                shaft_cells[shaft_cells_tip],
+                region_name=kwargs['shafthead_name'],
             )
             append_cells(
                 shaft_cells[np.logical_not(shaft_cells_tip)],
-                region_name="propellerStem",
+                region_name=kwargs['shafttail_name'],
+            )
+            append_cells(
+                blades_cells,
+                region_name=kwargs['blades_name'],
             )
         else:
             raise ValueError("This selector is not supported at the moment")

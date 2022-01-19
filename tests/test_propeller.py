@@ -163,14 +163,13 @@ class TestPropeller(TestCase):
         prop.generate_obj("tests/test_datasets/propeller_and_shaft.obj", region_selector='by_coords')
 
         data = ObjHandler.read('tests/test_datasets/propeller_and_shaft.obj')
-        assert data.regions == ['propellerTip','propellerStem']
+        assert set(data.regions) == set(['blades', 'shaftHead', 'shaftTail'])
 
         # we want 0 to be the first index
         data.polygons = np.asarray(data.polygons) - 1
 
         tip_poly = data.polygons[:data.regions_change_indexes[1][0]]
-        stem_poly = data.polygons[data.regions_change_indexes[1][0]:]
-
+        stem_poly = data.polygons[data.regions_change_indexes[1][0]:data.regions_change_indexes[2][0]]
         blades_stl = STLHandler.read('/tmp/temp_blades.stl')
         shaft_stl = STLHandler.read('/tmp/temp_shaft.stl')
 
@@ -180,11 +179,11 @@ class TestPropeller(TestCase):
         )
         unique_vertices = np.unique(all_vertices, axis=0)
         np.testing.assert_almost_equal(data.vertices, unique_vertices, decimal=3)
-
+       
         blades_min_x = np.min(blades_stl['points'][:,0])
-
         assert np.all(data.vertices[np.asarray(tip_poly).flatten()][:,0] >= blades_min_x)
         assert not any(np.all(data.vertices[np.asarray(stem_poly).flatten()][:,0].reshape(-1,data.polygons.shape[1]) >= blades_min_x, axis=1))
+
 
     def test_generate_obj_blades_and_stem(self):
         sh = Shaft("tests/test_datasets/shaft.iges")
@@ -193,7 +192,7 @@ class TestPropeller(TestCase):
         prop.generate_obj("tests/test_datasets/propeller_and_shaft.obj", region_selector='blades_and_stem')
 
         data = ObjHandler.read('tests/test_datasets/propeller_and_shaft.obj')
-        assert data.regions == ['propellerTip','propellerStem']
+        assert data.regions == ['blades', 'shaft']
 
         tip_polygons = np.asarray(data.polygons[:data.regions_change_indexes[1][0]]) - 1
         stem_polygons = np.asarray(data.polygons[data.regions_change_indexes[1][0]:]) - 1
