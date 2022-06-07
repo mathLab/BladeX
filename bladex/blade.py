@@ -1031,24 +1031,22 @@ class Blade(object):
         """
         from OCC.Core.BRepBuilderAPI import BRepBuilderAPI_Sewing
         from OCC.Extend.DataExchange import write_stl_file
-        
-        self.apply_transformations(reflect=True)
-        
+
         self._generate_upper_face(max_deg=1)
         self._generate_lower_face(max_deg=1)
         self._generate_root(max_deg=1)
         self._generate_tip(max_deg=1)
-        
+
         sewer = BRepBuilderAPI_Sewing(1e-2)
-        sewer.Add(self.generated_upper_face) 
-        sewer.Add(self.generated_lower_face) 
+        sewer.Add(self.generated_upper_face)
+        sewer.Add(self.generated_lower_face)
         sewer.Add(self.generated_root)
-        sewer.Add(self.generated_tip) 
+        sewer.Add(self.generated_tip)
         sewer.Perform()
         self.sewed_full = sewer.SewedShape()
-      
-        write_stl_file(self.sewed_full, filename)       
-   
+
+        write_stl_file(self.sewed_full, filename)
+
     def generate_iges_blade(self, filename):
         """
         Generate and export the .IGES file for the entire blade.

@@ -48,14 +48,27 @@ class CustomProfile(ProfileBase):
 
     def __init__(self, **kwargs):
         super(CustomProfile, self).__init__()
-        
+
         if len(kwargs) == 4:
             xup, yup, xdown, ydown = kwargs.values()
             self.xup_coordinates = xup
             self.yup_coordinates = yup
             self.xdown_coordinates = xdown
             self.ydown_coordinates = ydown
-           
+            self.chord_len = 1
+
+            self._generate_parameters()
+
+        if len(kwargs) == 5:
+            xup, yup, xdown, ydown, chord_len = kwargs.values()
+            self.xup_coordinates = xup
+            self.yup_coordinates = yup
+            self.xdown_coordinates = xdown
+            self.ydown_coordinates = ydown
+            self.chord_len = chord_len
+
+            self._generate_parameters()
+
         if len(kwargs) == 6:
             chord_perc, camber_perc, thickness_perc, chord_len, camber_max, thickness_max = kwargs.values()
             self.chord_percentage = chord_perc
@@ -64,13 +77,13 @@ class CustomProfile(ProfileBase):
             self.chord_len = chord_len
             self.camber_max = camber_max
             self.thickness_max = thickness_max
-            
+
             self._check_args()
             self._generate_coordinates()
-            
+
         self._check_coordinates()
-        
-        
+
+
     def _check_args(self):
         """
         Private method that checks whether the airfoil parameters defined
@@ -78,8 +91,8 @@ class CustomProfile(ProfileBase):
         In particular, the chord, camber and thickness percentages are consistent and
         have the same length.
         """
-       
-            
+
+
         if self.chord_percentage is None:
             raise ValueError(
                 'object "chord_perc" refers to an empty array.')
@@ -98,7 +111,6 @@ class CustomProfile(ProfileBase):
         if self.thickness_max is None:
             raise ValueError(
                 'object "thickness_max" refers to an empty array.')
-            
 
         if not isinstance(self.chord_percentage, np.ndarray):
             self.chord_percentage = np.asarray(self.chord_percentage, dtype=float)
@@ -154,13 +166,39 @@ class CustomProfile(ProfileBase):
       
         #compute the coordinates starting from a single section data and parameters
         for j in range(0,n_pos,1):
-            self.xup_coordinates[j] = (self.chord_percentage[j]-self.thickness_percentage[j]*np.sin(m_angle[j])*self.thickness_max)
-            self.xdown_coordinates[j] = (self.chord_percentage[j]+self.thickness_percentage[j]*np.sin(m_angle[j])*self.thickness_max)
+            self.xup_coordinates[j] = self.chord_percentage[j]
+            self.xdown_coordinates[j] = self.chord_percentage[j]
             self.yup_coordinates[j] = (self.camber_percentage[j]*self.camber_max+self.thickness_percentage[j]*self.thickness_max*np.cos(m_angle[j]))*self.chord_len
             self.ydown_coordinates[j] = (self.camber_percentage[j]*self.camber_max-self.thickness_percentage[j]*self.thickness_max*np.cos(m_angle[j]))*self.chord_len
-       
-        
-        
+
+    def _generate_parameters(self):
+        '''
+        Private method to find parameters related to each section (chord percentages,
+        camber max, camber percentages, thickness max and thickness percentage)
+        starting from the xup, yup, xdown, ydown coordinates of the section.
+        Useful for parametrization and deformation.
+        '''
+        n_pos = len(self.xup_coordinates)
+
+        self.chord_percentage = self.xup_coordinates
+
+        camber = (self.yup_coordinates+self.ydown_coordinates)/(2*self.chord_len)
+        self.camber_max = np.max(camber)
+        self.camber_percentage = camber/self.camber_max
+
+        delta_camber = np.zeros(len(camber))
+        delta_x = np.zeros(len(camber))
+        m_rad = np.zeros(len(camber))
+        for i in range(1, len(camber), 1):
+            delta_camber[i] = self.camber_percentage[i]-self.camber_percentage[i-1]
+            delta_x[i] = self.chord_percentage[i]-self.chord_percentage[i-1]
+
+        m_rad[1:] = delta_camber[1:]*np.pi/(delta_x[1:]*180)
+
+        thickness = (self.yup_coordinates-self.ydown_coordinates)/(2*self.chord_len*np.cos(m_rad))
+        self.thickness_max = np.max(thickness)
+        self.thickness_percentage = thickness/self.thickness_max
+
     def _check_coordinates(self):
         """
         Private method that checks whether the airfoil coordinates defined (or

@@ -825,7 +825,8 @@ class ReversePropeller(object):
             self.recons_sections[j] = CustomProfile(xup=self.xup[j, :],
                                                     yup=self.yup[j, :],
                                                     xdown=self.xdown[j, :],
-                                                    ydown=self.ydown[j, :])
+                                                    ydown=self.ydown[j, :],
+                                                    chord_len=self.chord_length_list[j])
         return self.recons_sections
 
     def reconstruct_blade(self):
@@ -839,7 +840,8 @@ class ReversePropeller(object):
             self.recons_sections[j] = CustomProfile(xup=self.xup[j, :],
                                                     yup=self.yup[j, :],
                                                     xdown=self.xdown[j, :],
-                                                    ydown=self.ydown[j, :])
+                                                    ydown=self.ydown[j, :],
+                                                    chord_len=self.chord_length_list[j])
         radii = np.array(self.radii_list) / 1000
         self.recons_blade = Blade(sections=self.recons_sections,
                                   radii=radii,
