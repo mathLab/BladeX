@@ -263,8 +263,10 @@ class ReversePropeller(object):
         taken into account.
         This method is applied to all the radii in list 'radii_list' given as input.
         """
-        axis = gp_Ax2(gp_Pnt(-0.5*self.conversion_unit, 0.0, 0.0), gp_Dir(1.0, 0.0, 0.0))
-        self.cylinder = BRepPrimAPI_MakeCylinder(axis, radius, 1*self.conversion_unit).Shape()
+        axis = gp_Ax2(gp_Pnt(-0.5 * self.conversion_unit, 0.0, 0.0),
+                      gp_Dir(1.0, 0.0, 0.0))
+        self.cylinder = BRepPrimAPI_MakeCylinder(axis, radius, 1 *
+                                                 self.conversion_unit).Shape()
         faceCount = 0
         faces_explorer = TopExp_Explorer(self.cylinder, TopAbs_FACE)
 
@@ -280,7 +282,7 @@ class ReversePropeller(object):
             surface = BRep_Tool.Surface(OCC.Core.TopoDS.topods_Face(nurbs_face))
             self.bounds = 0.0
             self.bounds = surface.Bounds()
-            
+
             # Compute the normal curve to the surfaces, specifying the bounds considered,
             # the maximum order of the derivative we want to compute, the linear tolerance
             normal = GeomLProp_SLProps(surface,
@@ -822,10 +824,12 @@ class ReversePropeller(object):
         """
 
         for j in range(self.num_sections):
-            self.recons_sections[j] = CustomProfile(xup=self.xup[j, :],
-                                                    yup=self.yup[j, :],
-                                                    xdown=self.xdown[j, :],
-                                                    ydown=self.ydown[j, :])
+            self.recons_sections[j] = CustomProfile(
+                xup=self.xup[j, :],
+                yup=self.yup[j, :],
+                xdown=self.xdown[j, :],
+                ydown=self.ydown[j, :],
+                chord_len=self.chord_length_list[j])
         return self.recons_sections
 
     def reconstruct_blade(self):
@@ -836,10 +840,12 @@ class ReversePropeller(object):
         """
 
         for j in range(self.num_sections):
-            self.recons_sections[j] = CustomProfile(xup=self.xup[j, :],
-                                                    yup=self.yup[j, :],
-                                                    xdown=self.xdown[j, :],
-                                                    ydown=self.ydown[j, :])
+            self.recons_sections[j] = CustomProfile(
+                xup=self.xup[j, :],
+                yup=self.yup[j, :],
+                xdown=self.xdown[j, :],
+                ydown=self.ydown[j, :],
+                chord_len=self.chord_length_list[j])
         radii = np.array(self.radii_list) / 1000
         self.recons_blade = Blade(sections=self.recons_sections,
                                   radii=radii,
@@ -885,19 +891,19 @@ class ReversePropeller(object):
         """
         display, start_display, add_menu, add_function_to_menu = init_display()
         for radius in self.radii_list:
-           
+
             display.DisplayShape(BRepBuilderAPI_MakeVertex(
                 self.leading_edge_point).Vertex(),
-                                  update=True,
-                                  color="ORANGE")
+                                 update=True,
+                                 color="ORANGE")
             display.DisplayShape(BRepBuilderAPI_MakeVertex(
                 self.trailing_edge_point).Vertex(),
-                                  update=True,
-                                  color="GREEN")
+                                 update=True,
+                                 color="GREEN")
             # Display the camber points, leading and trailing edges projected on plane
             display.DisplayShape(self.camber_curve_edge,
-                                  update=True,
-                                  color="GREEN")
+                                 update=True,
+                                 color="GREEN")
             display.DisplayShape(self.edge_3d, update=True, color="RED")
             display.DisplayShape(self.first_edge, update=True, color="BLUE1")
             display.DisplayShape(self.last_edge, update=True, color="BLUE1")
