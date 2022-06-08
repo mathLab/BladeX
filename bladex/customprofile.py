@@ -55,7 +55,7 @@ class CustomProfile(ProfileBase):
 
             self._generate_parameters()
 
-        elif set(kwargs.values()) == set([
+        elif set(kwargs.keys()) == set([
                 'chord_perc', 'camber_perc', 'thickness_perc', 'chord_len',
                 'camber_max', 'thickness_max'
         ]):
@@ -69,7 +69,11 @@ class CustomProfile(ProfileBase):
 
             self._generate_coordinates()
         else:
-            raise RuntimeError
+            raise RuntimeError(
+                """Input arguments should be the section coordinates
+                (xup, yup, xdown, ydown) and chord_len (optional)
+                or the section parameters (camber_perc, thickness_perc,
+                camber_max, thickness_max, chord_perc, chord_len).""")
 
         self._check_args()
         self._check_coordinates()
