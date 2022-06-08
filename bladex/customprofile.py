@@ -17,7 +17,7 @@ class CustomProfile(ProfileBase):
     i.e. , chord percentages and length, nondimensional and maximum camber, 
     nondimensional and maximum thickness.
     
-    If coordinates are direclty given as input:
+    If coordinates are directly given as input:
 
     :param numpy.ndarray xup: 1D array that contains the X-components of the
         airfoil's upper surface
@@ -27,6 +27,7 @@ class CustomProfile(ProfileBase):
         airfoil's upper surface
     :param numpy.ndarray ydown: 1D array that contains the Y-components of the
         airfoil's lower surface
+    :param float chord_len: the chord length of the airfoil section
         
     If section parameters are given as input:
         
@@ -38,49 +39,39 @@ class CustomProfile(ProfileBase):
     :param numpy.ndarray thickness_perc: 1D array that contains the thickness 
        percentage of an airfoil section at all considered chord percentages. 
        The percentage is with respect to the section maximum thickness
-    :param numpy.ndarray chord_len: 1-element array expressing the length of the chord 
-       line of a certain airfoil section
-    :param numpy.ndarray camber_max: 1-element array expressing the maximum camber at a 
-       certain airfoil section
-    :param numpy.ndarray thickness_max: 1-element array expressing the maximum thickness 
-       at a certain airfoil section
+    :param float chord_len: the length of the chord line of a certain airfoil section
+    :param float camber_max: the maximum camber at a certain airfoil section
+    :param float thickness_max: the maximum thickness at a certain airfoil section
     """
     def __init__(self, **kwargs):
         super(CustomProfile, self).__init__()
 
-        if len(kwargs) == 4:
-            xup, yup, xdown, ydown = kwargs.values()
-            self.xup_coordinates = xup
-            self.yup_coordinates = yup
-            self.xdown_coordinates = xdown
-            self.ydown_coordinates = ydown
-            self.chord_len = 1
+        if all([key in ['xup', 'yup', 'xdown', 'ydown'] for key in kwargs]):
+            self.xup_coordinates = kwargs['xup']
+            self.yup_coordinates = kwargs['yup']
+            self.xdown_coordinates = kwargs['xdown']
+            self.ydown_coordinates = kwargs['ydown']
+            self.chord_len = kwargs.get('chord_len', 1)
 
             self._generate_parameters()
 
-        if len(kwargs) == 5:
-            xup, yup, xdown, ydown, chord_len = kwargs.values()
-            self.xup_coordinates = xup
-            self.yup_coordinates = yup
-            self.xdown_coordinates = xdown
-            self.ydown_coordinates = ydown
-            self.chord_len = chord_len
+        elif set(kwargs.values()) == set([
+                'chord_perc', 'camber_perc', 'thickness_perc', 'chord_len',
+                'camber_max', 'thickness_max'
+        ]):
 
-            self._generate_parameters()
+            self.chord_percentage = kwargs['chord_perc']
+            self.camber_percentage = kwargs['camber_perc']
+            self.thickness_percentage = kwargs['thickness_perc']
+            self.chord_len = kwargs['chord_len']
+            self.camber_max = kwargs['camber_max']
+            self.thickness_max = kwargs['thickness_max']
 
-        if len(kwargs) == 6:
-            chord_perc, camber_perc, thickness_perc, chord_len, camber_max, thickness_max = kwargs.values(
-            )
-            self.chord_percentage = chord_perc
-            self.camber_percentage = camber_perc
-            self.thickness_percentage = thickness_perc
-            self.chord_len = chord_len
-            self.camber_max = camber_max
-            self.thickness_max = thickness_max
-
-            self._check_args()
             self._generate_coordinates()
+        else:
+            raise RuntimeError
 
+        self._check_args()
         self._check_coordinates()
 
     def _check_args(self):
