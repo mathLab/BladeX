@@ -313,16 +313,17 @@ class Blade(object):
 
         self._planar_to_cylindrical()
 
-    def rotate(self, deg_angle=None, rad_angle=None):
+    def rotate(self, deg_angle=None, rad_angle=None, axis='x'):
         """
-        3D counter clockwise rotation about the X-axis of the Cartesian
+        3D counter clockwise rotation about the specified axis of the Cartesian
         coordinate system, which is the axis of rotation of the propeller hub.
 
         The rotation matrix, :math:`R(\\theta)`, is used to perform rotation
-        in the 3D Euclidean space about the X-axis, which is -- by default --
-        the propeller axis of rotation.
+        in the 3D Euclidean space about the specified axis, which is
+        -- by default -- the x axis.
 
-        :math:`R(\\theta)` is defined by:
+        :math: when the axis of rotation is the x-axis `R(\\theta)` is defined
+        by:
 
         .. math::
              \\left(\\begin{matrix} 1 & 0 & 0 \\\\
@@ -344,6 +345,7 @@ class Blade(object):
 
         :param float deg_angle: angle in degrees. Default value is None
         :param float rad_angle: angle in radians. Default value is None
+        :param string axis: cartesian axis of rotation. Default value is 'x'
         :raises ValueError: if both rad_angle and deg_angle are inserted,
             or if neither is inserted
 
@@ -371,6 +373,14 @@ class Blade(object):
         rot_matrix = np.array([1, 0, 0, 0, cosine, -sine, 0, sine,
                                cosine]).reshape((3, 3))
 
+        if axis=='y':
+            rot_matrix = np.array([cosine, 0, -sine, 0, 1, 0, sine, 0,
+                            cosine]).reshape((3, 3))
+
+        if axis=='z':
+            rot_matrix = np.array([cosine, -sine, 0, sine, cosine, 0,
+                0, 0, 1]).reshape((3, 3))
+
         for i in range(self.n_sections):
             coord_matrix_up = np.vstack((self.blade_coordinates_up[i][0],
                                          self.blade_coordinates_up[i][1],
@@ -389,6 +399,37 @@ class Blade(object):
             self.blade_coordinates_down[i][0] = new_coord_matrix_down[0]
             self.blade_coordinates_down[i][1] = new_coord_matrix_down[1]
             self.blade_coordinates_down[i][2] = new_coord_matrix_down[2]
+
+    def scale(self, factor):
+        '''
+        Scale the blade coordinates by a specified factor.
+
+        :param float factor: scaling factor
+
+        '''
+        scaling_matrix = np.array([factor, 0, 0, 0, factor,
+            0, 0, 0, factor]).reshape((3, 3))
+
+        for i in range(self.n_sections):
+            coord_matrix_up = np.vstack((self.blade_coordinates_up[i][0],
+                                         self.blade_coordinates_up[i][1],
+                                         self.blade_coordinates_up[i][2]))
+            coord_matrix_down = np.vstack((self.blade_coordinates_down[i][0],
+                                           self.blade_coordinates_down[i][1],
+                                           self.blade_coordinates_down[i][2]))
+
+            new_coord_matrix_up = np.dot(scaling_matrix, coord_matrix_up)
+            new_coord_matrix_down = np.dot(scaling_matrix, coord_matrix_down)
+
+            self.blade_coordinates_up[i][0] = new_coord_matrix_up[0]
+            self.blade_coordinates_up[i][1] = new_coord_matrix_up[1]
+            self.blade_coordinates_up[i][2] = new_coord_matrix_up[2]
+
+            self.blade_coordinates_down[i][0] = new_coord_matrix_down[0]
+            self.blade_coordinates_down[i][1] = new_coord_matrix_down[1]
+            self.blade_coordinates_down[i][2] = new_coord_matrix_down[2]
+
+
 
     def plot(self, elev=None, azim=None, ax=None, outfile=None):
         """
@@ -784,7 +825,7 @@ class Blade(object):
         :param string root: if string is passed then the method generates
             the blade root using the BRepOffsetAPI_ThruSections algorithm
             in order to close the blade at the root, then exports the generated
-            CAD into .iges file holding the name <tip_string>.iges. 
+            CAD into .iges file holding the name <tip_string>.iges.
             Default value is None
         :param int max_deg: Define the maximal U degree of generated surface.
             Default value is 1
@@ -949,12 +990,12 @@ class Blade(object):
         :param string tip: if string is passed then the method generates
             the blade tip using the BRepOffsetAPI_ThruSections algorithm
             in order to close the blade at the tip, then exports the generated
-            CAD into .stl file holding the name <tip_string>.stl. 
+            CAD into .stl file holding the name <tip_string>.stl.
             Default value is None
         :param string root: if string is passed then the method generates
             the blade root using the BRepOffsetAPI_ThruSections algorithm
-            in order to close the blade at the root, then exports the generated 
-            CAD into .stl file holding the name <tip_string>.stl. 
+            in order to close the blade at the root, then exports the generated
+            CAD into .stl file holding the name <tip_string>.stl.
             Default value is None
         :param int max_deg: Define the maximal U degree of generated surface.
             Default value is 1

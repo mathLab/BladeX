@@ -275,6 +275,40 @@ class ProfileBase(object):
         self.ydown_coordinates = self.camber_line[1] - half_thickness
 
     @property
+    def yup_curve(self):
+        '''
+        Return the spline function corresponding to the upper profile
+        of the airfoil
+
+        :return: a spline function
+        :rtype: scipy interpolation object
+
+        .. todo::
+            generalize the interpolation function
+        '''
+        from scipy.interpolate import RBFInterpolator
+        spline = RBFInterpolator(self.xup_coordinates.reshape(-1,1),
+               self.yup_coordinates.reshape(-1,1))
+        return spline
+
+    @property
+    def ydown_curve(self):
+        '''
+        Return the spline function corresponding to the lower profile
+        of the airfoil
+
+        :return: a spline function
+        :rtype: scipy interpolation object
+
+        .. todo::
+            generalize the interpolation function
+        '''
+        from scipy.interpolate import RBFInterpolator
+        spline = RBFInterpolator(self.xdown_coordinates.reshape(-1,1),
+               self.ydown_coordinates.reshape(-1,1))
+        return spline
+
+    @property
     def reference_point(self):
         """
         Return the coordinates of the chord's mid point.
@@ -313,7 +347,7 @@ class ProfileBase(object):
 
             - British convention: measures along the line perpendicular to \
                 the chord line.
-        
+
         In this implementation, the british convention is used to evaluate
         the maximum thickness.
 
@@ -400,7 +434,7 @@ class ProfileBase(object):
         """
         2D counter clockwise rotation about the origin of the Cartesian
         coordinate system.
-        
+
         The rotation matrix, :math:`R(\\theta)`, is used to perform rotation
         in the 2D Euclidean space about the origin, which is -- by default --
         the leading edge.
@@ -473,7 +507,7 @@ class ProfileBase(object):
     def translate(self, translation):
         """
         Translate the airfoil coordinates according to a 2D translation vector.
-        
+
         :param array_like translation: the translation vector in 2D
         """
         self.xup_coordinates += translation[0]
@@ -491,7 +525,7 @@ class ProfileBase(object):
         self.yup_coordinates *= -1
         self.ydown_coordinates *= -1
 
-    def scale(self, factor):
+    def scale(self, factor, translate=True):
         """
         Scale the airfoil coordinates according to a scaling factor.
 
@@ -503,13 +537,20 @@ class ProfileBase(object):
 
         :param float factor: the scaling factor
         """
-        ref_point = self.reference_point
-        self.translate(-ref_point)
-        self.xup_coordinates *= factor
-        self.xdown_coordinates *= factor
-        self.yup_coordinates *= factor
-        self.ydown_coordinates *= factor
-        self.translate(ref_point)
+        if translate==True:
+            ref_point = self.reference_point
+            self.translate(-ref_point)
+            self.xup_coordinates *= factor
+            self.xdown_coordinates *= factor
+            self.yup_coordinates *= factor
+            self.ydown_coordinates *= factor
+            self.translate(ref_point)
+        else:
+            self.xup_coordinates *= factor
+            self.xdown_coordinates *= factor
+            self.yup_coordinates *= factor
+            self.ydown_coordinates *= factor
+
 
     def plot(self,
              profile=True,

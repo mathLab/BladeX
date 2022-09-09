@@ -1,5 +1,5 @@
 """
-Module for the extraction of the parameters of a blade and for the 
+Module for the extraction of the parameters of a blade and for the
 approximated reconstruction of the blade and the whole propeller.
 """
 
@@ -87,12 +87,12 @@ def point_inside_polygon(x, y, poly, include_edges=True):
     '''
     Test if point (x,y) is inside polygon poly.
 
-    poly is N-vertices polygon defined as 
+    poly is N-vertices polygon defined as
     [(x1,y1),...,(xN,yN)] or [(x1,y1),...,(xN,yN),(x1,y1)]
     (function works fine in both cases)
 
     Geometrical idea: point is inside polygon if horisontal beam
-    to the right from point crosses polygon even number of times. 
+    to the right from point crosses polygon even number of times.
     Works fine for non-convex polygons.
     '''
     n = len(poly)
@@ -132,7 +132,7 @@ class ReversePropeller(object):
     blade and of the entire propeller.
 
     Given the IGES file of the blade, the following parameters are extracted:
-    
+
         - :math:`(X, Y)` coordinates of the blade cylindrical sections after
           being expanded in 2D to create airfoils.
 
@@ -147,19 +147,19 @@ class ReversePropeller(object):
 
     The parameters can be saved in a csv file with the method
     'save_global_parameters' and used to reconstruct the blade, which is saved
-    in a IGES file (method 'reconstruct_blade'). 
-    The coordinates of each section can be extracted with the method 
-    'reconstruct_sections'. 
-    Given the shaft, the whole propeller can be reconstructed and saved in a 
+    in a IGES file (method 'reconstruct_blade').
+    The coordinates of each section can be extracted with the method
+    'reconstruct_sections'.
+    Given the shaft, the whole propeller can be reconstructed and saved in a
     IGES file with the method 'reconstruct_propeller'.
-    
-    -------------------------- 
-        
-    :param filename: path to the IGES file of the blade.       
+
+    --------------------------
+
+    :param filename: path to the IGES file of the blade.
     :param list radii_list: list which contains the radii values of the
         sectional profiles.
-    :param num_points_top_bottom: number of points used to interpolate each 
-        sectional profile.      
+    :param num_points_top_bottom: number of points used to interpolate each
+        sectional profile.
     """
     def __init__(self, filename, radii_list, num_points_top_bottom):
 
@@ -257,11 +257,11 @@ class ReversePropeller(object):
 
     def _build_cylinder(self, radius):
         """
-        Private method that builds the cylinder which  intersects the blade at a 
-        specific cylindrical section. 
-        Argument 'radius' is the radius value corresponding to the cylindrical section
-        taken into account.
-        This method is applied to all the radii in list 'radii_list' given as input.
+        Private method that builds the cylinder which  intersects the blade
+        at a specific cylindrical section.
+        Argument 'radius' is the radius value corresponding to the cylindrical
+        section taken into account. This method is applied to all the radii in
+        list 'radii_list' given as input.
         """
         axis = gp_Ax2(gp_Pnt(-0.5 * self.conversion_unit, 0.0, 0.0),
                       gp_Dir(1.0, 0.0, 0.0))
@@ -296,7 +296,7 @@ class ReversePropeller(object):
 
     def _build_intersection_cylinder_blade(self, radius):
         """
-        Private method that constructs the section lines which are the intersections 
+        Private method that constructs the section lines which are the intersections
         between the cylinder at a fixed radius and the blade, and the camber points.
         """
         # Construction of the section lines between two shapes (in this case the
@@ -352,7 +352,7 @@ class ReversePropeller(object):
 
     def _voronoi_points(self, radius):
         """
-        Private method which computes the points of the Voronoi map for each 
+        Private method which computes the points of the Voronoi map for each
         section of the blade.
 
         """
@@ -406,8 +406,8 @@ class ReversePropeller(object):
     def _camber_curve(self, radius):
         """
         Private method which constructs the camber curve by interpolating the
-        points found with the method _camber_points. Also the leading and the 
-        trailing edge are found and assembled with the camber line in a unique 
+        points found with the method _camber_points. Also the leading and the
+        trailing edge are found and assembled with the camber line in a unique
         object.
         """
         # Create objects for the points of the Voronoi map, construct Splines
@@ -551,7 +551,7 @@ class ReversePropeller(object):
     def _initial_leading_trailing_edges_plane(self, radius):
         """
         Private method which computes the coordinates of the leading and trailing
-        edges of each section, as were in the initial blade. Thenm transformations 
+        edges of each section, as were in the initial blade. Thenm transformations
         will be applied in order to plot the points of the profiles on a plane
         and to map the X coordinates in the interval [0,1].
         """
@@ -595,7 +595,7 @@ class ReversePropeller(object):
     def _initial_airfoil_points_plane(self, radius):
         """
         Private method that evaluates the airfoil points on a plane (the points of
-        the profile of a single section, which will be then distinguished into 
+        the profile of a single section, which will be then distinguished into
         upper and lower part). Those points are defined in a plane, in 2D coordinates.
         """
 
@@ -622,13 +622,13 @@ class ReversePropeller(object):
 
     def _extract_parameters_and_transform_profile(self, radius):
         """
-        Private method which extracts the parameters (pitch, rake, skew ,...) related 
+        Private method which extracts the parameters (pitch, rake, skew ,...) related
         to a specific section of the blade, and then transforms the camber points
-        initialized in _initial_camber_points_plane and the prile points initialized 
+        initialized in _initial_camber_points_plane and the prile points initialized
         in _initial_airfoil_points_plane according to the parameters found.
-        This method trasforms the leading and trailing edges initialed in 
+        This method trasforms the leading and trailing edges initialed in
         _initial_leading_trailing_edges and the mid chord point as well.
-        
+
         Basically all points and edges of the profile section are transformed
         to fulfill the properties of the specific sectionwe are considering.
         """
@@ -727,8 +727,8 @@ class ReversePropeller(object):
 
     def _airfoil_top_and_bottom_points(self):
         """
-        Private method that finds the points of the airfoil belonging to the upper 
-        and lower profiles of each section. 
+        Private method that finds the points of the airfoil belonging to the upper
+        and lower profiles of each section.
         """
         self.airfoil_top = []
         self.airfoil_top.append(self.leading_edge_point_on_plane)
@@ -817,9 +817,9 @@ class ReversePropeller(object):
 
     def reconstruct_sections(self):
         """
-        Method that reconstructs single sections of the blade starting from the 
+        Method that reconstructs single sections of the blade starting from the
         points computed from the original IGES file.
-        If sections are not enough to reconstruct the blade, one can just export sections 
+        If sections are not enough to reconstruct the blade, one can just export sections
         and then reconstruct the blade in a dedicated script.
         """
 
@@ -828,8 +828,7 @@ class ReversePropeller(object):
                 xup=self.xup[j, :],
                 yup=self.yup[j, :],
                 xdown=self.xdown[j, :],
-                ydown=self.ydown[j, :],
-                chord_len=self.chord_length_list[j])
+                ydown=self.ydown[j, :])
         return self.recons_sections
 
     def reconstruct_blade(self):
@@ -844,8 +843,7 @@ class ReversePropeller(object):
                 xup=self.xup[j, :],
                 yup=self.yup[j, :],
                 xdown=self.xdown[j, :],
-                ydown=self.ydown[j, :],
-                chord_len=self.chord_length_list[j])
+                ydown=self.ydown[j, :])
         radii = np.array(self.radii_list) / 1000
         self.recons_blade = Blade(sections=self.recons_sections,
                                   radii=radii,
@@ -854,18 +852,12 @@ class ReversePropeller(object):
                                   rake=self.rake_list,
                                   skew_angles=self.skew_angles_list)
         self.recons_blade.apply_transformations()
-        self.recons_blade.generate_iges(upper_face='rec_uface',
-                                        lower_face='rec_lface',
-                                        tip='rec_tip',
-                                        root='rec_root',
-                                        max_deg=1,
-                                        display=True,
-                                        errors=None)
+        self.recons_blade.generate_iges_blade('iges_reconstructed.iges')
 
     def reconstruct_propeller(self, propeller_iges, shaft_iges, n_blades):
         """
-        Method which reconstruct the whole propeller with shaft starting from 
-        the iges file of the shaft and the number of blades. The whole propeller 
+        Method which reconstructs the whole propeller with shaft starting from
+        the iges file of the shaft and the number of blades. The whole propeller
         is saved in an IGES file named filename_iges (must be given as input).
         """
         shaft_path = shaft_iges
