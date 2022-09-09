@@ -152,20 +152,20 @@ class Propeller(object):
             kwargs = {**defaultKwargs, **kwargs}
             append_cells(blades_cells, region_name=kwargs['blades_name'])
             append_cells(shaft_cells, region_name=kwargs['shaft_name'])
-            
+
         elif region_selector == "by_coords":
             defaultKwargs = {'blades_name' : 'blades', 'shafthead_name' : 'shaftHead', 'shafttail_name' : 'shaftTail'}
             kwargs = {**defaultKwargs, **kwargs}
             minimum_blades_x = np.min(blades["points"][:, 0])
             maximum_blades_x = np.max(blades["points"][:, 0])
             shaft_x = shaft["points"][:, 0]
-            
+
             if np.count_nonzero(shaft_x > maximum_blades_x) >= np.count_nonzero(shaft_x < maximum_blades_x):
                 tip_boolean_array = shaft["points"][:, 0] <= maximum_blades_x
-            
+
             elif np.count_nonzero(shaft_x < maximum_blades_x) > np.count_nonzero(shaft_x > maximum_blades_x):
                 tip_boolean_array = shaft["points"][:, 0] >= minimum_blades_x
-                
+
             shaft_cells_tip = np.all(
                 tip_boolean_array[shaft_cells.flatten()].reshape(
                     -1, shaft_cells.shape[1]
@@ -189,6 +189,55 @@ class Propeller(object):
             raise ValueError("This selector is not supported at the moment")
 
         # this is needed because indexes start at 1
+        obj_instance.polygons += 1
+
+        ObjHandler.write(obj_instance, filename)
+
+    def generate_obj_blades(self, filename):
+        """
+        Export the .obj CAD for the blades.
+
+        :param string filename: path (with the file extension).
+        """
+
+        # we write the propeller to STL, then re-open it to obtain the points
+        write_stl_file(self.blades_solid, "/tmp/temp_blades.stl")
+        blades = STLHandler.read("/tmp/temp_blades.stl")
+
+        obj_instance = WavefrontOBJ()
+
+        # add vertexes. first of all we check for duplicated vertexes
+        all_vertices = blades["points"]
+        # unique_mapping maps items in all_vertices to items in unique_vertices
+        unique_vertices, unique_mapping = np.unique(
+            all_vertices, return_inverse=True, axis=0
+        )
+        obj_instance.vertices = unique_vertices
+
+        def cells_to_np(cells):
+            cells = np.asarray(cells)
+            return unique_mapping[cells.flatten()].reshape(-1, cells.shape[1])
+        # append a list of cells to obj_instance.polygons, possibly with a
+        # region name
+        def append_cells(cells):
+            obj_instance.regions_change_indexes.append(
+                (
+                    np.asarray(obj_instance.polygons).shape[0],
+                    len(obj_instance.regions),
+                )
+            )
+            obj_instance.regions.append('blades')
+
+            if len(obj_instance.polygons) == 0:
+                obj_instance.polygons = np.array(cells_to_np(cells))
+            else:
+                obj_instance.polygons = np.concatenate(
+                    [obj_instance.polygons, cells_to_np(cells)], axis=0
+                )
+
+        blades_cells = np.asarray(blades["cells"])
+
+        append_cells(blades_cells)
         obj_instance.polygons += 1
 
         ObjHandler.write(obj_instance, filename)
