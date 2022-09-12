@@ -9,6 +9,7 @@ profile. Input data can be:
 
 import numpy as np
 from .profilebase import ProfileBase
+from scipy.optimize import newton
 
 
 class CustomProfile(ProfileBase):
@@ -89,7 +90,7 @@ class CustomProfile(ProfileBase):
             raise ValueError(
                 'object "thickness_perc" refers to an empty array.')
         if self.chord_len is None:
-            raise ValueError('object "chorf_len" refers to an empty array.')
+            raise ValueError('object "chord_len" refers to an empty array.')
         if self.camber_max is None:
             raise ValueError('object "camber_max" refers to an empty array.')
         if self.thickness_max is None:
@@ -127,13 +128,13 @@ class CustomProfile(ProfileBase):
                 'thickness_perc and chord_perc must have same shape.')
 
     def _compute_orth_camber_coordinates(self):
-        '''
+        """
         Compute the coordinates of points on upper and lower profile on the
         line orthogonal to the camber line.
 
         :return: x and y coordinates of section points on line orthogonal to
         camber line
-        '''
+        """
         # Compute the angular coefficient of the camber line
         n_pos = self.chord_percentage.shape[0]
         m = np.zeros(n_pos)
@@ -157,7 +158,7 @@ class CustomProfile(ProfileBase):
             xup_tmp[1], xdown_tmp[1] = xup_tmp[2]-1e-16, xdown_tmp[2]-1e-16
             yup_tmp[1], ydown_tmp[1] = yup_tmp[2]-1e-16, ydown_tmp[2]-1e-16
 
-        return xup_tmp, xdown_tmp, yup_tmp, ydown_tmp
+        return [xup_tmp, xdown_tmp, yup_tmp, ydown_tmp]
 
 
 
@@ -169,7 +170,8 @@ class CustomProfile(ProfileBase):
         and camber.
         """
 
-        self.xup_coordinates, self.xdown_coordinates, self.yup_coordinates, self.ydown_coordinates = self._compute_orth_camber_coordinates()
+        [self.xup_coordinates, self.xdown_coordinates, self.yup_coordinates,
+            self.ydown_coordinates] = self._compute_orth_camber_coordinates()
 
         self.ydown_coordinates = self.ydown_curve(
                 self.chord_len*(self.chord_percentage).reshape(-1,1)).reshape(
@@ -186,10 +188,10 @@ class CustomProfile(ProfileBase):
 
 
     def adimensionalize(self):
-        '''
+        """
         Rescale coordinates of upper and lower profiles of section such that
         coordinates on x axis are between 0 and 1.
-        '''
+        """
         factor = abs(self.xup_coordinates[-1]-self.xup_coordinates[0])
         self.yup_coordinates *= 1/factor
         self.xdown_coordinates *= 1/factor
@@ -197,12 +199,12 @@ class CustomProfile(ProfileBase):
         self.xup_coordinates *= 1/factor
 
     def generate_parameters(self):
-        '''
+        """
         Method that generates the parameters of a general airfoil profile
         (chord length, chord percentages, camber max, thickness max, camber and
         thickness percentages), starting from the upper and lower
         coordinates of the section profile.
-        '''
+        """
         n_pos = self.xup_coordinates.shape[0]
 
         self.chord_len = abs(np.max(self.xup_coordinates)-
@@ -220,11 +222,12 @@ class CustomProfile(ProfileBase):
                     self.chord_percentage[i-1])*self.camber_max/self.chord_len
         m_angle = np.arctan(m)
 
-        from scipy.optimize import newton
-
+        # generating temporary profile coordinates orthogonal to the camber
+        # line
         ind_horizontal_camber = (np.sin(m_angle)==0)
         def eq_to_solve(x):
-            spline_curve = self.ydown_curve(x.reshape(-1,1)).reshape(x.shape[0],)
+            spline_curve = self.ydown_curve(x.reshape(-1,1)).reshape(
+                    x.shape[0],)
             line_orth_camber = (camber[~ind_horizontal_camber] +
                     np.cos(m_angle[~ind_horizontal_camber])/
                     np.sin(m_angle[~ind_horizontal_camber])*(self.chord_len*
@@ -235,7 +238,8 @@ class CustomProfile(ProfileBase):
         xdown_tmp[~ind_horizontal_camber] = newton(eq_to_solve,
                 xdown_tmp[~ind_horizontal_camber])
         xup_tmp = 2*self.chord_len*self.chord_percentage - xdown_tmp
-        ydown_tmp = self.ydown_curve(xdown_tmp.reshape(-1,1)).reshape(xdown_tmp.shape[0],)
+        ydown_tmp = self.ydown_curve(xdown_tmp.reshape(-1,1)).reshape(
+                xdown_tmp.shape[0],)
         yup_tmp = 2*self.camber_max*self.camber_percentage - ydown_tmp
         if xup_tmp[1]<self.xup_coordinates[0]:
             xup_tmp[1], xdown_tmp[1] = xup_tmp[2], xdown_tmp[2]

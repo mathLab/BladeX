@@ -5,6 +5,7 @@ Base module that provides essential tools and transformations on airfoils.
 import numpy as np
 import matplotlib.pyplot as plt
 from .ndinterpolator import reconstruct_f
+from scipy.interpolate import RBFInterpolator
 
 
 class ProfileBase(object):
@@ -276,7 +277,7 @@ class ProfileBase(object):
 
     @property
     def yup_curve(self):
-        '''
+        """
         Return the spline function corresponding to the upper profile
         of the airfoil
 
@@ -285,15 +286,14 @@ class ProfileBase(object):
 
         .. todo::
             generalize the interpolation function
-        '''
-        from scipy.interpolate import RBFInterpolator
+        """
         spline = RBFInterpolator(self.xup_coordinates.reshape(-1,1),
                self.yup_coordinates.reshape(-1,1))
         return spline
 
     @property
     def ydown_curve(self):
-        '''
+        """
         Return the spline function corresponding to the lower profile
         of the airfoil
 
@@ -302,8 +302,7 @@ class ProfileBase(object):
 
         .. todo::
             generalize the interpolation function
-        '''
-        from scipy.interpolate import RBFInterpolator
+        """
         spline = RBFInterpolator(self.xdown_coordinates.reshape(-1,1),
                self.ydown_coordinates.reshape(-1,1))
         return spline
@@ -537,7 +536,7 @@ class ProfileBase(object):
 
         :param float factor: the scaling factor
         """
-        if translate==True:
+        if translate:
             ref_point = self.reference_point
             self.translate(-ref_point)
             self.xup_coordinates *= factor

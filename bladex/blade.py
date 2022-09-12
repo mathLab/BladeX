@@ -322,7 +322,7 @@ class Blade(object):
         in the 3D Euclidean space about the specified axis, which is
         -- by default -- the x axis.
 
-        :math: when the axis of rotation is the x-axis `R(\\theta)` is defined
+        when the axis of rotation is the x-axis :math: `R(\\theta)` is defined
         by:
 
         .. math::
@@ -401,12 +401,12 @@ class Blade(object):
             self.blade_coordinates_down[i][2] = new_coord_matrix_down[2]
 
     def scale(self, factor):
-        '''
+        """
         Scale the blade coordinates by a specified factor.
 
         :param float factor: scaling factor
+        """
 
-        '''
         scaling_matrix = np.array([factor, 0, 0, 0, factor,
             0, 0, 0, factor]).reshape((3, 3))
 
