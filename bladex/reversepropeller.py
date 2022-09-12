@@ -84,7 +84,7 @@ def optimized_path(coords, start=None):
 
 
 def point_inside_polygon(x, y, poly, include_edges=True):
-    '''
+    """
     Test if point (x,y) is inside polygon poly.
 
     poly is N-vertices polygon defined as
@@ -94,7 +94,7 @@ def point_inside_polygon(x, y, poly, include_edges=True):
     Geometrical idea: point is inside polygon if horisontal beam
     to the right from point crosses polygon even number of times.
     Works fine for non-convex polygons.
-    '''
+    """
     n = len(poly)
     inside = False
 

@@ -44,39 +44,39 @@ class TestRBF(TestCase):
     def test_gaussian_evaluation(self):
         rbf = nd.RBF(basis='gaussian_spline', radius=1.)
         result = rbf.basis(X=1., r=1.)
-        assert result == 0.36787944117144233
+        np.testing.assert_almost_equal(result, 0.36787944117144233)
 
     def test_biharmonic_evaluation(self):
         rbf = nd.RBF(basis='multi_quadratic_biharmonic_spline', radius=1.)
         result = rbf.basis(X=1., r=1.)
-        assert result == 1.4142135623730951
+        np.testing.assert_almost_equal(result, 1.4142135623730951)
 
     def test_inv_biharmonic_evaluation(self):
         rbf = nd.RBF(basis='inv_multi_quadratic_biharmonic_spline', radius=1.)
         result = rbf.basis(X=1., r=1.)
-        assert result == 0.7071067811865475
+        np.testing.assert_almost_equal(result, 0.7071067811865475)
 
     def test_thin_plate_evaluation(self):
         rbf = nd.RBF(basis='thin_plate_spline', radius=1.)
         result = rbf.basis(X=1., r=0.5)
-        assert result == 2.772588722239781
+        np.testing.assert_almost_equal(result, 2.772588722239781)
 
     def test_wendland_evaluation(self):
         rbf = nd.RBF(basis='beckert_wendland_c2_basis', radius=1.)
         result = rbf.basis(X=1., r=2.)
-        assert result == 0.1875
+        np.testing.assert_almost_equal(result, 0.1875)
 
     def test_wendland_outside_cutoff(self):
         rbf = nd.RBF(basis='beckert_wendland_c2_basis', radius=1.)
         result = rbf.basis(X=2., r=1.)
-        assert result == 0.0
+        np.testing.assert_almost_equal(result, 0.0)
 
     def test_weight_matrix(self):
         x = np.arange(10)
         rbf = nd.RBF(basis='beckert_wendland_c2_basis', radius=1.)
         weights_matrix = rbf.weights_matrix(X1=x, X2=x)
         expected = np.diag(np.ones(10))
-        np.testing.assert_array_equal(weights_matrix, expected)
+        np.testing.assert_array_almost_equal(weights_matrix, expected)
 
     def test_reconstruct_f_gaussian(self):
         x, y, xx, yy = sample_data()
@@ -91,7 +91,7 @@ class TestRBF(TestCase):
         # for argmin(yy) nearest to point y=20.25, where y=x*x
         idx = (np.abs(xx - 4.5)).argmin()
         idx2 = (np.abs(yy - 20.25)).argmin()
-        assert idx == idx2
+        np.testing.assert_array_almost_equal(idx, idx2)
 
     def test_reconstruct_f_biharmonic(self):
         x, y, xx, yy = sample_data()
@@ -106,7 +106,7 @@ class TestRBF(TestCase):
         # for argmin(yy) nearest to point y=20.25, where y=x*x
         idx = (np.abs(xx - 4.5)).argmin()
         idx2 = (np.abs(yy - 20.25)).argmin()
-        assert idx == idx2
+        np.testing.assert_array_almost_equal(idx, idx2)
 
     def test_reconstruct_f_inv_biharmonic(self):
         x, y, xx, yy = sample_data()
@@ -121,7 +121,7 @@ class TestRBF(TestCase):
         # for argmin(yy) nearest to point y=20.25, where y=x*x
         idx = (np.abs(xx - 4.5)).argmin()
         idx2 = (np.abs(yy - 20.25)).argmin()
-        assert idx == idx2
+        np.testing.assert_array_almost_equal(idx, idx2)
 
     def test_reconstruct_f_plate(self):
         x, y, xx, yy = sample_data()
@@ -136,7 +136,7 @@ class TestRBF(TestCase):
         # for argmin(yy) nearest to point y=20.25, where y=x*x
         idx = (np.abs(xx - 4.5)).argmin()
         idx2 = (np.abs(yy - 20.25)).argmin()
-        assert idx == idx2
+        np.testing.assert_array_almost_equal(idx, idx2)
 
     def test_reconstruct_f_wendland(self):
         x, y, xx, yy = sample_data()
@@ -151,7 +151,7 @@ class TestRBF(TestCase):
         # for argmin(yy) nearest to point y=20.25, where y=x*x
         idx = (np.abs(xx - 4.5)).argmin()
         idx2 = (np.abs(yy - 20.25)).argmin()
-        assert idx == idx2
+        np.testing.assert_array_almost_equal(idx, idx2)
 
     def test_reconstruct_f_scalar(self):
         x = np.arange(10)
