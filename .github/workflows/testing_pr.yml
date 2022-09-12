@@ -33,6 +33,8 @@ jobs:
         
     - name: Install Python dependencies
       run: |
+        python --version
+        python3 --version
         conda install --yes pythonocc-core=7.4.0
         python3 -m pip install --upgrade pip
         python3 -m pip install smithers[vtk]
