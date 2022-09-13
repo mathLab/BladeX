@@ -33,6 +33,10 @@ jobs:
         
     - name: Install Python dependencies
       run: |
+        python --version
+        python -c 'import OCC'
+        python3 --version
+        python3 -c 'import OCC'
         conda install --yes pythonocc-core=7.4.0
         python --version
         python -c 'import OCC'
@@ -44,4 +48,7 @@ jobs:
 
     - name: Test with pytest
       run: |
-        python3 -m pytest
+        if: matrix.os == 'windows-latest'
+          python -m pytest
+        else:
+          python3 -m pytest
