@@ -37,10 +37,11 @@ jobs:
         python3 -m pip install --upgrade pip
         python3 -m pip install smithers[vtk]
         python3 -m pip install .[test]
+         
+    - name: Test with pytest on Windows
+      if: startsWith(matrix.os, 'windows')
+      run: python -m pytest
 
-    - name: Test with pytest
-      run: |
-        if: matrix.os == 'windows-latest'
-          python -m pytest
-        else:
-          python3 -m pytest
+    - name: Test with pytest on Linux/MacOS
+      if: startsWith(matrix.os, 'windows') != true
+      run: python3 -m pytest
