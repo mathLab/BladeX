@@ -25,19 +25,32 @@ jobs:
         python-version: ${{ matrix.python-version }}
 
     - name: Setup conda
-      uses: s-weigand/setup-conda@v1
+      uses: s-weigand/setup-conda@v1.1.1
       with:
         update-conda: true
         python-version: ${{ matrix.python-version }}
         conda-channels: anaconda, conda-forge
         
-    - name: Install Python dependencies
+    - name: Install Python dependencies on Linux/MacOS
+      if: startsWith(matrix.os, 'windows') != true
       run: |
-        conda install --yes pythonocc-core=7.4.0
+        conda install --yes pythonocc-core=7.4.1
         python3 -m pip install --upgrade pip
         python3 -m pip install smithers[vtk]
         python3 -m pip install .[test]
-
-    - name: Test with pytest
+        
+    - name: Install Python dependencies on Windows
+      if: startsWith(matrix.os, 'windows')
       run: |
-        python3 -m pytest
+        conda install --yes pythonocc-core=7.4.1
+        python -m pip install --upgrade pip
+        python -m pip install smithers[vtk]
+        python -m pip install .[test]
+
+    - name: Test with pytest on Windows
+      if: startsWith(matrix.os, 'windows')
+      run: python -m pytest
+
+    - name: Test with pytest on Linux/MacOS
+      if: startsWith(matrix.os, 'windows') != true
+      run: python3 -m pytest
