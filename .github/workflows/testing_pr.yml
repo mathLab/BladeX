@@ -34,7 +34,7 @@ jobs:
     - name: Install Python dependencies on Linux/MacOS
       if: startsWith(matrix.os, 'windows') != true
       run: |
-        conda install --yes pythonocc-core
+        conda install --yes pythonocc-core=7.4.1
         python3 -m pip install --upgrade pip
         python3 -m pip install smithers[vtk]
         python3 -m pip install .[test]
@@ -42,7 +42,7 @@ jobs:
     - name: Install Python dependencies on Windows
       if: startsWith(matrix.os, 'windows')
       run: |
-        conda install --yes pythonocc-core=7.4.0
+        conda install --yes pythonocc-core=7.4.1
         python -m pip install --upgrade pip
         python -m pip install smithers[vtk]
         python -m pip install .[test]
