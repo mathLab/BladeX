@@ -42,16 +42,17 @@ class CustomProfile(ProfileBase):
     :param float camber_max: the maximum camber at a certain airfoil section
     :param float thickness_max: the maximum thickness at a certain airfoil section
     """
-    def __init__(self, **kwargs):
+    def __init__(self, convention='british', **kwargs):
         super(CustomProfile, self).__init__()
+        self.convention = convention
 
-        if all([key in ['xup', 'yup', 'xdown', 'ydown'] for key in kwargs]):
+        if set(kwargs.keys()) == set(
+                ['xup', 'yup', 'xdown', 'ydown']):
             self.xup_coordinates = kwargs['xup']
             self.yup_coordinates = kwargs['yup']
             self.xdown_coordinates = kwargs['xdown']
             self.ydown_coordinates = kwargs['ydown']
             self._check_coordinates()
-            self._initialize_parameters()
 
         elif set(kwargs.keys()) == set([
                 'chord_perc', 'camber_perc', 'thickness_perc',
@@ -71,17 +72,6 @@ class CustomProfile(ProfileBase):
                 (xup, yup, xdown, ydown) or the section parameters (camber_perc, thickness_perc,
                 camber_max, thickness_max, chord_perc).""")
 
-    def _initialize_parameters(self):
-        """
-        Initialize the parameters of the airfoil, i.e. the chord percentages,
-        the associated nondimensional camber and thickness, the maximum values
-        of camber and thickness associated to the single blade sections.
-        """
-        self.chord_percentage = None
-        self.camber_percentage = None
-        self.thickness_percentage = None
-        self.camber_max = None
-        self.thickness_max = None
 
     def _check_parameters(self):
         """
@@ -284,7 +274,8 @@ class CustomProfile(ProfileBase):
         Generate chord length and chord percentages.
         """
         self.chord_percentage = (self.xup_coordinates -
-                np.min(self.xup_coordinates))
+                np.min(self.xup_coordinates))/(
+            self.xup_coordinates[-1] - self.xup_coordinates[0])
 
 
     def generate_parameters(self, convention='british'):
@@ -294,8 +285,6 @@ class CustomProfile(ProfileBase):
         thickness percentages), starting from the upper and lower
         coordinates of the section profile.
         """
-        # set parameters to None
-        self._initialize_parameters()
         # generate camber and chord
         self._generate_camber()
         self._generate_chord()
@@ -357,17 +346,17 @@ class CustomProfile(ProfileBase):
         if self.xdown_coordinates.shape != self.ydown_coordinates.shape:
             raise ValueError('xdown and ydown must have same shape.')
 
-        if not (np.isclose(self.ydown_coordinates[0],
-                self.yup_coordinates[0], atol=1e-18) and
-                np.isclose(self.ydown_coordinates[0], 0, atol=1e-6)):
-            print('(ydown[0]=yup[0]=0) not satisfied, setting to 0.')
-            self.ydown_coordinates[0] = self.yup_coordinates[0] = 0
-
-        if not (np.isclose(self.ydown_coordinates[-1],
-                self.yup_coordinates[-1], atol=1e-18) and
-                np.isclose(self.ydown_coordinates[-1], 0, atol=1e-6)):
-            print('(ydown[-1]=yup[-1]=0) not satisfied, setting to 0.')
-            self.ydown_coordinates[-1] = self.yup_coordinates[-1] = 0
+#        if not (np.isclose(self.ydown_coordinates[0],
+#                self.yup_coordinates[0], atol=1e-18) and
+#                np.isclose(self.ydown_coordinates[0], 0, atol=1e-6)):
+#            print('(ydown[0]=yup[0]=0) not satisfied, setting to 0.')
+#            self.ydown_coordinates[0] = self.yup_coordinates[0] = 0
+#
+#        if not (np.isclose(self.ydown_coordinates[-1],
+#                self.yup_coordinates[-1], atol=1e-18) and
+#                np.isclose(self.ydown_coordinates[-1], 0, atol=1e-6)):
+#            print('(ydown[-1]=yup[-1]=0) not satisfied, setting to 0.')
+#            self.ydown_coordinates[-1] = self.yup_coordinates[-1] = 0
 
         # The condition yup_coordinates >= ydown_coordinates must be satisfied
         # element-wise to the whole elements in the mentioned arrays.
@@ -382,3 +371,11 @@ class CustomProfile(ProfileBase):
         if not np.isclose(self.xdown_coordinates[-1], self.xup_coordinates[-1],
                 atol=1e-6):
             raise ValueError('(xdown[-1]=xup[-1]) not satisfied.')
+
+        if not np.isclose(self.ydown_coordinates[0], self.yup_coordinates[0],
+                atol=1e-6):
+            raise ValueError('(ydown[0]=yup[0]) not satisfied.')
+
+        if not np.isclose(self.ydown_coordinates[-1], self.yup_coordinates[-1],
+                atol=1e-6):
+            raise ValueError('(ydown[0]=yup[0]) not satisfied.')

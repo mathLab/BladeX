@@ -1,6 +1,6 @@
 import os
 from unittest import TestCase
-import bladex.profilebase as pb
+from bladex.profile import profilebase as pb
 import numpy as np
 import matplotlib.pyplot as plt
 
