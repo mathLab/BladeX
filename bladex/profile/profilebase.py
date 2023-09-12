@@ -41,7 +41,15 @@ class ProfileBase(ABC, object):
 
     def __init__(self, convention='british'):
         self.convention = convention
-    
+        self.xup_coordinates = None
+        self.xdown_coordinates = None
+        self.yup_coordinates = None
+        self.ydown_coordinates = None
+        self.chord_line = None
+        self.camber_line = None
+        self.leading_edge = np.zeros(2)
+        self.trailing_edge = np.zeros(2)
+
     def _update_edges(self):
         """
         Private method that identifies and updates the airfoil's leading and
@@ -53,8 +61,6 @@ class ProfileBase(ABC, object):
         trailing edge, hence both the leading and the trailing edges are always
         unique.
         """
-        self.leading_edge = np.zeros(2)
-        self.trailing_edge = np.zeros(2)
         if np.fabs(self.xup_coordinates[0] - self.xdown_coordinates[0]) > 1e-4:
             raise ValueError('Airfoils must have xup_coordinates[0] '\
                             'almost equal to xdown_coordinates[0]')
