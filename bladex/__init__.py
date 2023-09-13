@@ -1,12 +1,12 @@
 """
 BladeX init
 """
-__all__ = ['ProfileBase', 'NacaProfile', 'CustomProfile', 'ReversePropeller',
+__all__ = ['ProfileInterface', 'NacaProfile', 'CustomProfile', 'ReversePropeller',
         'Blade', 'Shaft', 'Propeller', 'Deformation', 'ParamFile',
         'RBF', 'reconstruct_f', 'scipy_bspline']
 
 from .meta import *
-from .profile import ProfileBase
+from .profile import ProfileInterface
 from .profile import NacaProfile
 from .profile import CustomProfile
 from .blade import Blade

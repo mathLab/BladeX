@@ -8,11 +8,11 @@ profile. Input data can be:
 """
 
 import numpy as np
-from .profilebase import ProfileBase
+from .profileinterface import ProfileInterface
 from scipy.optimize import newton
 
 
-class CustomProfile(ProfileBase):
+class CustomProfile(ProfileInterface):
     """
     Provide custom profile, given the airfoil coordinates or the airfoil parameters,
     i.e. , chord percentages and length, nondimensional and maximum camber,
@@ -42,29 +42,31 @@ class CustomProfile(ProfileBase):
     :param float camber_max: the maximum camber at a certain airfoil section
     :param float thickness_max: the maximum thickness at a certain airfoil section
     """
-    def __init__(self, convention='british', **kwargs):
+    def __init__(self, **kwargs):
         super(CustomProfile, self).__init__()
-        self.convention = convention
 
         if set(kwargs.keys()) == set(
                 ['xup', 'yup', 'xdown', 'ydown']):
-            self.xup_coordinates = kwargs['xup']
-            self.yup_coordinates = kwargs['yup']
-            self.xdown_coordinates = kwargs['xdown']
-            self.ydown_coordinates = kwargs['ydown']
+            self._xup_coordinates = kwargs['xup']
+            self._yup_coordinates = kwargs['yup']
+            self._xdown_coordinates = kwargs['xdown']
+            self._ydown_coordinates = kwargs['ydown']
             self._check_coordinates()
+            self.generate_parameters(convention='british')
 
         elif set(kwargs.keys()) == set([
                 'chord_perc', 'camber_perc', 'thickness_perc',
-                'camber_max', 'thickness_max'
+                'camber_max', 'thickness_max' , 'chord_len'
         ]):
 
-            self.chord_percentage = kwargs['chord_perc']
-            self.camber_percentage = kwargs['camber_perc']
-            self.thickness_percentage = kwargs['thickness_perc']
-            self.camber_max = kwargs['camber_max']
-            self.thickness_max = kwargs['thickness_max']
+            self._chord_percentage = kwargs['chord_perc']
+            self._camber_percentage = kwargs['camber_perc']
+            self._thickness_percentage = kwargs['thickness_perc']
+            self._camber_max = kwargs['camber_max']
+            self._thickness_max = kwargs['thickness_max']
+            self._chord_length = kwargs['chord_len']
             self._check_parameters()
+            self.generate_coordinates(convention='british')
 
         else:
             raise RuntimeError(
@@ -72,54 +74,27 @@ class CustomProfile(ProfileBase):
                 (xup, yup, xdown, ydown) or the section parameters (camber_perc, thickness_perc,
                 camber_max, thickness_max, chord_perc).""")
 
+    def generate_parameters(self, convention='british'):
+        return super().generate_parameters(convention)
+    
+    def generate_coordinates(self, convention='british'):
+        if convention == 'british':
+            self._compute_coordinates_british_convention()
+        elif convention == 'american':
+            self._compute_coordinates_american_convention()
 
-    def _check_parameters(self):
+    def _compute_coordinates_british_convention(self):
         """
-        Private method that checks whether the airfoil parameters defined
-        are provided correctly.
-        In particular, the chord, camber and thickness percentages are
-        consistent and have the same length.
+        Compute the coordinates of points on upper and lower profile according
+        to the British convention.
         """
-
-        if self.chord_percentage is None:
-            raise ValueError('object "chord_perc" refers to an empty array.')
-        if self.camber_percentage is None:
-            raise ValueError('object "camber_perc" refers to an empty array.')
-        if self.thickness_percentage is None:
-            raise ValueError(
-                'object "thickness_perc" refers to an empty array.')
-        if self.camber_max is None:
-            raise ValueError('object "camber_max" refers to an empty array.')
-        if self.thickness_max is None:
-            raise ValueError('object "thickness_max" refers to an empty array.')
-
-        if not isinstance(self.chord_percentage, np.ndarray):
-            self.chord_percentage = np.asarray(self.chord_percentage,
-                                               dtype=float)
-        if not isinstance(self.camber_percentage, np.ndarray):
-            self.camber_percentage = np.asarray(self.camber_percentage,
-                                                dtype=float)
-        if not isinstance(self.thickness_percentage, np.ndarray):
-            self.thickness_percentage = np.asarray(self.thickness_percentage,
-                                                   dtype=float)
-        if not isinstance(self.camber_max, np.ndarray):
-            self.camber_max = np.asarray(self.camber_max, dtype=float)
-        if not isinstance(self.thickness_max, np.ndarray):
-            self.thickness_max = np.asarray(self.thickness_max, dtype=float)
-        if self.camber_max < 0:
-            raise ValueError('camber_max must be positive.')
-        if self.thickness_max < 0:
-            raise ValueError('thickness_max must be positive.')
-
-        # Therefore the arrays camber_percentage and thickness_percentage
-        # should have the same length of chord_percentage, equal to n_pos,
-        # which is the number of cuts along the chord line
-        if self.camber_percentage.shape != self.chord_percentage.shape:
-            raise ValueError('camber_perc and chord_perc must have same shape.')
-        if self.thickness_percentage.shape != self.chord_percentage.shape:
-            raise ValueError(
-                'thickness_perc and chord_perc must have same shape.')
-
+        self._xup_coordinates = self.chord_percentage*self.chord_length
+        self._xdown_coordinates = self._xup_coordinates.copy()
+        self._yup_coordinates = (self.camber_percentage*self.camber_max +
+                self.thickness_max/2*self.thickness_percentage)
+        self._ydown_coordinates = (self.camber_percentage*self.camber_max -
+                self.thickness_max/2*self.thickness_percentage)
+    
     def _compute_orth_camber_coordinates(self):
         """
         Compute the coordinates of points on upper and lower profile on the
@@ -134,13 +109,13 @@ class CustomProfile(ProfileBase):
         for i in range(1, n_pos, 1):
             m[i] = (self.camber_percentage[i]-
                 self.camber_percentage[i-1])/(self.chord_percentage[i]-
-                    self.chord_percentage[i-1])*self.camber_max/self.chord_len
+                    self.chord_percentage[i-1])*self.camber_max/self.chord_length
 
         m_angle = np.arctan(m)
 
-        xup_tmp = (self.chord_percentage*self.chord_len -
+        xup_tmp = (self.chord_percentage*self.chord_length -
                 self.thickness_percentage*np.sin(m_angle)*self.thickness_max/2)
-        xdown_tmp = (self.chord_percentage*self.chord_len +
+        xdown_tmp = (self.chord_percentage*self.chord_length +
                 self.thickness_percentage*np.sin(m_angle)*self.thickness_max/2)
         yup_tmp = (self.camber_percentage*self.camber_max +
                 self.thickness_max/2*self.thickness_percentage*np.cos(m_angle))
@@ -152,150 +127,67 @@ class CustomProfile(ProfileBase):
             yup_tmp[1], ydown_tmp[1] = yup_tmp[2]-1e-16, ydown_tmp[2]-1e-16
 
         return [xup_tmp, xdown_tmp, yup_tmp, ydown_tmp]
-
-    def _compute_coordinates_british_convention(self):
-        """
-        Compute the coordinates of points on upper and lower profile according
-        to the British convention.
-        """
-        self.xup_coordinates = self.chord_percentage
-        self.xdown_coordinates = self.xup_coordinates.copy()
-        self.yup_coordinates = (self.camber_percentage*self.camber_max +
-                self.thickness_max/2*self.thickness_percentage)
-        self.ydown_coordinates = (self.camber_percentage*self.camber_max -
-                self.thickness_max/2*self.thickness_percentage)
-        self._check_coordinates()
-
+        
     def _compute_coordinates_american_convention(self):
         """
         Compute the coordinates of points on upper and lower profile according
         to the American convention.
         """
-        [self.xup_coordinates, self.xdown_coordinates, self.yup_coordinates,
-            self.ydown_coordinates] = self._compute_orth_camber_coordinates()
+        [self._xup_coordinates, self._xdown_coordinates, self._yup_coordinates,
+            self._ydown_coordinates] = self._compute_orth_camber_coordinates()
 
-        self.ydown_coordinates = self.ydown_curve(
-                (self.chord_percentage).reshape(-1,1)).reshape(
+        self._ydown_coordinates = self.ydown_curve(
+                (self.chord_percentage*self.chord_length).reshape(-1,1)).reshape(
                         self.chord_percentage.shape)
-        self.xup_coordinates = self.chord_percentage
-        self.xdown_coordinates = self.xup_coordinates.copy()
-        self.yup_coordinates = (2*self.camber_max*self.camber_percentage -
+        self._yup_coordinates = (2*self.camber_max*self.camber_percentage -
                 self.ydown_coordinates)
 
-    def generate_coordinates(self, convention='british'):
+    def _check_parameters(self):
         """
-        Method that generates the coordinates of a general airfoil
-        profile, starting from the chord percentages and the related
-        nondimensional camber and thickness, the maximum values of thickness
-        and camber. The convention fot the coordinates generation
-        can be either British or American.
+        Private method that checks whether the airfoil parameters defined
+        are provided correctly.
+        In particular, the chord, camber and thickness percentages are
+        consistent and have the same length.
         """
-        if convention == 'british':
-            self._compute_coordinates_british_convention()
-        elif convention == 'american':
-            self._compute_coordinates_american_convention()
-        else:
-            raise ValueError('Convention not recognized.')
 
-#    def adimensionalize(self):
-#        """
-#        Rescale coordinates of upper and lower profiles of section such that
-#        coordinates on x axis are between 0 and 1.
-#        """
-#        factor = abs(self.xup_coordinates[-1]-self.xup_coordinates[0])
-#        self.yup_coordinates *= 1/factor
-#        self.xdown_coordinates *= 1/factor
-#        self.ydown_coordinates *= 1/factor
-#        self.xup_coordinates *= 1/factor
+        if self._chord_percentage is None:
+            raise ValueError('object "chord_perc" refers to an empty array.')
+        if self._camber_percentage is None:
+            raise ValueError('object "camber_perc" refers to an empty array.')
+        if self._thickness_percentage is None:
+            raise ValueError(
+                'object "thickness_perc" refers to an empty array.')
+        if self._camber_max is None:
+            raise ValueError('object "camber_max" refers to an empty array.')
+        if self._thickness_max is None:
+            raise ValueError('object "thickness_max" refers to an empty array.')
 
-    def _compute_thickness_british_convention(self):
-        """
-        Generate parameters in British convention.
-        """
-        thickness = abs(self.yup_coordinates - self.ydown_coordinates)
-        self.thickness_max = np.max(thickness)
-        self.thickness_percentage = thickness/self.thickness_max
+        if not isinstance(self._chord_percentage, np.ndarray):
+            self._chord_percentage = np.asarray(self._chord_percentage,
+                                               dtype=float)
+        if not isinstance(self._camber_percentage, np.ndarray):
+            self._camber_percentage = np.asarray(self._camber_percentage,
+                                                dtype=float)
+        if not isinstance(self.thickness_percentage, np.ndarray):
+            self._thickness_percentage = np.asarray(self.thickness_percentage,
+                                                   dtype=float)
+        if not isinstance(self.camber_max, np.ndarray):
+            self._camber_max = np.asarray(self._camber_max, dtype=float)
+        if not isinstance(self.thickness_max, np.ndarray):
+            self._thickness_max = np.asarray(self._thickness_max, dtype=float)
+        if self._camber_max < 0:
+            raise ValueError('camber_max must be positive.')
+        if self._thickness_max < 0:
+            raise ValueError('thickness_max must be positive.')
 
-    def _compute_thickness_american_convention(self):
-        """
-        Generate parameters in American convention.
-        """
-        n_pos = self.xup_coordinates.shape[0]
-        m = np.zeros(n_pos)
-        for i in range(1, n_pos, 1):
-            m[i] = (self.camber_percentage[i]-
-                self.camber_percentage[i-1])/(self.chord_percentage[i]-
-                    self.chord_percentage[i-1])*self.camber_max#/self.chord_len
-        m_angle = np.arctan(m)
-
-        # generating temporary profile coordinates orthogonal to the camber
-        # line
-        camber = self.camber_max*self.camber_percentage
-        ind_horizontal_camber = (np.sin(m_angle)==0)
-        def eq_to_solve(x):
-            spline_curve = self.ydown_curve(x.reshape(-1,1)).reshape(
-                    x.shape[0],)
-            line_orth_camber = (camber[~ind_horizontal_camber] +
-                    np.cos(m_angle[~ind_horizontal_camber])/
-                    np.sin(m_angle[~ind_horizontal_camber])*(
-                        self.chord_percentage[~ind_horizontal_camber]-x))
-            return spline_curve - line_orth_camber
-
-        xdown_tmp = self.xdown_coordinates.copy()
-        xdown_tmp[~ind_horizontal_camber] = newton(eq_to_solve,
-                xdown_tmp[~ind_horizontal_camber])
-        xup_tmp = (2*self.chord_percentage - xdown_tmp)
-        ydown_tmp = self.ydown_curve(xdown_tmp.reshape(-1,1)).reshape(
-                xdown_tmp.shape[0],)
-        yup_tmp = 2*self.camber_max*self.camber_percentage - ydown_tmp
-        if xup_tmp[1]<self.xup_coordinates[0]:
-            xup_tmp[1], xdown_tmp[1] = xup_tmp[2], xdown_tmp[2]
-            yup_tmp[1], ydown_tmp[1] = yup_tmp[2], ydown_tmp[2]
-
-        thickness = np.sqrt((xup_tmp-xdown_tmp)**2 + (yup_tmp-ydown_tmp)**2)
-        self.thickness_max = np.max(thickness)
-        self.thickness_percentage = thickness/self.thickness_max
-
-    def _generate_camber(self):
-        """
-        Generate camber percentage and camber max.
-        """
-        camber = (self.yup_coordinates + self.ydown_coordinates)/2
-        self.camber_max = abs(np.max(camber))
-        if self.camber_max == 0:
-            # symmetric profile
-            self.camber_percentage = np.zeros(camber.shape)
-        else:
-            # cambered profile
-            self.camber_percentage = camber/self.camber_max
-
-    def _generate_chord(self):
-        """
-        Generate chord length and chord percentages.
-        """
-        self.chord_percentage = (self.xup_coordinates -
-                np.min(self.xup_coordinates))/(
-            self.xup_coordinates[-1] - self.xup_coordinates[0])
-
-
-    def generate_parameters(self, convention='british'):
-        """
-        Method that generates the parameters of a general airfoil profile
-        (chord length, chord percentages, camber max, thickness max, camber and
-        thickness percentages), starting from the upper and lower
-        coordinates of the section profile.
-        """
-        # generate camber and chord
-        self._generate_camber()
-        self._generate_chord()
-        # generate thickness according to the chosen convention
-        if convention == 'british' or self.camber_max == 0:
-            self._compute_thickness_british_convention()
-        elif convention == 'american' and self.camber_max != 0:
-
-            self._compute_thickness_american_convention()
-        else:
-            raise ValueError('Convention not recognized.')
+        # Therefore the arrays camber_percentage and thickness_percentage
+        # should have the same length of chord_percentage, equal to n_pos,
+        # which is the number of cuts along the chord line
+        if self._camber_percentage.shape != self._chord_percentage.shape:
+            raise ValueError('camber_perc and chord_perc must have same shape.')
+        if self._thickness_percentage.shape != self._chord_percentage.shape:
+            raise ValueError(
+                'thickness_perc and chord_perc must have same shape.')
 
     def _check_coordinates(self):
         """
@@ -345,18 +237,6 @@ class CustomProfile(ProfileBase):
             raise ValueError('xup and yup must have same shape.')
         if self.xdown_coordinates.shape != self.ydown_coordinates.shape:
             raise ValueError('xdown and ydown must have same shape.')
-
-#        if not (np.isclose(self.ydown_coordinates[0],
-#                self.yup_coordinates[0], atol=1e-18) and
-#                np.isclose(self.ydown_coordinates[0], 0, atol=1e-6)):
-#            print('(ydown[0]=yup[0]=0) not satisfied, setting to 0.')
-#            self.ydown_coordinates[0] = self.yup_coordinates[0] = 0
-#
-#        if not (np.isclose(self.ydown_coordinates[-1],
-#                self.yup_coordinates[-1], atol=1e-18) and
-#                np.isclose(self.ydown_coordinates[-1], 0, atol=1e-6)):
-#            print('(ydown[-1]=yup[-1]=0) not satisfied, setting to 0.')
-#            self.ydown_coordinates[-1] = self.yup_coordinates[-1] = 0
 
         # The condition yup_coordinates >= ydown_coordinates must be satisfied
         # element-wise to the whole elements in the mentioned arrays.

@@ -4,9 +4,9 @@ Naca profiles.
 """
 from scipy.interpolate import splev, splrep
 import numpy as np
-from .profilebase import ProfileBase
+from .profileinterface import ProfileInterface
 
-class NacaProfile(ProfileBase):
+class NacaProfile(ProfileInterface):
     """
     Generate 4- and 5-digit NACA profiles.
 
@@ -68,7 +68,8 @@ class NacaProfile(ProfileBase):
         self.n_points = n_points
         self.cosine_spacing = cosine_spacing
         self._check_args()
-        self._generate_coordinates()
+        self.generate_coordinates()
+        self.generate_parameters(convention='british')
 
     def _check_args(self):
         """
@@ -84,7 +85,10 @@ class NacaProfile(ProfileBase):
         if self.n_points < 0:
             raise ValueError('n_points must be positive.')
 
-    def _generate_coordinates(self):
+    def generate_parameters(self, convention='british'):
+        return super().generate_parameters(convention)
+
+    def generate_coordinates(self):
         """
         Private method that generates the coordinates of the NACA 4 or 5 digits
         airfoil profile. The method assumes a zero-thickness trailing edge, and

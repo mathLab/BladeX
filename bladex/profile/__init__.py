@@ -1,8 +1,8 @@
 """
 Profile init
 """
-__all__ = ['ProfileBase', 'NacaProfile', 'CustomProfile']
+__all__ = ['ProfileInterface', 'NacaProfile', 'CustomProfile']
 
-from .profilebase import ProfileBase
+from .profileinterface import ProfileInterface
 from .nacaprofile import NacaProfile
 from .customprofile import CustomProfile
