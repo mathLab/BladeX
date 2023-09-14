@@ -1,6 +1,6 @@
 """
-Derived module from profilebase.py to provide the airfoil coordinates for standard
-Naca profiles.
+Derived module from profilebase.py to provide the airfoil coordinates for
+standard Naca profiles.
 """
 from scipy.interpolate import splev, splrep
 import numpy as np
@@ -24,29 +24,29 @@ class NacaProfile(ProfileInterface):
 
         - P/10: indicates the location of the maximum camber measured from the
           leading edge. The location is normalized by the chord length.
-        
+
         - TT/100: the maximum thickness as fraction of the chord length.
 
     The profile 00TT refers to a symmetrical NACA airfoil.
 
     The NACA five-digit series describes more complex airfoil shapes.
     Its format is: LPSTT, where:
-        
+
         - L: the theoretical optimum lift coefficient at ideal
           angle-of-attack = 0.15*L
-        
+
         - P: the x-coordinate of the point of maximum camber
           (max camber at x = 0.05*P)
-        
+
         - S: indicates whether the camber is simple (S=0) or reflex (S=1)
           TT/100: the maximum thickness in percent of chord, as in a four-digit
           NACA airfoil code
 
     References:
-    
+
     - Moran, Jack (2003). An introduction to theoretical and computational
       aerodynamics. Dover. p. 7. ISBN 0-486-42879-6.
-    
+
     - Abbott, Ira (1959). Theory of Wing Sections: Including a Summary of
       Airfoil Data. New York: Dover Publications. p. 115. ISBN 978-0486605869.
 
@@ -219,3 +219,4 @@ class NacaProfile(ProfileInterface):
 
         else:
             raise Exception
+

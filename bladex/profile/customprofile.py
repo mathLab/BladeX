@@ -1,6 +1,6 @@
 """
-Derived module from profilebase.py to provide the airfoil coordinates for a general
-profile. Input data can be:
+Derived module from profilebase.py to provide the airfoil coordinates for a
+general profile. Input data can be:
     - the coordinates arrays;
     - the chord percentages, the associated nondimensional camber and thickness,
       the real values of chord lengths, camber and thickness associated to the
@@ -9,14 +9,13 @@ profile. Input data can be:
 
 import numpy as np
 from .profileinterface import ProfileInterface
-from scipy.optimize import newton
 
 
 class CustomProfile(ProfileInterface):
     """
-    Provide custom profile, given the airfoil coordinates or the airfoil parameters,
-    i.e. , chord percentages and length, nondimensional and maximum camber,
-    nondimensional and maximum thickness.
+    Provide custom profile, given the airfoil coordinates or the airfoil
+    parameters, i.e. , chord percentages and length, nondimensional and
+    maximum camber, nondimensional and maximum thickness.
 
     If coordinates are directly given as input:
 
@@ -31,16 +30,19 @@ class CustomProfile(ProfileInterface):
 
     If section parameters are given as input:
 
-    :param numpy.ndarray chord_perc: 1D array that contains the chord percentages
-        of an airfoil section for which camber and thickness are measured
-    :param numpy.ndarray camber_perc: 1D array that contains the camber percentage
-       of an airfoil section at all considered chord percentages. The percentage is
-       taken with respect to the section maximum camber
+    :param numpy.ndarray chord_perc: 1D array that contains the chord
+        percentages of an airfoil section for which camber and thickness are
+        measured
+    :param numpy.ndarray camber_perc: 1D array that contains the camber
+        percentage of an airfoil section at all considered chord percentages.
+        The percentage is taken with respect to the section maximum camber
     :param numpy.ndarray thickness_perc: 1D array that contains the thickness
        percentage of an airfoil section at all considered chord percentages.
        The percentage is with respect to the section maximum thickness
     :param float camber_max: the maximum camber at a certain airfoil section
-    :param float thickness_max: the maximum thickness at a certain airfoil section
+    :param float chord_len: the chord length at a certain airfoil section
+    :param float thickness_max: the maximum thickness at a certain airfoil
+    section
     """
     def __init__(self, **kwargs):
         super(CustomProfile, self).__init__()
@@ -71,12 +73,13 @@ class CustomProfile(ProfileInterface):
         else:
             raise RuntimeError(
                 """Input arguments should be the section coordinates
-                (xup, yup, xdown, ydown) or the section parameters (camber_perc, thickness_perc,
+                (xup, yup, xdown, ydown) or the section parameters
+                (camber_perc, thickness_perc,
                 camber_max, thickness_max, chord_perc).""")
 
     def generate_parameters(self, convention='british'):
         return super().generate_parameters(convention)
-    
+
     def generate_coordinates(self, convention='british'):
         if convention == 'british':
             self._compute_coordinates_british_convention()
@@ -94,7 +97,7 @@ class CustomProfile(ProfileInterface):
                 self.thickness_max/2*self.thickness_percentage)
         self._ydown_coordinates = (self.camber_percentage*self.camber_max -
                 self.thickness_max/2*self.thickness_percentage)
-    
+
     def _compute_orth_camber_coordinates(self):
         """
         Compute the coordinates of points on upper and lower profile on the
@@ -108,8 +111,9 @@ class CustomProfile(ProfileInterface):
         m = np.zeros(n_pos)
         for i in range(1, n_pos, 1):
             m[i] = (self.camber_percentage[i]-
-                self.camber_percentage[i-1])/(self.chord_percentage[i]-
-                    self.chord_percentage[i-1])*self.camber_max/self.chord_length
+                    self.camber_percentage[i-1])*self.camber_max/(
+                    self.chord_percentage[i]-
+                    self.chord_percentage[i-1])/self.chord_length
 
         m_angle = np.arctan(m)
 
@@ -127,7 +131,7 @@ class CustomProfile(ProfileInterface):
             yup_tmp[1], ydown_tmp[1] = yup_tmp[2]-1e-16, ydown_tmp[2]-1e-16
 
         return [xup_tmp, xdown_tmp, yup_tmp, ydown_tmp]
-        
+
     def _compute_coordinates_american_convention(self):
         """
         Compute the coordinates of points on upper and lower profile according
@@ -137,8 +141,8 @@ class CustomProfile(ProfileInterface):
             self._ydown_coordinates] = self._compute_orth_camber_coordinates()
 
         self._ydown_coordinates = self.ydown_curve(
-                (self.chord_percentage*self.chord_length).reshape(-1,1)).reshape(
-                        self.chord_percentage.shape)
+                (self.chord_percentage*self.chord_length).reshape(-1,1)
+                    ).reshape(self.chord_percentage.shape)
         self._yup_coordinates = (2*self.camber_max*self.camber_percentage -
                 self.ydown_coordinates)
 
@@ -161,6 +165,8 @@ class CustomProfile(ProfileInterface):
             raise ValueError('object "camber_max" refers to an empty array.')
         if self._thickness_max is None:
             raise ValueError('object "thickness_max" refers to an empty array.')
+        if self._chord_length is None:
+            raise ValueError('object "chord_length" refers to an empty array.')
 
         if not isinstance(self._chord_percentage, np.ndarray):
             self._chord_percentage = np.asarray(self._chord_percentage,
@@ -241,7 +247,8 @@ class CustomProfile(ProfileInterface):
         # The condition yup_coordinates >= ydown_coordinates must be satisfied
         # element-wise to the whole elements in the mentioned arrays.
         if not all(
-                np.greater_equal(self.yup_coordinates[1:-1], self.ydown_coordinates[1:-1])):
+                np.greater_equal(self.yup_coordinates[1:-1],
+                    self.ydown_coordinates[1:-1])):
             raise ValueError('yup is not >= ydown elementwise.')
 
         if not np.isclose(self.xdown_coordinates[0], self.xup_coordinates[0],
@@ -258,4 +265,5 @@ class CustomProfile(ProfileInterface):
 
         if not np.isclose(self.ydown_coordinates[-1], self.yup_coordinates[-1],
                 atol=1e-6):
-            raise ValueError('(ydown[0]=yup[0]) not satisfied.')
+            raise ValueError('(ydown[-1]=yup[-1]) not satisfied.')
+
