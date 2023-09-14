@@ -241,7 +241,7 @@ class CustomProfile(ProfileInterface):
         # The condition yup_coordinates >= ydown_coordinates must be satisfied
         # element-wise to the whole elements in the mentioned arrays.
         if not all(
-                np.greater_equal(self.yup_coordinates, self.ydown_coordinates)):
+                np.greater_equal(self.yup_coordinates[1:-1], self.ydown_coordinates[1:-1])):
             raise ValueError('yup is not >= ydown elementwise.')
 
         if not np.isclose(self.xdown_coordinates[0], self.xup_coordinates[0],
