@@ -2,13 +2,14 @@
 Base module that provides essential tools and transformations on airfoils.
 """
 
+from abc import ABC, abstractmethod
 import numpy as np
 import matplotlib.pyplot as plt
-from .ndinterpolator import reconstruct_f
+from scipy.optimize import newton
+from ..ndinterpolator import reconstruct_f
 from scipy.interpolate import RBFInterpolator
 
-
-class ProfileBase(object):
+class ProfileInterface(ABC):
     """
     Base sectional profile of the propeller blade.
 
@@ -37,16 +38,167 @@ class ProfileBase(object):
     :param numpy.ndarray trailing_edge: 2D coordinates of the airfoil's
         trailing edge. Default values are zeros
     """
+    @abstractmethod
+    def generate_parameters(self, convention='british'):
+        """
+        Abstract method that generates the airfoil parameters based on the
+        given coordinates.
 
-    def __init__(self):
-        self.xup_coordinates = None
-        self.xdown_coordinates = None
-        self.yup_coordinates = None
-        self.ydown_coordinates = None
-        self.chord_line = None
-        self.camber_line = None
-        self.leading_edge = np.zeros(2)
-        self.trailing_edge = np.zeros(2)
+        The method generates the airfoil's chord length, chord percentages,
+        maximum camber, camber percentages, maximum thickness, thickness
+        percentages.
+
+        :param str convention: convention of the airfoil coordinates. Default
+            value is 'british'
+        """
+        self._update_edges()
+        # compute chord parameters
+        self._chord_length = np.linalg.norm(self.leading_edge -
+                self.trailing_edge)
+        self._chord_percentage = (self.xup_coordinates - np.min(
+            self.xup_coordinates))/self._chord_length
+        # compute camber parameters
+        _camber = (self.yup_coordinates + self.ydown_coordinates)/2
+        self._camber_max = abs(np.max(_camber))
+        if self._camber_max == 0:
+            self._camber_percentage = np.zeros(self.xup_coordinates.shape[0])
+        elif self.camber_max != 0:
+            self._camber_percentage = _camber/self._camber_max
+        # compute thickness parameters
+        if convention == 'british' or self._camber_max==0:
+            _thickness = abs(self.yup_coordinates - self.ydown_coordinates)
+        elif convention == 'american':
+            _thickness = self._compute_thickness_american()
+        self._thickness_max = np.max(_thickness)
+        if self._thickness_max == 0:
+            self._thickness_percentage = np.zeros(self.xup_coordinates.shape[0])
+        elif self._thickness_max != 0:
+            self._thickness_percentage = _thickness/self._thickness_max
+
+    @abstractmethod
+    def generate_coordinates(self):
+        """
+        Abstract method that generates the airfoil coordinates based on the
+        given parameters.
+
+        The method generates the airfoil's upper and lower surfaces
+        coordinates. The method is called automatically when the airfoil
+        parameters are inserted by the user.
+
+        :param str convention: convention of the airfoil coordinates. Default
+            value is 'british'
+        """
+        pass
+
+    @property
+    def xup_coordinates(self):
+        """
+        X-coordinates of the upper surface of the airfoil.
+        """
+        return self._xup_coordinates
+
+    @xup_coordinates.setter
+    def xup_coordinates(self, xup_coordinates):
+        self._xup_coordinates = xup_coordinates
+
+    @property
+    def xdown_coordinates(self):
+        """
+        X-coordinates of the lower surface of the airfoil.
+        """
+        return self._xdown_coordinates
+
+    @xdown_coordinates.setter
+    def xdown_coordinates(self, xdown_coordinates):
+        self._xdown_coordinates = xdown_coordinates
+
+    @property
+    def yup_coordinates(self):
+        """
+        Y-coordinates of the upper surface of the airfoil.
+        """
+        return self._yup_coordinates
+
+    @yup_coordinates.setter
+    def yup_coordinates(self, yup_coordinates):
+        self._yup_coordinates = yup_coordinates
+
+    @property
+    def ydown_coordinates(self):
+        """
+        Y-coordinates of the lower surface of the airfoil.
+        """
+        return self._ydown_coordinates
+
+    @ydown_coordinates.setter
+    def ydown_coordinates(self, ydown_coordinates):
+        self._ydown_coordinates = ydown_coordinates
+
+    @property
+    def chord_length(self):
+        """
+        Chord length of the airfoil.
+        """
+        return self._chord_length
+
+    @chord_length.setter
+    def chord_length(self, chord_length):
+        self._chord_length = chord_length
+
+    @property
+    def chord_percentage(self):
+        """
+        Chord percentages of the airfoil.
+        """
+        return self._chord_percentage
+
+    @chord_percentage.setter
+    def chord_percentage(self, chord_percentage):
+        self._chord_percentage = chord_percentage
+
+    @property
+    def camber_max(self):
+        """
+        Maximum camber of the airfoil.
+        """
+        return self._camber_max
+
+    @camber_max.setter
+    def camber_max(self, camber_max):
+        self._camber_max = camber_max
+
+    @property
+    def camber_percentage(self):
+        """
+        Camber percentages of the airfoil.
+        """
+        return self._camber_percentage
+
+    @camber_percentage.setter
+    def camber_percentage(self, camber_percentage):
+        self._camber_percentage = camber_percentage
+
+    @property
+    def thickness_max(self):
+        """
+        Maximum thickness of the airfoil.
+        """
+        return self._thickness_max
+
+    @thickness_max.setter
+    def thickness_max(self, thickness_max):
+        self._thickness_max = thickness_max
+
+    @property
+    def thickness_percentage(self):
+        """
+        Thickness percentages of the airfoil.
+        """
+        return self._thickness_percentage
+
+    @thickness_percentage.setter
+    def thickness_percentage(self, thickness_percentage):
+        self._thickness_percentage = thickness_percentage
 
     def _update_edges(self):
         """
@@ -59,6 +211,8 @@ class ProfileBase(object):
         trailing edge, hence both the leading and the trailing edges are always
         unique.
         """
+        self.leading_edge = np.zeros(2)
+        self.trailing_edge = np.zeros(2)
         if np.fabs(self.xup_coordinates[0] - self.xdown_coordinates[0]) > 1e-4:
             raise ValueError('Airfoils must have xup_coordinates[0] '\
                             'almost equal to xdown_coordinates[0]')
@@ -224,7 +378,8 @@ class ProfileBase(object):
         The percentage of change is defined as follows:
 
         .. math::
-            \\frac{\\text{new magnitude of max camber - old magnitude of maximum \
+            \\frac{\\text{new magnitude of max camber - old magnitude of
+            maximum \
             camber}}{\\text{old magnitude of maximum camber}} * 100
 
         A positive percentage means the new camber is larger than the max
@@ -322,17 +477,44 @@ class ProfileBase(object):
         ]
         return np.asarray(reference_point)
 
-    @property
-    def chord_length(self):
+    def _compute_thickness_american(self):
         """
-        Measure the l2-norm (Euclidean distance) between the leading edge
-        and the trailing edge.
+        Compute the thickness of the airfoil using the American standard
+        definition.
+        """
+        n_pos = self.xup_coordinates.shape[0]
+        m = np.zeros(n_pos)
+        for i in range(1, n_pos, 1):
+            m[i] = (self._camber_percentage[i]-
+                self._camber_percentage[i-1])/(self._chord_percentage[i]-
+                self._chord_percentage[i-1])*self._camber_max/self._chord_length
+        m_angle = np.arctan(m)
 
-        :return: chord length
-        :rtype: float
-        """
-        self._update_edges()
-        return np.linalg.norm(self.leading_edge - self.trailing_edge)
+        # generating temporary profile coordinates orthogonal to the camber
+        # line
+        camber = self._camber_max*self._camber_percentage
+        ind_horizontal_camber = np.sin(m_angle)==0
+        def eq_to_solve(x):
+            spline_curve = self.ydown_curve(x.reshape(-1,1)).reshape(
+                        x.shape[0],)
+            line_orth_camber = (camber[~ind_horizontal_camber] +
+                np.cos(m_angle[~ind_horizontal_camber])/
+                np.sin(m_angle[~ind_horizontal_camber])*(
+                    self._chord_percentage[~ind_horizontal_camber]
+                    *self._chord_length-x))
+            return spline_curve - line_orth_camber
+
+        xdown_tmp = self.xdown_coordinates.copy()
+        xdown_tmp[~ind_horizontal_camber] = newton(eq_to_solve,
+            xdown_tmp[~ind_horizontal_camber])
+        xup_tmp = 2*self._chord_percentage*self._chord_length - xdown_tmp
+        ydown_tmp = self.ydown_curve(xdown_tmp.reshape(-1,1)).reshape(
+            xdown_tmp.shape[0],)
+        yup_tmp = 2*self._camber_max*self._camber_percentage - ydown_tmp
+        if xup_tmp[1]<self.xup_coordinates[0]:
+            xup_tmp[1], xdown_tmp[1] = xup_tmp[2], xdown_tmp[2]
+            yup_tmp[1], ydown_tmp[1] = yup_tmp[2], ydown_tmp[2]
+        return np.sqrt((xup_tmp-xdown_tmp)**2 + (yup_tmp-ydown_tmp)**2)
 
     def max_thickness(self, n_interpolated_points=None):
         """
@@ -355,7 +537,7 @@ class ProfileBase(object):
             Phillips, Warren F. (2010). Mechanics of Flight (2nd ed.). \
                 Wiley & Sons. p. 27. ISBN 978-0-470-53975-0.
 
-            Bertin, John J.; Cummings, Russel M. (2009). Pearson Prentice Hall, \
+            Bertin, John J.; Cummings, Russel M. (2009). Pearson Prentice Hall,\
                 ed. Aerodynamics for Engineers (5th ed.). \
                 p. 199. ISBN 978-0-13-227268-1.
 
@@ -550,7 +732,6 @@ class ProfileBase(object):
             self.yup_coordinates *= factor
             self.ydown_coordinates *= factor
 
-
     def plot(self,
              profile=True,
              chord_line=False,
@@ -619,3 +800,4 @@ class ProfileBase(object):
             plt.savefig(outfile)
         else:
             plt.show()
+

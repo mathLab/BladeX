@@ -1,7 +1,7 @@
 from unittest import TestCase
 import numpy as np
 
-from  bladex import CustomProfile, NacaProfile, ProfileBase
+from  bladex import CustomProfile, NacaProfile, ProfileInterface
 
 def create_custom_profile():
     """
@@ -16,7 +16,7 @@ def create_custom_profile():
 
 class TestCustomProfile(TestCase):
     def test_inheritance_custom(self):
-        self.assertTrue(issubclass(CustomProfile, ProfileBase))
+        self.assertTrue(issubclass(CustomProfile, ProfileInterface))
 
     def test_xup_member(self):
         profile = create_custom_profile()
@@ -124,7 +124,7 @@ class TestCustomProfile(TestCase):
 
 class TestNacaProfile(TestCase):
     def test_inheritance_naca(self):
-        self.assertTrue(issubclass(NacaProfile, ProfileBase))
+        self.assertTrue(issubclass(NacaProfile, ProfileInterface))
 
     def test_digits_member(self):
         profile = NacaProfile(digits='0012', n_points=240)

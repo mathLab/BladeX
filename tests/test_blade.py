@@ -450,7 +450,7 @@ class TestBlade(TestCase):
         blade_2 = create_sample_blade_custom()
         blade_2.apply_transformations()
         fig = plt.figure()
-        ax = fig.gca(projection=Axes3D.name)
+        ax = fig.add_subplot(projection='3d')
         blade_1.plot(ax=ax)
         blade_2.plot(ax=ax)
         plt.close()
@@ -755,7 +755,7 @@ class TestBlade(TestCase):
     def test_generate_solid(self):
         blade = create_sample_blade_NACA()
         blade.apply_transformations()
-        blade_solid = blade.generate_solid(max_deg=2, display=False, 
+        blade_solid = blade.generate_solid(max_deg=2, display=False,
                                                  errors=None)
         self.assertIsInstance(blade_solid, TopoDS_Solid)
 

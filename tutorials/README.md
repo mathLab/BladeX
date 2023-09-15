@@ -14,5 +14,13 @@ Here we show how to prepare a blade 3D sectional profiles by applying all the tr
 #### [Tutorial 4](https://github.com/mathLab/BladeX/blob/master/tutorials/tutorial-4-deform_blade.ipynb)
 Here we show how to deform a blade and its parametric curves by using a parameter file.
 
+#### [Tutorial 5](https://github.com/mathLab/BladeX/blob/master/tutorials/tutorial-5-foils-customprofile.ipynb)
+Here we show how to initialize a blade starting from its parameters, either using the british convention or the american
+one for the thickness generation.
+
+#### [Tutorial 6](https://github.com/mathLab/BladeX/blob/master/tutorials/tutorial-6-blades-customprofile.ipynb)
+Here we show how to deform a blade by deforming only its local (thickness, camber) parameters, and/or its global (rake,
+skew, etc) parameters.
+
 #### More to come...
 We plan to add more tutorials but the time is often against us. If you want to contribute with a notebook on a feature not covered yet we will be very happy and give you support on editing!

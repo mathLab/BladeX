@@ -6,10 +6,6 @@ from os import path
 import numpy as np
 
 class TestPackage(TestCase):
-    def test_import_blade_1(self):
-        from bladex import ProfileBase
-        profile = ProfileBase()
-
     def test_import_blade_2(self):
         from bladex import CustomProfile
         vec = np.array([1.2, 2.4])

@@ -1,12 +1,12 @@
 """
-Derived module from profilebase.py to provide the airfoil coordinates for standard
-Naca profiles.
+Derived module from profilebase.py to provide the airfoil coordinates for
+standard Naca profiles.
 """
 from scipy.interpolate import splev, splrep
 import numpy as np
-from .profilebase import ProfileBase
+from .profileinterface import ProfileInterface
 
-class NacaProfile(ProfileBase):
+class NacaProfile(ProfileInterface):
     """
     Generate 4- and 5-digit NACA profiles.
 
@@ -24,29 +24,29 @@ class NacaProfile(ProfileBase):
 
         - P/10: indicates the location of the maximum camber measured from the
           leading edge. The location is normalized by the chord length.
-        
+
         - TT/100: the maximum thickness as fraction of the chord length.
 
     The profile 00TT refers to a symmetrical NACA airfoil.
 
     The NACA five-digit series describes more complex airfoil shapes.
     Its format is: LPSTT, where:
-        
+
         - L: the theoretical optimum lift coefficient at ideal
           angle-of-attack = 0.15*L
-        
+
         - P: the x-coordinate of the point of maximum camber
           (max camber at x = 0.05*P)
-        
+
         - S: indicates whether the camber is simple (S=0) or reflex (S=1)
           TT/100: the maximum thickness in percent of chord, as in a four-digit
           NACA airfoil code
 
     References:
-    
+
     - Moran, Jack (2003). An introduction to theoretical and computational
       aerodynamics. Dover. p. 7. ISBN 0-486-42879-6.
-    
+
     - Abbott, Ira (1959). Theory of Wing Sections: Including a Summary of
       Airfoil Data. New York: Dover Publications. p. 115. ISBN 978-0486605869.
 
@@ -68,7 +68,8 @@ class NacaProfile(ProfileBase):
         self.n_points = n_points
         self.cosine_spacing = cosine_spacing
         self._check_args()
-        self._generate_coordinates()
+        self.generate_coordinates()
+        self.generate_parameters(convention='british')
 
     def _check_args(self):
         """
@@ -84,7 +85,10 @@ class NacaProfile(ProfileBase):
         if self.n_points < 0:
             raise ValueError('n_points must be positive.')
 
-    def _generate_coordinates(self):
+    def generate_parameters(self, convention='british'):
+        return super().generate_parameters(convention)
+
+    def generate_coordinates(self):
         """
         Private method that generates the coordinates of the NACA 4 or 5 digits
         airfoil profile. The method assumes a zero-thickness trailing edge, and
@@ -215,3 +219,4 @@ class NacaProfile(ProfileBase):
 
         else:
             raise Exception
+

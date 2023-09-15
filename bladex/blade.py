@@ -479,7 +479,7 @@ class Blade(object):
         >>> blade_2.rotate(rot_angle_deg=72)
 
         >>> fig = plt.figure()
-        >>> ax = fig.gca(projection=Axes3D.name)
+        >>> ax = fig.add_subplot(projection='3d')
         >>> blade_1.plot(ax=ax)
         >>> blade_2.plot(ax=ax)
 
@@ -504,7 +504,7 @@ class Blade(object):
             ax = ax
         else:
             fig = plt.figure()
-            ax = fig.gca(projection=Axes3D.name)
+            ax = fig.add_subplot(projection='3d')
         ax.set_aspect('auto')
 
         for i in range(self.n_sections):
