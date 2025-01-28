@@ -1,4 +1,4 @@
-from setuptools import setup
+from setuptools import setup, find_packages
 
 meta = {}
 with open("bladex/meta.py") as fp:
@@ -53,7 +53,7 @@ setup(
     author=AUTHOR,
     author_email=MAIL,
     license='MIT',
-    packages=[NAME],
+    packages=find_packages(),
     install_requires=REQUIRED,
     extras_require=EXTRAS,
     include_package_data=True,
