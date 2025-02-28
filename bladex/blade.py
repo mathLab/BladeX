@@ -429,8 +429,6 @@ class Blade(object):
             self.blade_coordinates_down[i][1] = new_coord_matrix_down[1]
             self.blade_coordinates_down[i][2] = new_coord_matrix_down[2]
 
-
-
     def plot(self, elev=None, azim=None, ax=None, outfile=None):
         """
         Plot the generated blade sections.
@@ -1088,7 +1086,59 @@ class Blade(object):
 
         write_stl_file(self.sewed_full, filename)
 
-    def generate_iges_blade(self, filename):
+    def _generate_leading_edge_curves(self):
+        """
+        Private method to generate curves that follow the leading edge of the blade
+        (top and bottom surfaces).
+        """
+        self._import_occ_libs()
+        
+        # Extract points at leftmost 5% for upper and lower surfaces
+        upper_points = []
+        lower_points = []
+        
+        for i in range(self.n_sections):
+            min_x = np.min(self.sections[i].xdown_coordinates)
+            max_x = np.max(self.sections[i].xdown_coordinates)
+            delta_x = max_x - min_x
+            
+            target_x = min_x + 0.95 * delta_x
+             
+            idx = np.abs(self.sections[i].xdown_coordinates - target_x).argmin()
+            
+            # Create points for upper and lower curves
+            upper_points.append(gp_Pnt(
+                1000 * self.blade_coordinates_up[i][0][idx],
+                1000 * self.blade_coordinates_up[i][1][idx],
+                1000 * self.blade_coordinates_up[i][2][idx]
+            ))
+            
+            lower_points.append(gp_Pnt(
+                1000 * self.blade_coordinates_down[i][0][idx],
+                1000 * self.blade_coordinates_down[i][1][idx],
+                1000 * self.blade_coordinates_down[i][2][idx]
+            ))
+
+        # Create arrays of points for interpolation
+        upper_array = TColgp_HArray1OfPnt(1, len(upper_points))
+        lower_array = TColgp_HArray1OfPnt(1, len(lower_points))
+        
+        for i, (up, low) in enumerate(zip(upper_points, lower_points)):
+            upper_array.SetValue(i + 1, up)
+            lower_array.SetValue(i + 1, low)
+
+        # Create interpolated curves
+        upper_curve = GeomAPI_Interpolate(upper_array, False, 1e-9)
+        lower_curve = GeomAPI_Interpolate(lower_array, False, 1e-9)
+        
+        upper_curve.Perform()
+        lower_curve.Perform()
+        
+        # Convert to edges
+        self.upper_le_edge = BRepBuilderAPI_MakeEdge(upper_curve.Curve()).Edge()
+        self.lower_le_edge = BRepBuilderAPI_MakeEdge(lower_curve.Curve()).Edge()
+
+    def generate_iges_blade(self, filename, include_le_curves=False):
         """
         Generate and export the .IGES file for the entire blade.
         This method requires PythonOCC (7.4.0) to be installed.
@@ -1099,11 +1149,20 @@ class Blade(object):
         self._generate_lower_face(max_deg=1)
         self._generate_root(max_deg=1)
         self._generate_tip(max_deg=1)
+        
+        if include_le_curves:
+            self._generate_leading_edge_curves()
+        
         iges_writer = IGESControl_Writer()
         iges_writer.AddShape(self.generated_upper_face)
         iges_writer.AddShape(self.generated_lower_face)
         iges_writer.AddShape(self.generated_root)
         iges_writer.AddShape(self.generated_tip)
+        
+        if include_le_curves:
+            iges_writer.AddShape(self.upper_le_edge)
+            iges_writer.AddShape(self.lower_le_edge)
+        
         iges_writer.Write(filename)
 
     @staticmethod
@@ -1244,6 +1303,7 @@ class Blade(object):
             if i == len(hub_offsets) - 1:
                 output_string += str("%.8e" % offset[0]) + ' ' + str(
                     "%.8e" % hub_offsets[i][1])
+                
                 continue
             output_string += str("%.8e" % offset[0]) + ' ' + str(
                 "%.8e" % offset[1]) + '\n'
