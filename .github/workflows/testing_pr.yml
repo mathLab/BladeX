@@ -28,13 +28,13 @@ jobs:
       uses: conda-incubator/setup-miniconda@v3
       with:
         channels: conda-forge, defaults
-        python-version: ${{ matrix.python-version }}
-        activate-environment: occ
+        activate-environment: ""
 
     - name: Install Python dependencies on Linux/MacOS
       if: startsWith(matrix.os, 'windows') != true
       run: |
-        conda install --yes pythonocc-core
+        conda create -n occ python=${{ matrix.python-version }} pythonocc-core
+        conda activate occ
         python -m pip install --upgrade pip
         python -m pip install smithers[vtk]
         python -m pip install .[test]
