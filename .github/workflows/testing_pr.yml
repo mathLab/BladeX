@@ -35,9 +35,9 @@ jobs:
       if: startsWith(matrix.os, 'windows') != true
       run: |
         conda install --yes pythonocc-core
-        python3 -m pip install --upgrade pip
-        python3 -m pip install smithers[vtk]
-        python3 -m pip install .[test]
+        python -m pip install --upgrade pip
+        python -m pip install smithers[vtk]
+        python -m pip install .[test]
         
     - name: Install Python dependencies on Windows
       if: startsWith(matrix.os, 'windows')
@@ -53,4 +53,4 @@ jobs:
 
     - name: Test with pytest on Linux/MacOS
       if: startsWith(matrix.os, 'windows') != true
-      run: python3 -m pytest
+      run: python -m pytest
