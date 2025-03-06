@@ -28,6 +28,7 @@ jobs:
       uses: conda-incubator/setup-miniconda@v3
       with:
         auto-update-conda: true
+        channels: conda-forge,defaults
         python-version: ${{ matrix.python-version }}
 
     - name: Install Python dependencies on Linux/MacOS
