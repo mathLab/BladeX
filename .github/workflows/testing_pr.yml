@@ -30,6 +30,7 @@ jobs:
         auto-update-conda: true
         channels: conda-forge,defaults
         python-version: ${{ matrix.python-version }}
+        activate-environment: occ
 
     - name: Install Python dependencies on Linux/MacOS
       if: startsWith(matrix.os, 'windows') != true
@@ -38,6 +39,7 @@ jobs:
         python -m pip install --upgrade pip
         python -m pip install smithers[vtk]
         python -m pip install .[test]
+        python -c 'import OCC'
         
     - name: Install Python dependencies on Windows
       if: startsWith(matrix.os, 'windows')
