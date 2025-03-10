@@ -56,5 +56,6 @@ jobs:
       run: python -m pytest
 
     - name: Test with pytest on Linux/MacOS
+      shell: bash -el {0}
       if: startsWith(matrix.os, 'windows') != true
       run: python -m pytest
