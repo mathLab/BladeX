@@ -31,10 +31,13 @@ jobs:
         activate-environment: ""
 
     - name: Install Python dependencies on Linux/MacOS
+      shell: bash -el {0}
       if: startsWith(matrix.os, 'windows') != true
       run: |
         conda create -n occ python=${{ matrix.python-version }} pythonocc-core
+        conda info
         conda activate occ
+        conda info
         python -m pip install --upgrade pip
         python -m pip install smithers[vtk]
         python -m pip install .[test]
