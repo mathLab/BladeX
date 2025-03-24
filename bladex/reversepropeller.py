@@ -19,7 +19,7 @@ from OCC.Core.BRep import (BRep_Tool, BRep_Builder, BRep_Tool_Curve,
                            BRep_Tool_CurveOnSurface)
 import OCC.Core.TopoDS
 from OCC.Core.BRepAlgoAPI import BRepAlgoAPI_Fuse
-from OCC.Core.BRepAlgo import BRepAlgo_Section
+from OCC.Core.BRepAlgoAPI import BRepAlgoAPI_Section
 from OCC.Core.TopTools import TopTools_ListOfShape, TopTools_MapOfShape
 from OCC.Core.TopExp import TopExp_Explorer
 from OCC.Core.TopAbs import TopAbs_VERTEX, TopAbs_EDGE, TopAbs_FACE, TopAbs_WIRE
@@ -29,7 +29,7 @@ from OCC.Core.gp import gp_Pnt, gp_Pnt2d, gp_Dir, gp_Ax1, gp_Ax2, gp_Trsf, gp_Pl
 from OCC.Core.TopoDS import TopoDS_Shape
 from OCC.Core.TColgp import TColgp_HArray1OfPnt, TColgp_Array1OfPnt
 from OCC.Core.GeomAPI import GeomAPI_Interpolate, GeomAPI_IntCS, GeomAPI_ProjectPointOnSurf
-from OCC.Core.BRepAdaptor import BRepAdaptor_Curve, BRepAdaptor_HCurve
+from OCC.Core.BRepAdaptor import BRepAdaptor_Curve
 from OCC.Core.GCPnts import GCPnts_AbscissaPoint
 from OCC.Core.BRep import BRep_Tool
 from OCC.Core.IntTools import IntTools_FClass2d
@@ -38,7 +38,7 @@ from OCC.Core.BRepExtrema import BRepExtrema_DistShapeShape
 from OCC.Core.TopoDS import topods, TopoDS_Edge, TopoDS_Compound
 from subprocess import call
 from OCC.Core.IntCurvesFace import IntCurvesFace_ShapeIntersector
-from OCC.Core.Adaptor3d import Adaptor3d_Curve, Adaptor3d_HCurve
+from OCC.Core.Adaptor3d import Adaptor3d_Curve
 from OCC.Core.Geom import Geom_Line
 from OCC.Display.SimpleGui import init_display
 from OCC.Core.BRepGProp import (brepgprop_LinearProperties,
@@ -48,8 +48,8 @@ from OCC.Core.GProp import GProp_GProps
 from OCC.Core.BRepPrimAPI import BRepPrimAPI_MakeCylinder
 from OCC.Core.GeomLProp import GeomLProp_SLProps
 from OCC.Core.GCPnts import GCPnts_AbscissaPoint
-from OCC.Core.BRepAdaptor import (BRepAdaptor_Curve, BRepAdaptor_HCurve,
-                                  BRepAdaptor_CompCurve, BRepAdaptor_HCompCurve)
+from OCC.Core.BRepAdaptor import (BRepAdaptor_Curve,
+                                  BRepAdaptor_CompCurve)
 from OCC.Core.GCPnts import GCPnts_UniformDeflection
 from OCC.Core.GeomAPI import GeomAPI_PointsToBSpline
 from OCC.Core.GeomAbs import (GeomAbs_C0, GeomAbs_G1, GeomAbs_C1, GeomAbs_G2,

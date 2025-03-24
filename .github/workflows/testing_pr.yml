@@ -13,36 +13,40 @@ jobs:
       fail-fast: false
       matrix:
         os: [windows-latest, macos-latest, ubuntu-latest]
-        python-version: [3.7, 3.8]
+        python-version: [3.8, 3.9]
         
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
 
 
     - name: Set up Python
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v4
       with:
         python-version: ${{ matrix.python-version }}
 
-    - name: Setup conda
-      uses: s-weigand/setup-conda@v1.1.1
+    - name: Setup Conda
+      uses: conda-incubator/setup-miniconda@v3
       with:
-        update-conda: true
-        python-version: ${{ matrix.python-version }}
-        conda-channels: anaconda, conda-forge
-        
+        channels: conda-forge, defaults
+        activate-environment: ""
+
     - name: Install Python dependencies on Linux/MacOS
+      shell: bash -el {0}
       if: startsWith(matrix.os, 'windows') != true
       run: |
-        conda install --yes pythonocc-core=7.4.1
-        python3 -m pip install --upgrade pip
-        python3 -m pip install smithers[vtk]
-        python3 -m pip install .[test]
+        conda create -n occ python=${{ matrix.python-version }} pythonocc-core
+        conda info
+        conda activate occ
+        conda info
+        python -m pip install --upgrade pip
+        python -m pip install smithers[vtk]
+        python -m pip install .[test]
+        python -c 'import OCC'
         
     - name: Install Python dependencies on Windows
       if: startsWith(matrix.os, 'windows')
       run: |
-        conda install --yes pythonocc-core=7.4.1
+        conda install --yes pythonocc-core
         python -m pip install --upgrade pip
         python -m pip install smithers[vtk]
         python -m pip install .[test]
@@ -52,5 +56,8 @@ jobs:
       run: python -m pytest
 
     - name: Test with pytest on Linux/MacOS
+      shell: bash -el {0}
       if: startsWith(matrix.os, 'windows') != true
-      run: python3 -m pytest
+      run: |
+        conda activate occ
+        python -m pytest
