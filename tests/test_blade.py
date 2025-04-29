@@ -835,3 +835,63 @@ class TestBlade(TestCase):
         string += '\nInduced rake from skew (in unit length)'\
                   ' for the sections = {}'.format(blade.induced_rake)
         assert blade.__str__() == string
+
+    def test_blade_parameters_unchanged_after_transformations_and_rotation(self):
+        """Test that blade parameters remain unchanged after transformations and rotation."""
+        # Create the original parameters
+        sections = np.asarray([NacaProfile(digits='0012') for i in range(10)])
+        radii = np.arange(0.4, 1.31, 0.1)
+        chord_lengths = np.concatenate((np.arange(0.55, 1.1, 0.15),
+                                        np.arange(1.03, 0.9, -0.03),
+                                        np.array([0.3])))
+        pitch = np.append(np.arange(3.0, 4., 0.2), np.arange(4.1, 3.2, -0.2))
+        rake = np.append(np.arange(5e-3, 0.08, 1e-2), np.arange(0.075, 0.02, -3e-2))
+        skew_angles = np.append(np.arange(-4., -9., -3.), np.arange(-7., 15., 3.))
+        
+        # Store original section data
+        original_sections = []
+        for section in sections:
+            original_sections.append({
+                'xup': section.xup_coordinates.copy(),
+                'yup': section.yup_coordinates.copy(),
+                'xdown': section.xdown_coordinates.copy(),
+                'ydown': section.ydown_coordinates.copy()
+            })
+        
+        # Build the blade
+        blade = bl.Blade(
+            sections=sections,
+            radii=radii,
+            chord_lengths=chord_lengths,
+            pitch=pitch,
+            rake=rake,
+            skew_angles=skew_angles)
+        
+        # Apply transformations and rotate 180 degrees around z-axis
+        blade.apply_transformations()
+        blade.rotate(deg_angle=180)
+        
+        # Verify parameters are unchanged
+        for i, section in enumerate(blade.sections):
+            np.testing.assert_array_equal(
+                section.xup_coordinates,
+                original_sections[i]['xup']
+            )
+            np.testing.assert_array_equal(
+                section.yup_coordinates,
+                original_sections[i]['yup']
+            )
+            np.testing.assert_array_equal(
+                section.xdown_coordinates,
+                original_sections[i]['xdown']
+            )
+            np.testing.assert_array_equal(
+                section.ydown_coordinates,
+                original_sections[i]['ydown']
+            )
+        
+        np.testing.assert_array_equal(blade.radii, radii)
+        np.testing.assert_array_equal(blade.chord_lengths, chord_lengths)
+        np.testing.assert_array_equal(blade.pitch, pitch)
+        np.testing.assert_array_equal(blade.rake, rake)
+        np.testing.assert_array_equal(blade.skew_angles, skew_angles)
