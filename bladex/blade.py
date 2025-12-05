@@ -960,7 +960,7 @@ class Blade(object):
         sewer.Perform()
         result_shell = sewer.SewedShape()
         solid_maker = BRepBuilderAPI_MakeSolid()
-        solid_maker.Add(OCC.Core.TopoDS.topods_Shell(result_shell))
+        solid_maker.Add(OCC.Core.TopoDS.topods.Shell(result_shell))
         if not solid_maker.IsDone():
             raise RuntimeError('Unsuccessful assembling of solid blade')
         result_solid = solid_maker.Solid()
