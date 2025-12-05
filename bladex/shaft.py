@@ -44,7 +44,7 @@ class Shaft(object):
         sewer.Perform()
         result_sewed_shaft = sewer.SewedShape()
         shaft_solid_maker = BRepBuilderAPI_MakeSolid()
-        shaft_solid_maker.Add(OCC.Core.TopoDS.topods_Shell(result_sewed_shaft))
+        shaft_solid_maker.Add(OCC.Core.TopoDS.topods.Shell(result_sewed_shaft))
         if not shaft_solid_maker.IsDone():
             raise RuntimeError('Unsuccessful assembling of solid shaft')
         shaft_solid = shaft_solid_maker.Solid()

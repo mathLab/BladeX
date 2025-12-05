@@ -46,10 +46,10 @@ See the [**Examples**](#examples) section below and the [**Tutorials**](tutorial
 
 ## Dependencies and installation
 **BladeX** requires `numpy`, `scipy`, `matplotlib`, `sphinx` (for the documentation), and `pytest` (for the local test). They can be easily installed using `pip`. 
-**BladeX** is compatible with Python 3.6. Moreover, some of the modules require `OCC` to be installed for the `.iges` or `.stl` CAD generation. This requirement cannot be satisfied through `pip`, but the precompiled binaries are available on `conda` using the command:
+**BladeX** is compatible with Python>=3.9. Moreover, some of the modules require `OCC` to be installed for the `.iges` or `.stl` CAD generation. This requirement cannot be satisfied through `pip`, but the precompiled binaries are available on `conda` using the command:
 
 ```bash
-> conda install -c conda-forge pythonocc-core=7.4.0
+> conda install -c conda-forge pythonocc-core
 ```
 
 You can also refer to `pythonocc.org` or `github.com/tpaviot/pythonocc-core` for further instructions.
