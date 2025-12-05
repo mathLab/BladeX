@@ -1,10 +1,10 @@
-import OCC.Core.TopoDS
+""" Cylinder Shaft """
 from OCC.Display.SimpleGui import init_display
 from OCC.Core.BRepPrimAPI import BRepPrimAPI_MakeCylinder
 from OCC.Core.gp import gp_Pnt, gp_Dir, gp_Ax2
 
 
-class CylinderShaft(object):
+class CylinderShaft:
     """
     Cylinder shaft construction.
 
