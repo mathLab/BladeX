@@ -285,6 +285,12 @@ class TestBlade(TestCase):
     def test_planar_to_cylindrical_blade_up(self):
         blade = create_sample_blade_NACA()
         blade._planar_to_cylindrical()
+        print( blade.blade_coordinates_up.shape)
+        print(len(blade.blade_coordinates_up))
+        print(blade.blade_coordinates_up[0].shape)
+        for pts in blade.blade_coordinates_up[0].T:
+            print(pts.shape)
+        assert False
         blade_coordinates_up_expected = np.load(
             'tests/test_datasets/planar_to_cylindrical_blade_up.npy')
         np.testing.assert_almost_equal(blade.blade_coordinates_up,

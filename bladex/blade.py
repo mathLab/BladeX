@@ -169,6 +169,33 @@ class Blade(object):
         self.generated_tip = None
         self.generated_root = None
 
+    def reset(self):
+        """
+        Reset the blade coordinates and generated faces.
+        """
+        self.blade_coordinates_up = []
+        self.blade_coordinates_down = []
+
+        self.generated_upper_face = None
+        self.generated_lower_face = None
+        self.generated_tip = None
+        self.generated_root = None
+
+    def build(self):
+        """
+        Generate a bottom-up constructed propeller blade without applying any
+        transformations on the airfoils.
+
+        The method directly constructs the blade CAD model by interpolating
+        the given 3D coordinates of the blade sections.
+
+        """
+        from . import InterpolatedFace
+        upper_face = InterpolatedFace(self.blade_coordinates_up)
+        lower_face = InterpolatedFace(self.blade_coordinates_down)
+        tip_face = InterpolatedFace(np.stack
+
+
     def _check_params(self):
         """
         Private method to check if all the blade arguments are numpy.ndarrays
@@ -193,20 +220,21 @@ class Blade(object):
             raise ValueError('Arrays {sections, radii, chord_lengths, pitch, '\
             'rake, skew_angles} do not have the same shape.')
 
-    def _compute_pitch_angle(self):
+    @property
+    def pitch_angle(self):
         """
-        Private method that computes the pitch angle from the linear pitch for
-        all blade sections.
+        Return the pitch angle from the linear pitch for all blade sections.
 
         :return: pitch angle in radians
         :rtype: numpy.ndarray
         """
         return np.arctan(self.pitch / (2.0 * np.pi * self.radii))
 
-    def _induced_rake_from_skew(self):
+    @property
+    def induced_rake(self):
         """
-        Private method that computes the induced rake from skew for all the
-        blade sections, according to :ref:`mytransformation_operations`.
+        Returns the induced rake from skew for all the blade sections, according
+        to :ref:`mytransformation_operations`.
 
         :return: induced rake from skew
         :rtype: numpy.ndarray
@@ -233,6 +261,10 @@ class Blade(object):
         "blade_coordinates_up" and "blade_coordinates_down" with the new
         :math:`(X, Y, Z)` coordinates.
         """
+
+        self.blade_coordinates_down = []
+        self.blade_coordinates_up = []
+
         for section, radius in zip(self.sections[::-1], self.radii[::-1]):
             theta_up = section.yup_coordinates / radius
             theta_down = section.ydown_coordinates / radius
@@ -249,6 +281,9 @@ class Blade(object):
                 np.array(
                     [section.xdown_coordinates, y_section_down,
                      z_section_down]))
+
+        self.blade_coordinates_down = np.stack(self.blade_coordinates_down)
+        self.blade_coordinates_up = np.stack(self.blade_coordinates_up)
 
     def apply_transformations(self, reflect=True):
         """
@@ -358,6 +393,7 @@ class Blade(object):
             raise ValueError(
                 'You have to pass either the angle in radians or in degrees,' \
                 ' not both.')
+
         if rad_angle is not None:
             cosine = np.cos(rad_angle)
             sine = np.sin(rad_angle)
@@ -370,35 +406,24 @@ class Blade(object):
 
         # Rotation is always about the X-axis, which is the center if the hub
         # according to the implemented transformation procedure
-        rot_matrix = np.array([1, 0, 0, 0, cosine, -sine, 0, sine,
-                               cosine]).reshape((3, 3))
+        if axis == 'x':
+            rot_matrix = np.array([1, 0, 0, 0, cosine, -sine, 0, sine,
+                                cosine]).reshape((3, 3))
 
-        if axis=='y':
+        elif axis=='y':
             rot_matrix = np.array([cosine, 0, -sine, 0, 1, 0, sine, 0,
                             cosine]).reshape((3, 3))
 
-        if axis=='z':
+        elif axis=='z':
             rot_matrix = np.array([cosine, -sine, 0, sine, cosine, 0,
                 0, 0, 1]).reshape((3, 3))
+        else:
+            raise ValueError('Axis must be either x, y, or z.')
 
-        for i in range(self.n_sections):
-            coord_matrix_up = np.vstack((self.blade_coordinates_up[i][0],
-                                         self.blade_coordinates_up[i][1],
-                                         self.blade_coordinates_up[i][2]))
-            coord_matrix_down = np.vstack((self.blade_coordinates_down[i][0],
-                                           self.blade_coordinates_down[i][1],
-                                           self.blade_coordinates_down[i][2]))
-
-            new_coord_matrix_up = np.dot(rot_matrix, coord_matrix_up)
-            new_coord_matrix_down = np.dot(rot_matrix, coord_matrix_down)
-
-            self.blade_coordinates_up[i][0] = new_coord_matrix_up[0]
-            self.blade_coordinates_up[i][1] = new_coord_matrix_up[1]
-            self.blade_coordinates_up[i][2] = new_coord_matrix_up[2]
-
-            self.blade_coordinates_down[i][0] = new_coord_matrix_down[0]
-            self.blade_coordinates_down[i][1] = new_coord_matrix_down[1]
-            self.blade_coordinates_down[i][2] = new_coord_matrix_down[2]
+        self.blade_coordinates_up = np.einsum('ij, kjl->kil',
+            rot_matrix, self.blade_coordinates_up)
+        self.blade_coordinates_down = np.einsum('ij, kjl->kil',
+            rot_matrix, self.blade_coordinates_down)
 
     def scale(self, factor):
         """
@@ -410,24 +435,8 @@ class Blade(object):
         scaling_matrix = np.array([factor, 0, 0, 0, factor,
             0, 0, 0, factor]).reshape((3, 3))
 
-        for i in range(self.n_sections):
-            coord_matrix_up = np.vstack((self.blade_coordinates_up[i][0],
-                                         self.blade_coordinates_up[i][1],
-                                         self.blade_coordinates_up[i][2]))
-            coord_matrix_down = np.vstack((self.blade_coordinates_down[i][0],
-                                           self.blade_coordinates_down[i][1],
-                                           self.blade_coordinates_down[i][2]))
-
-            new_coord_matrix_up = np.dot(scaling_matrix, coord_matrix_up)
-            new_coord_matrix_down = np.dot(scaling_matrix, coord_matrix_down)
-
-            self.blade_coordinates_up[i][0] = new_coord_matrix_up[0]
-            self.blade_coordinates_up[i][1] = new_coord_matrix_up[1]
-            self.blade_coordinates_up[i][2] = new_coord_matrix_up[2]
-
-            self.blade_coordinates_down[i][0] = new_coord_matrix_down[0]
-            self.blade_coordinates_down[i][1] = new_coord_matrix_down[1]
-            self.blade_coordinates_down[i][2] = new_coord_matrix_down[2]
+        self.blade_coordinates_up *= factor
+        self.blade_coordinates_down *= factor
 
     def plot(self, elev=None, azim=None, ax=None, outfile=None):
         """
@@ -506,12 +515,11 @@ class Blade(object):
         ax.set_aspect('auto')
 
         for i in range(self.n_sections):
-            ax.plot(self.blade_coordinates_up[i][0],
-                    self.blade_coordinates_up[i][1],
-                    self.blade_coordinates_up[i][2])
-            ax.plot(self.blade_coordinates_down[i][0],
-                    self.blade_coordinates_down[i][1],
-                    self.blade_coordinates_down[i][2])
+            pts_up = self.blade_coordinates_up[i]
+            pts_down = self.blade_coordinates_down[i]
+            
+            ax.plot(*pts_up),
+            ax.plot(*pts_down)
 
         plt.axis('auto')
         ax.set_xlabel('X axis')
@@ -543,176 +551,6 @@ class Blade(object):
                GeomAPI_Interpolate, BRepBuilderAPI_MakeVertex,\
                BRepBuilderAPI_MakeEdge, BRepBuilderAPI_MakeWire,\
                BRepBuilderAPI_MakeSolid, BRepBuilderAPI_Sewing
-
-    def _generate_upper_face(self, max_deg):
-        """
-        Private method to generate the blade upper face.
-
-        :param int max_deg: Define the maximal U degree of generated surface
-        """
-        self._import_occ_libs()
-        # Initializes ThruSections algorithm for building a shell passing
-        # through a set of sections (wires). The generated faces between
-        # the edges of every two consecutive wires are smoothed out with
-        # a precision criterion = 1e-10
-        generator = BRepOffsetAPI_ThruSections(False, False, 1e-10)
-        generator.SetMaxDegree(max_deg)
-        # Define upper edges (wires) for the face generation
-        for i in range(self.n_sections):
-            npoints = len(self.blade_coordinates_up[i][0])
-            vertices = TColgp_HArray1OfPnt(1, npoints)
-            for j in range(npoints):
-                vertices.SetValue(
-                    j + 1,
-                    gp_Pnt(1000 * self.blade_coordinates_up[i][0][j],
-                           1000 * self.blade_coordinates_up[i][1][j],
-                           1000 * self.blade_coordinates_up[i][2][j]))
-            # Initializes an algorithm for constructing a constrained
-            # BSpline curve passing through the points of the blade i-th
-            # section, with tolerance = 1e-9
-            bspline = GeomAPI_Interpolate(vertices, False, 1e-9)
-            bspline.Perform()
-            edge = BRepBuilderAPI_MakeEdge(bspline.Curve()).Edge()
-            if i == 0:
-                bound_root_edge = edge
-            # Add BSpline wire to the generator constructor
-            generator.AddWire(BRepBuilderAPI_MakeWire(edge).Wire())
-        # Returns the shape built by the shape construction algorithm
-        generator.Build()
-        # Returns the Face generated by each edge of the first section
-        self.generated_upper_face = generator.GeneratedFace(bound_root_edge)
-
-    def _generate_lower_face(self, max_deg):
-        """
-        Private method to generate the blade lower face.
-
-        :param int max_deg: Define the maximal U degree of generated surface
-        """
-        self._import_occ_libs()
-        # Initializes ThruSections algorithm for building a shell passing
-        # through a set of sections (wires). The generated faces between
-        # the edges of every two consecutive wires are smoothed out with
-        # a precision criterion = 1e-10
-        generator = BRepOffsetAPI_ThruSections(False, False, 1e-10)
-        generator.SetMaxDegree(max_deg)
-        # Define upper edges (wires) for the face generation
-        for i in range(self.n_sections):
-            npoints = len(self.blade_coordinates_down[i][0])
-            vertices = TColgp_HArray1OfPnt(1, npoints)
-            for j in range(npoints):
-                vertices.SetValue(
-                    j + 1,
-                    gp_Pnt(1000 * self.blade_coordinates_down[i][0][j],
-                           1000 * self.blade_coordinates_down[i][1][j],
-                           1000 * self.blade_coordinates_down[i][2][j]))
-            # Initializes an algorithm for constructing a constrained
-            # BSpline curve passing through the points of the blade i-th
-            # section, with tolerance = 1e-9
-            bspline = GeomAPI_Interpolate(vertices, False, 1e-9)
-            bspline.Perform()
-            edge = BRepBuilderAPI_MakeEdge(bspline.Curve()).Edge()
-            if i == 0:
-                bound_root_edge = edge
-            # Add BSpline wire to the generator constructor
-            generator.AddWire(BRepBuilderAPI_MakeWire(edge).Wire())
-        # Returns the shape built by the shape construction algorithm
-        generator.Build()
-        # Returns the Face generated by each edge of the first section
-        self.generated_lower_face = generator.GeneratedFace(bound_root_edge)
-
-    def _generate_tip(self, max_deg):
-        """
-        Private method to generate the surface that closing the blade tip.
-
-        :param int max_deg: Define the maximal U degree of generated surface
-        """
-        self._import_occ_libs()
-
-        generator = BRepOffsetAPI_ThruSections(False, False, 1e-10)
-        generator.SetMaxDegree(max_deg)
-        # npoints_up == npoints_down
-        npoints = len(self.blade_coordinates_down[-1][0])
-        vertices_1 = TColgp_HArray1OfPnt(1, npoints)
-        vertices_2 = TColgp_HArray1OfPnt(1, npoints)
-        for j in range(npoints):
-            vertices_1.SetValue(
-                j + 1,
-                gp_Pnt(1000 * self.blade_coordinates_down[-1][0][j],
-                       1000 * self.blade_coordinates_down[-1][1][j],
-                       1000 * self.blade_coordinates_down[-1][2][j]))
-
-            vertices_2.SetValue(
-                j + 1,
-                gp_Pnt(1000 * self.blade_coordinates_up[-1][0][j],
-                       1000 * self.blade_coordinates_up[-1][1][j],
-                       1000 * self.blade_coordinates_up[-1][2][j]))
-
-        # Initializes an algorithm for constructing a constrained
-        # BSpline curve passing through the points of the blade last
-        # section, with tolerance = 1e-9
-        bspline_1 = GeomAPI_Interpolate(vertices_1, False, 1e-9)
-        bspline_1.Perform()
-
-        bspline_2 = GeomAPI_Interpolate(vertices_2, False, 1e-9)
-        bspline_2.Perform()
-
-        edge_1 = BRepBuilderAPI_MakeEdge(bspline_1.Curve()).Edge()
-        edge_2 = BRepBuilderAPI_MakeEdge(bspline_2.Curve()).Edge()
-
-        # Add BSpline wire to the generator constructor
-        generator.AddWire(BRepBuilderAPI_MakeWire(edge_1).Wire())
-        generator.AddWire(BRepBuilderAPI_MakeWire(edge_2).Wire())
-        # Returns the shape built by the shape construction algorithm
-        generator.Build()
-        # Returns the Face generated by each edge of the first section
-        self.generated_tip = generator.GeneratedFace(edge_1)
-
-    def _generate_root(self, max_deg):
-        """
-        Private method to generate the surface that closing the blade at the root.
-
-        :param int max_deg: Define the maximal U degree of generated surface
-        """
-        self._import_occ_libs()
-
-        generator = BRepOffsetAPI_ThruSections(False, False, 1e-10)
-        generator.SetMaxDegree(max_deg)
-        # npoints_up == npoints_down
-        npoints = len(self.blade_coordinates_down[0][0])
-        vertices_1 = TColgp_HArray1OfPnt(1, npoints)
-        vertices_2 = TColgp_HArray1OfPnt(1, npoints)
-        for j in range(npoints):
-            vertices_1.SetValue(
-                j + 1,
-                gp_Pnt(1000 * self.blade_coordinates_down[0][0][j],
-                       1000 * self.blade_coordinates_down[0][1][j],
-                       1000 * self.blade_coordinates_down[0][2][j]))
-
-            vertices_2.SetValue(
-                j + 1,
-                gp_Pnt(1000 * self.blade_coordinates_up[0][0][j],
-                       1000 * self.blade_coordinates_up[0][1][j],
-                       1000 * self.blade_coordinates_up[0][2][j]))
-
-        # Initializes an algorithm for constructing a constrained
-        # BSpline curve passing through the points of the blade last
-        # section, with tolerance = 1e-9
-        bspline_1 = GeomAPI_Interpolate(vertices_1, False, 1e-9)
-        bspline_1.Perform()
-
-        bspline_2 = GeomAPI_Interpolate(vertices_2, False, 1e-9)
-        bspline_2.Perform()
-
-        edge_1 = BRepBuilderAPI_MakeEdge(bspline_1.Curve()).Edge()
-        edge_2 = BRepBuilderAPI_MakeEdge(bspline_2.Curve()).Edge()
-
-        # Add BSpline wire to the generator constructor
-        generator.AddWire(BRepBuilderAPI_MakeWire(edge_1).Wire())
-        generator.AddWire(BRepBuilderAPI_MakeWire(edge_2).Wire())
-        # Returns the shape built by the shape construction algorithm
-        generator.Build()
-        # Returns the Face generated by each edge of the first section
-        self.generated_root = generator.GeneratedFace(edge_1)
 
     def _write_blade_errors(self, upper_face, lower_face, errors):
         """
@@ -929,9 +767,24 @@ class Blade(object):
             raise ValueError('max_deg argument must be a positive integer.')
 
         self._generate_upper_face(max_deg=max_deg)
-        self._generate_lower_face(max_deg=max_deg)
-        self._generate_tip(max_deg=max_deg)
-        self._generate_root(max_deg=max_deg)
+
+        print(self.generated_upper_face)
+        from . import InterpolatedFace
+        upper_face = InterpolatedFace(self.blade_coordinates_up)
+        lower_face = InterpolatedFace(self.blade_coordinates_down)
+        tip_face = InterpolatedFace(np.stack([
+            self.blade_coordinates_up[-1],
+            self.blade_coordinates_down[-1]
+        ]))
+        root_face = InterpolatedFace(np.stack([
+            self.blade_coordinates_up[0],
+            self.blade_coordinates_down[0]
+        ]))
+        # print(upper_face.face)
+        # fff
+        # self._generate_lower_face(max_deg=max_deg)
+        # self._generate_tip(max_deg=max_deg)
+        # self._generate_root(max_deg=max_deg)
 
         if errors:
             # Write out errors between discrete points and constructed faces
@@ -941,23 +794,13 @@ class Blade(object):
             self._write_blade_errors(
                 upper_face=upper_face, lower_face=lower_face, errors=errors)
 
-        if display:
-            display, start_display, add_menu, add_function_to_menu = init_display(
-            )
-
-            ## DISPLAY FACES
-            display.DisplayShape(self.generated_upper_face, update=True)
-            display.DisplayShape(self.generated_lower_face, update=True)
-            display.DisplayShape(self.generated_tip, update=True)
-            display.DisplayShape(self.generated_root, update=True)
-            start_display()
 
         sewer = BRepBuilderAPI_Sewing(1e-2)
-        sewer.Add(self.generated_upper_face)
-        sewer.Add(self.generated_lower_face)
-        sewer.Add(self.generated_tip)
-        sewer.Add(self.generated_root)
+        for face in [upper_face.face, lower_face.face, tip_face.face,
+                     root_face.face]:
+            sewer.Add(face)
         sewer.Perform()
+
         result_shell = sewer.SewedShape()
         solid_maker = BRepBuilderAPI_MakeSolid()
         solid_maker.Add(OCC.Core.TopoDS.topods.Shell(result_shell))

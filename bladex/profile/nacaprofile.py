@@ -4,9 +4,9 @@ standard Naca profiles.
 """
 from scipy.interpolate import splev, splrep
 import numpy as np
-from .profileinterface import ProfileInterface
+from .baseprofile import BaseProfile
 
-class NacaProfile(ProfileInterface):
+class NacaProfile(BaseProfile):
     """
     Generate 4- and 5-digit NACA profiles.
 
