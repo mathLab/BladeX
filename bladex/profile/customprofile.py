@@ -8,10 +8,10 @@ general profile. Input data can be:
 """
 
 import numpy as np
-from .profileinterface import ProfileInterface
+from .baseprofile import BaseProfile
 
 
-class CustomProfile(ProfileInterface):
+class CustomProfile(BaseProfile):
     """
     Provide custom profile, given the airfoil coordinates or the airfoil
     parameters, i.e. , chord percentages and length, nondimensional and
