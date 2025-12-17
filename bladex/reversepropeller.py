@@ -19,7 +19,7 @@ from OCC.Core.BRep import (BRep_Tool, BRep_Builder, BRep_Tool_Curve,
                            BRep_Tool_CurveOnSurface)
 import OCC.Core.TopoDS
 from OCC.Core.BRepAlgoAPI import BRepAlgoAPI_Fuse
-from OCC.Core.BRepAlgoAPI import BRepAlgoAPI_Section
+# from OCC.Core.BRepAlgoAPI import BRepAlgoAPI_Section
 from OCC.Core.TopTools import TopTools_ListOfShape, TopTools_MapOfShape
 from OCC.Core.TopExp import TopExp_Explorer
 from OCC.Core.TopAbs import TopAbs_VERTEX, TopAbs_EDGE, TopAbs_FACE, TopAbs_WIRE

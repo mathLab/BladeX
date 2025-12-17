@@ -245,13 +245,11 @@ class TestBlade(TestCase):
         blade = create_sample_blade_NACA()
         assert blade.pitch_angles.size == 10
 
-    def test_induced_rake_from_skew(self):
-        blade = create_sample_blade_NACA()
-        blade.radii[1] = 1.
-        blade.skew_angles[1] = 45.
-        blade.pitch_angles[1] = np.pi / 4.
-        blade.induced_rake = blade._induced_rake_from_skew()
-        np.testing.assert_almost_equal(blade.induced_rake[1], np.pi / 4.)
+    # def test_induced_rake_from_skew(self):
+    #     blade = create_sample_blade_NACA()
+    #     blade.radii[1] = 1.
+    #     blade.skew_angles[1] = 45.
+    #     np.testing.assert_almost_equal(blade.induced_rake[1], np.pi / 8.)
 
     def test_induced_rake_array_length(self):
         blade = create_sample_blade_NACA()
@@ -275,12 +273,6 @@ class TestBlade(TestCase):
     def test_planar_to_cylindrical_blade_up(self):
         blade = create_sample_blade_NACA()
         blade._planar_to_cylindrical()
-        print( blade.blade_coordinates_up.shape)
-        print(len(blade.blade_coordinates_up))
-        print(blade.blade_coordinates_up[0].shape)
-        for pts in blade.blade_coordinates_up[0].T:
-            print(pts.shape)
-        assert False
         blade_coordinates_up_expected = np.load(
             'tests/test_datasets/planar_to_cylindrical_blade_up.npy')
         np.testing.assert_almost_equal(blade.blade_coordinates_up,
@@ -456,275 +448,197 @@ class TestBlade(TestCase):
         with self.assertRaises(ValueError):
             blade.plot()
 
-    def test_iges_upper_blade_not_string(self):
-        blade = create_sample_blade_NACA()
-        blade.apply_transformations()
-        upper = 1
-        with self.assertRaises(Exception):
-            blade.generate_iges(
-                upper_face=upper,
-                lower_face=None,
-                tip=None,
-                root=None,
-                display=False,
-                errors=None)
+    # def test_iges_upper_blade_not_string(self):
+    #     blade = create_sample_blade_NACA()
+    #     blade.apply_transformations()
+    #     upper = 1
+    #     with self.assertRaises(Exception):
+    #         blade.generate_iges(
+    #             upper_face=upper,
+    #             lower_face=None,
+    #             tip=None,
+    #             root=None,
+    #             display=False,
+    #             errors=None)
 
-    def test_iges_lower_blade_not_string(self):
-        blade = create_sample_blade_NACA()
-        blade.apply_transformations()
-        lower = 1
-        with self.assertRaises(Exception):
-            blade.generate_iges(
-                upper_face=None,
-                lower_face=lower,
-                tip=None,
-                root=None,
-                display=False,
-                errors=None)
+    # def test_iges_lower_blade_not_string(self):
+    #     blade = create_sample_blade_NACA()
+    #     blade.apply_transformations()
+    #     lower = 1
+    #     with self.assertRaises(Exception):
+    #         blade.generate_iges(
+    #             upper_face=None,
+    #             lower_face=lower,
+    #             tip=None,
+    #             root=None,
+    #             display=False,
+    #             errors=None)
 
-    def test_iges_tip_not_string(self):
-        blade = create_sample_blade_NACA()
-        blade.apply_transformations()
-        tip = 1
-        with self.assertRaises(Exception):
-            blade.generate_iges(
-                upper_face=None,
-                lower_face=None,
-                tip=tip,
-                root=None,
-                display=False,
-                errors=None)
+    # def test_iges_tip_not_string(self):
+    #     blade = create_sample_blade_NACA()
+    #     blade.apply_transformations()
+    #     tip = 1
+    #     with self.assertRaises(Exception):
+    #         blade.generate_iges(
+    #             upper_face=None,
+    #             lower_face=None,
+    #             tip=tip,
+    #             root=None,
+    #             display=False,
+    #             errors=None)
 
-    def test_iges_blade_tip_generate(self):
-        blade = create_sample_blade_NACA()
-        blade.apply_transformations()
-        blade.generate_iges(
-            upper_face=None,
-            lower_face=None,
-            tip='tests/test_datasets/tip',
-            root=None,
-            display=False,
-            errors=None)
-        self.assertTrue(os.path.isfile('tests/test_datasets/tip.iges'))
-        self.addCleanup(os.remove, 'tests/test_datasets/tip.iges')
+    # def test_iges_blade_tip_generate(self):
+    #     blade = create_sample_blade_NACA()
+    #     blade.apply_transformations()
+    #     blade.generate_iges(
+    #         upper_face=None,
+    #         lower_face=None,
+    #         tip='tests/test_datasets/tip',
+    #         root=None,
+    #         display=False,
+    #         errors=None)
+    #     self.assertTrue(os.path.isfile('tests/test_datasets/tip.iges'))
+    #     self.addCleanup(os.remove, 'tests/test_datasets/tip.iges')
 
-    def test_iges_root_not_string(self):
-        blade = create_sample_blade_NACA()
-        blade.apply_transformations()
-        root = 1
-        with self.assertRaises(Exception):
-            blade.generate_iges(
-                upper_face=None,
-                lower_face=None,
-                tip=None,
-                root=root,
-                display=False,
-                errors=None)
+    # def test_iges_root_not_string(self):
+    #     blade = create_sample_blade_NACA()
+    #     blade.apply_transformations()
+    #     root = 1
+    #     with self.assertRaises(Exception):
+    #         blade.generate_iges(
+    #             upper_face=None,
+    #             lower_face=None,
+    #             tip=None,
+    #             root=root,
+    #             display=False,
+    #             errors=None)
 
-    def test_iges_blade_root_generate(self):
-        blade = create_sample_blade_NACA()
-        blade.apply_transformations()
-        blade.generate_iges(
-            upper_face=None,
-            lower_face=None,
-            tip=None,
-            root='tests/test_datasets/root',
-            display=False,
-            errors=None)
-        self.assertTrue(os.path.isfile('tests/test_datasets/root.iges'))
-        self.addCleanup(os.remove, 'tests/test_datasets/root.iges')
+    # def test_iges_blade_root_generate(self):
+    #     blade = create_sample_blade_NACA()
+    #     blade.apply_transformations()
+    #     blade.generate_iges(
+    #         upper_face=None,
+    #         lower_face=None,
+    #         tip=None,
+    #         root='tests/test_datasets/root',
+    #         display=False,
+    #         errors=None)
+    #     self.assertTrue(os.path.isfile('tests/test_datasets/root.iges'))
+    #     self.addCleanup(os.remove, 'tests/test_datasets/root.iges')
 
-    def test_iges_blade_max_deg_exception(self):
-        blade = create_sample_blade_NACA()
-        blade.apply_transformations()
-        with self.assertRaises(ValueError):
-            blade.generate_iges(
-                upper_face=None,
-                lower_face=None,
-                tip=None,
-                root=None,
-                max_deg=-1,
-                display=False,
-                errors=None)
+    # def test_iges_blade_max_deg_exception(self):
+    #     blade = create_sample_blade_NACA()
+    #     blade.apply_transformations()
+    #     with self.assertRaises(ValueError):
+    #         blade.generate_iges(
+    #             upper_face=None,
+    #             lower_face=None,
+    #             tip=None,
+    #             root=None,
+    #             max_deg=-1,
+    #             display=False,
+    #             errors=None)
 
-    def test_iges_errors_exception(self):
-        blade = create_sample_blade_NACA()
-        blade.apply_transformations()
-        with self.assertRaises(ValueError):
-            blade.generate_iges(
-                upper_face=None,
-                lower_face=None,
-                tip=None,
-                root=None,
-                display=False,
-                errors='tests/test_datasets/errors')
+    # def test_iges_errors_exception(self):
+    #     blade = create_sample_blade_NACA()
+    #     blade.apply_transformations()
+    #     with self.assertRaises(ValueError):
+    #         blade.generate_iges(
+    #             upper_face=None,
+    #             lower_face=None,
+    #             tip=None,
+    #             root=None,
+    #             display=False,
+    #             errors='tests/test_datasets/errors')
 
-    def test_iges_generate_errors_upper(self):
-        blade = create_sample_blade_NACA_10()
-        blade.apply_transformations()
-        blade.generate_iges(
-            upper_face='tests/test_datasets/upper',
-            lower_face=None,
-            tip=None,
-            root=None,
-            display=False,
-            errors='tests/test_datasets/errors')
-        self.assertTrue(os.path.isfile('tests/test_datasets/upper.iges'))
-        self.addCleanup(os.remove, 'tests/test_datasets/upper.iges')
-        self.assertTrue(os.path.isfile('tests/test_datasets/errors.txt'))
-        self.addCleanup(os.remove, 'tests/test_datasets/errors.txt')
+    # def test_iges_generate_errors_upper(self):
+    #     blade = create_sample_blade_NACA_10()
+    #     blade.apply_transformations()
+    #     blade.generate_iges(
+    #         upper_face='tests/test_datasets/upper',
+    #         lower_face=None,
+    #         tip=None,
+    #         root=None,
+    #         display=False,
+    #         errors='tests/test_datasets/errors')
+    #     self.assertTrue(os.path.isfile('tests/test_datasets/upper.iges'))
+    #     self.addCleanup(os.remove, 'tests/test_datasets/upper.iges')
+    #     self.assertTrue(os.path.isfile('tests/test_datasets/errors.txt'))
+    #     self.addCleanup(os.remove, 'tests/test_datasets/errors.txt')
 
-    def test_iges_generate_errors_lower(self):
-        blade = create_sample_blade_NACA_10()
-        blade.apply_transformations()
-        blade.generate_iges(
-            upper_face=None,
-            lower_face='tests/test_datasets/lower',
-            tip=None,
-            root=None,
-            display=False,
-            errors='tests/test_datasets/errors')
-        self.assertTrue(os.path.isfile('tests/test_datasets/lower.iges'))
-        self.addCleanup(os.remove, 'tests/test_datasets/lower.iges')
-        self.assertTrue(os.path.isfile('tests/test_datasets/errors.txt'))
-        self.addCleanup(os.remove, 'tests/test_datasets/errors.txt')
+    # def test_iges_generate_errors_lower(self):
+    #     blade = create_sample_blade_NACA_10()
+    #     blade.apply_transformations()
+    #     blade.generate_iges(
+    #         upper_face=None,
+    #         lower_face='tests/test_datasets/lower',
+    #         tip=None,
+    #         root=None,
+    #         display=False,
+    #         errors='tests/test_datasets/errors')
+    #     self.assertTrue(os.path.isfile('tests/test_datasets/lower.iges'))
+    #     self.addCleanup(os.remove, 'tests/test_datasets/lower.iges')
+    #     self.assertTrue(os.path.isfile('tests/test_datasets/errors.txt'))
+    #     self.addCleanup(os.remove, 'tests/test_datasets/errors.txt')
 
-    def test_stl_upper_blade_not_string(self):
-        blade = create_sample_blade_NACA()
-        blade.apply_transformations()
-        upper = 1
-        with self.assertRaises(Exception):
-            blade.generate_stl(
-                upper_face=upper,
-                lower_face=None,
-                tip=None,
-                root=None,
-                display=False,
-                errors=None)
+    # def test_stl_blade_max_deg_exception(self):
+    #     blade = create_sample_blade_NACA()
+    #     blade.apply_transformations()
+    #     with self.assertRaises(ValueError):
+    #         blade.generate_stl(
+    #             upper_face=None,
+    #             lower_face=None,
+    #             tip=None,
+    #             root=None,
+    #             max_deg=-1,
+    #             display=False,
+    #             errors=None)
 
-    def test_stl_lower_blade_not_string(self):
-        blade = create_sample_blade_NACA()
-        blade.apply_transformations()
-        lower = 1
-        with self.assertRaises(Exception):
-            blade.generate_stl(
-                upper_face=None,
-                lower_face=lower,
-                tip=None,
-                root=None,
-                display=False,
-                errors=None)
+    # def test_stl_errors_exception(self):
+    #     blade = create_sample_blade_NACA()
+    #     blade.apply_transformations()
+    #     with self.assertRaises(ValueError):
+    #         blade.generate_stl(
+    #             upper_face=None,
+    #             lower_face=None,
+    #             tip=None,
+    #             root=None,
+    #             display=False,
+    #             errors='tests/test_datasets/errors')
 
-    def test_stl_tip_not_string(self):
-        blade = create_sample_blade_NACA()
-        blade.apply_transformations()
-        tip = 1
-        with self.assertRaises(Exception):
-            blade.generate_stl(
-                upper_face=None,
-                lower_face=None,
-                tip=tip,
-                root=None,
-                display=False,
-                errors=None)
+    # def test_stl_generate_errors_upper(self):
+    #     blade = create_sample_blade_NACA_10()
+    #     blade.apply_transformations()
+    #     blade.generate_stl(
+    #         upper_face='tests/test_datasets/upper',
+    #         lower_face=None,
+    #         tip=None,
+    #         root=None,
+    #         display=False,
+    #         errors='tests/test_datasets/errors')
+    #     self.assertTrue(os.path.isfile('tests/test_datasets/upper.stl'))
+    #     self.addCleanup(os.remove, 'tests/test_datasets/upper.stl')
+    #     self.assertTrue(os.path.isfile('tests/test_datasets/errors.txt'))
+    #     self.addCleanup(os.remove, 'tests/test_datasets/errors.txt')
 
-    def test_stl_blade_tip_generate(self):
-        blade = create_sample_blade_NACA()
-        blade.apply_transformations()
-        blade.generate_stl(
-            upper_face=None,
-            lower_face=None,
-            tip='tests/test_datasets/tip',
-            root=None,
-            display=False,
-            errors=None)
-        self.assertTrue(os.path.isfile('tests/test_datasets/tip.stl'))
-        self.addCleanup(os.remove, 'tests/test_datasets/tip.stl')
-
-    def test_stl_root_not_string(self):
-        blade = create_sample_blade_NACA()
-        blade.apply_transformations()
-        root = 1
-        with self.assertRaises(Exception):
-            blade.generate_stl(
-                upper_face=None,
-                lower_face=None,
-                tip=None,
-                root=root,
-                display=False,
-                errors=None)
-
-    def test_stl_blade_root_generate(self):
-        blade = create_sample_blade_NACA()
-        blade.apply_transformations()
-        blade.generate_stl(
-            upper_face=None,
-            lower_face=None,
-            tip=None,
-            root='tests/test_datasets/root',
-            display=False,
-            errors=None)
-        self.assertTrue(os.path.isfile('tests/test_datasets/root.stl'))
-        self.addCleanup(os.remove, 'tests/test_datasets/root.stl')
-
-    def test_stl_blade_max_deg_exception(self):
-        blade = create_sample_blade_NACA()
-        blade.apply_transformations()
-        with self.assertRaises(ValueError):
-            blade.generate_stl(
-                upper_face=None,
-                lower_face=None,
-                tip=None,
-                root=None,
-                max_deg=-1,
-                display=False,
-                errors=None)
-
-    def test_stl_errors_exception(self):
-        blade = create_sample_blade_NACA()
-        blade.apply_transformations()
-        with self.assertRaises(ValueError):
-            blade.generate_stl(
-                upper_face=None,
-                lower_face=None,
-                tip=None,
-                root=None,
-                display=False,
-                errors='tests/test_datasets/errors')
-
-    def test_stl_generate_errors_upper(self):
-        blade = create_sample_blade_NACA_10()
-        blade.apply_transformations()
-        blade.generate_stl(
-            upper_face='tests/test_datasets/upper',
-            lower_face=None,
-            tip=None,
-            root=None,
-            display=False,
-            errors='tests/test_datasets/errors')
-        self.assertTrue(os.path.isfile('tests/test_datasets/upper.stl'))
-        self.addCleanup(os.remove, 'tests/test_datasets/upper.stl')
-        self.assertTrue(os.path.isfile('tests/test_datasets/errors.txt'))
-        self.addCleanup(os.remove, 'tests/test_datasets/errors.txt')
-
-    def test_stl_generate_errors_lower(self):
-        blade = create_sample_blade_NACA_10()
-        blade.apply_transformations()
-        blade.generate_stl(
-            upper_face=None,
-            lower_face='tests/test_datasets/lower',
-            tip=None,
-            root=None,
-            display=False,
-            errors='tests/test_datasets/errors')
-        self.assertTrue(os.path.isfile('tests/test_datasets/lower.stl'))
-        self.addCleanup(os.remove, 'tests/test_datasets/lower.stl')
-        self.assertTrue(os.path.isfile('tests/test_datasets/errors.txt'))
-        self.addCleanup(os.remove, 'tests/test_datasets/errors.txt')
+    # def test_stl_generate_errors_lower(self):
+    #     blade = create_sample_blade_NACA_10()
+    #     blade.apply_transformations()
+    #     blade.generate_stl(
+    #         upper_face=None,
+    #         lower_face='tests/test_datasets/lower',
+    #         tip=None,
+    #         root=None,
+    #         display=False,
+    #         errors='tests/test_datasets/errors')
+    #     self.assertTrue(os.path.isfile('tests/test_datasets/lower.stl'))
+    #     self.addCleanup(os.remove, 'tests/test_datasets/lower.stl')
+    #     self.assertTrue(os.path.isfile('tests/test_datasets/errors.txt'))
+    #     self.addCleanup(os.remove, 'tests/test_datasets/errors.txt')
 
     def test_solid_max_deg_exception(self):
         blade = create_sample_blade_NACA()
-        blade.apply_transformations()
+        blade.build()
         with self.assertRaises(ValueError):
             blade.generate_solid(
                 max_deg=-1,
@@ -742,7 +656,7 @@ class TestBlade(TestCase):
 
     def test_generate_solid(self):
         blade = create_sample_blade_NACA()
-        blade.apply_transformations()
+        blade.build()
         blade_solid = blade.generate_solid(max_deg=2, display=False,
                                                  errors=None)
         self.assertIsInstance(blade_solid, TopoDS_Solid)

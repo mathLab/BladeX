@@ -26,20 +26,17 @@ class Propeller(object):
     def __init__(self, shaft, blade, n_blades):
         self.shaft_solid = shaft.generate_solid()
 
-        blade.apply_transformations(reflect=True)
-        blade_solid = blade.generate_solid(
-            max_deg=2, display=False, errors=None
-        )
+        blade.build(reflect=True)
+        blade_solid = blade.generate_solid()
         blades = []
         blades.append(blade_solid)
         for i in range(n_blades - 1):
             blade.rotate(rad_angle=1.0 * 2.0 * np.pi / float(n_blades))
-            blade_solid = blade.generate_solid(
-                max_deg=2, display=False, errors=None
-            )
+            blade_solid = blade.generate_solid()
             blades.append(blade_solid)
         blades_combined = blades[0]
         for i in range(len(blades) - 1):
+            print(i)
             boolean_union = BRepAlgoAPI_Fuse(blades_combined, blades[i + 1])
             boolean_union.Build()
             if not boolean_union.IsDone():

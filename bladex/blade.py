@@ -160,6 +160,7 @@ class Blade(object):
         self.skew_angles = skew_angles
         self._check_params()
 
+        self.conversion_factor = 1000  # to convert units if necessary
         self.reset()
 
     def reset(self):
@@ -184,15 +185,19 @@ class Blade(object):
 
         """
         self.apply_transformations(reflect=reflect)
-        self.upper_face = InterpolatedFace(self.blade_coordinates_up).face
-        self.lower_face = InterpolatedFace(self.blade_coordinates_down).face
+
+        blade_coordinates_up = self.blade_coordinates_up * self.conversion_factor
+        blade_coordinates_down = self.blade_coordinates_down * self.conversion_factor
+
+        self.upper_face = InterpolatedFace(blade_coordinates_up).face
+        self.lower_face = InterpolatedFace(blade_coordinates_down).face
         self.tip_face = InterpolatedFace(np.stack([
-            self.blade_coordinates_up[-1],
-            self.blade_coordinates_down[-1]
+            blade_coordinates_up[-1],
+            blade_coordinates_down[-1]
         ])).face
         self.root_face = InterpolatedFace(np.stack([
-            self.blade_coordinates_up[0],
-            self.blade_coordinates_down[0]
+            blade_coordinates_up[0],
+            blade_coordinates_down[0]
         ])).face
 
     def _check_params(self):
@@ -419,10 +424,10 @@ class Blade(object):
         else:
             raise ValueError('Axis must be either x, y, or z.')
 
-        self.blade_coordinates_up = np.einsum('ij, kjl->kil',
-            rot_matrix, self.blade_coordinates_up)
-        self.blade_coordinates_down = np.einsum('ij, kjl->kil',
-            rot_matrix, self.blade_coordinates_down)
+        # self.blade_coordinates_up = np.einsum('ij, kjl->kil',
+        #     rot_matrix, self.blade_coordinates_up)
+        # self.blade_coordinates_down = np.einsum('ij, kjl->kil',
+        #     rot_matrix, self.blade_coordinates_down)
 
     def scale(self, factor):
         """
@@ -430,8 +435,14 @@ class Blade(object):
 
         :param float factor: scaling factor
         """
+        from OCC.Core.BRepBuilderAPI import BRepBuilderAPI_Transform
         self.blade_coordinates_up *= factor
         self.blade_coordinates_down *= factor
+        # for face in [self.upper_face, self.lower_face, self.tip_face, self.root_face]:
+        #     brepgp_Trsf = BRepBuilderAPI_Transform()
+        #     brepgp_Trsf.SetScale(gp_Pnt(0, 0, 0), factor)
+        #     brepgp_Trsf.Perform(face, True)
+        #     face = brepgp_Trsf.Shape()
 
     def plot(self, elev=None, azim=None, ax=None, outfile=None):
         """
@@ -500,8 +511,8 @@ class Blade(object):
         >>> blade.apply_transformations()
         >>> blade.plot()
         """
-        if not self.blade_coordinates_up:
-            raise ValueError('You must apply transformations before plotting.')
+        if len(self.blade_coordinates_up) == 0:
+            raise ValueError('You must build the blade before plotting.')
         if ax:
             ax = ax
         else:
@@ -628,32 +639,21 @@ class Blade(object):
                         output_string += '\n'
             f.write(output_string)
 
-    def generate_solid(self,
-                             max_deg=1,
-                             display=False,
-                             errors=None):
+    def generate_solid(self):
         """
         Generate a solid blade assembling the upper face, lower face, tip and
         root using the BRepBuilderAPI_MakeSolid algorithm.
-        This method requires PythonOCC (7.4.0) to be installed.
 
         :param int max_deg: Define the maximal U degree of generated surface.
             Default value is 1
-        :param bool display: if True, then display the generated CAD. Default
-            value is False
-        :param string errors: if string is passed then the method writes out
-            the distances between each discrete point used to construct the
-            blade and the nearest point on the CAD that is perpendicular to
-            that point. Default value is None
         :raises RuntimeError: if the assembling of the solid blade is not
             completed successfully
         """
         from OCC.Display.SimpleGui import init_display
         from OCC.Core.TopoDS import TopoDS_Shell
         import OCC.Core.TopoDS
-
-        if max_deg <= 0:
-            raise ValueError('max_deg argument must be a positive integer.')
+        from OCC.Core.BRepBuilderAPI import BRepBuilderAPI_Sewing, \
+                BRepBuilderAPI_MakeSolid
 
         faces = [
             self.upper_face, self.lower_face, self.tip_face, self.root_face
@@ -674,28 +674,30 @@ class Blade(object):
 
        	return result_solid
 
-    def generate_stl_blade(self, filename):
+    def export_stl(self, filename, linear_deflection=0.1):
         """
         Generate and export the .STL file for the entire blade.
         This method requires PythonOCC (7.4.0) to be installed.
         """
         from OCC.Core.BRepBuilderAPI import BRepBuilderAPI_Sewing
+        from OCC.Core.BRepMesh import BRepMesh_IncrementalMesh
         from OCC.Extend.DataExchange import write_stl_file
-
-        self._generate_upper_face(max_deg=1)
-        self._generate_lower_face(max_deg=1)
-        self._generate_root(max_deg=1)
-        self._generate_tip(max_deg=1)
+        from OCC.Core.StlAPI import StlAPI_Writer
 
         sewer = BRepBuilderAPI_Sewing(1e-2)
-        sewer.Add(self.generated_upper_face)
-        sewer.Add(self.generated_lower_face)
-        sewer.Add(self.generated_root)
-        sewer.Add(self.generated_tip)
+        sewer.Add(self.upper_face)
+        sewer.Add(self.lower_face)
+        sewer.Add(self.root_face)
+        sewer.Add(self.tip_face)
         sewer.Perform()
-        self.sewed_full = sewer.SewedShape()
+        sewed_shape = sewer.SewedShape()
 
-        write_stl_file(self.sewed_full, filename)
+        triangulation = BRepMesh_IncrementalMesh(sewed_shape, linear_deflection, True)
+        triangulation.Perform()
+
+        writer = StlAPI_Writer()
+        writer.SetASCIIMode(False)
+        writer.Write(sewed_shape, filename)
 
     def _generate_leading_edge_curves(self):
         """
@@ -749,26 +751,21 @@ class Blade(object):
         self.upper_le_edge = BRepBuilderAPI_MakeEdge(upper_curve.Curve()).Edge()
         self.lower_le_edge = BRepBuilderAPI_MakeEdge(lower_curve.Curve()).Edge()
 
-    def generate_iges_blade(self, filename, include_le_curves=False):
+    def export_iges(self, filename, include_le_curves=False):
         """
         Generate and export the .IGES file for the entire blade.
         This method requires PythonOCC (7.4.0) to be installed.
         """
         from OCC.Core.IGESControl import IGESControl_Writer
 
-        self._generate_upper_face(max_deg=1)
-        self._generate_lower_face(max_deg=1)
-        self._generate_root(max_deg=1)
-        self._generate_tip(max_deg=1)
-        
         if include_le_curves:
             self._generate_leading_edge_curves()
         
         iges_writer = IGESControl_Writer()
-        iges_writer.AddShape(self.generated_upper_face)
-        iges_writer.AddShape(self.generated_lower_face)
-        iges_writer.AddShape(self.generated_root)
-        iges_writer.AddShape(self.generated_tip)
+        iges_writer.AddShape(self.upper_face)
+        iges_writer.AddShape(self.lower_face)
+        iges_writer.AddShape(self.root_face)
+        iges_writer.AddShape(self.tip_face)
         
         if include_le_curves:
             iges_writer.AddShape(self.upper_le_edge)
