@@ -23,10 +23,11 @@ class Propeller(object):
     :cvar OCC.Core.TopoDS.TopoDS_Shell sewed_full_body: propeller with shaft shell
     """
 
-    def __init__(self, shaft, blade, n_blades):
+    def __init__(self, shaft, blade, n_blades, reflect=True):
         self.shaft_solid = shaft.generate_solid()
 
-        blade.apply_transformations(reflect=True)
+        if reflect:
+            blade.apply_transformations(reflect=True)
         blade_solid = blade.generate_solid(
             max_deg=2, display=False, errors=None
         )
