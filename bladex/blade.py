@@ -5,6 +5,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 
+from .intepolatedface import InterpolatedFace
+
 class Blade(object):
     """
     Bottom-up parametrized blade construction.
@@ -158,16 +160,7 @@ class Blade(object):
         self.skew_angles = skew_angles
         self._check_params()
 
-        self.pitch_angles = self._compute_pitch_angle()
-        self.induced_rake = self._induced_rake_from_skew()
-
-        self.blade_coordinates_up = []
-        self.blade_coordinates_down = []
-
-        self.generated_upper_face = None
-        self.generated_lower_face = None
-        self.generated_tip = None
-        self.generated_root = None
+        self.reset()
 
     def reset(self):
         """
@@ -176,12 +169,12 @@ class Blade(object):
         self.blade_coordinates_up = []
         self.blade_coordinates_down = []
 
-        self.generated_upper_face = None
-        self.generated_lower_face = None
-        self.generated_tip = None
-        self.generated_root = None
+        self.upper_face = None
+        self.lower_face = None
+        self.tip_face = None
+        self.root_face = None
 
-    def build(self):
+    def build(self, reflect=True):
         """
         Generate a bottom-up constructed propeller blade without applying any
         transformations on the airfoils.
@@ -190,11 +183,17 @@ class Blade(object):
         the given 3D coordinates of the blade sections.
 
         """
-        from . import InterpolatedFace
-        upper_face = InterpolatedFace(self.blade_coordinates_up)
-        lower_face = InterpolatedFace(self.blade_coordinates_down)
-        tip_face = InterpolatedFace(np.stack
-
+        self.apply_transformations(reflect=reflect)
+        self.upper_face = InterpolatedFace(self.blade_coordinates_up).face
+        self.lower_face = InterpolatedFace(self.blade_coordinates_down).face
+        self.tip_face = InterpolatedFace(np.stack([
+            self.blade_coordinates_up[-1],
+            self.blade_coordinates_down[-1]
+        ])).face
+        self.root_face = InterpolatedFace(np.stack([
+            self.blade_coordinates_up[0],
+            self.blade_coordinates_down[0]
+        ])).face
 
     def _check_params(self):
         """
@@ -221,7 +220,7 @@ class Blade(object):
             'rake, skew_angles} do not have the same shape.')
 
     @property
-    def pitch_angle(self):
+    def pitch_angles(self):
         """
         Return the pitch angle from the linear pitch for all blade sections.
 
@@ -385,7 +384,7 @@ class Blade(object):
             or if neither is inserted
 
         """
-        if not self.blade_coordinates_up:
+        if len(self.blade_coordinates_up) == 0:
             raise ValueError('You must apply transformations before rotation.')
 
         # Check rotation angle
@@ -431,10 +430,6 @@ class Blade(object):
 
         :param float factor: scaling factor
         """
-
-        scaling_matrix = np.array([factor, 0, 0, 0, factor,
-            0, 0, 0, factor]).reshape((3, 3))
-
         self.blade_coordinates_up *= factor
         self.blade_coordinates_down *= factor
 
@@ -633,112 +628,6 @@ class Blade(object):
                         output_string += '\n'
             f.write(output_string)
 
-    def generate_iges(self,
-                      upper_face=None,
-                      lower_face=None,
-                      tip=None,
-                      root=None,
-                      max_deg=1,
-                      display=False,
-                      errors=None):
-        """
-        Generate and export the .iges CAD for the blade upper face, lower face,
-        tip and root. This method requires PythonOCC (7.4.0) to be installed.
-
-        :param string upper_face: if string is passed then the method generates
-            the blade upper surface using the BRepOffsetAPI_ThruSections
-            algorithm, then exports the generated CAD into .iges file holding
-            the name <upper_face_string>.iges. Default value is None
-        :param string lower_face: if string is passed then the method generates
-            the blade lower surface using the BRepOffsetAPI_ThruSections
-            algorithm, then exports the generated CAD into .iges file holding
-            the name <lower_face_string>.iges. Default value is None
-        :param string tip: if string is passed then the method generates
-            the blade tip using the BRepOffsetAPI_ThruSections algorithm
-            in order to close the blade at the tip, then exports the generated
-            CAD into .iges file holding the name <tip_string>.iges.
-            Default value is None
-        :param string root: if string is passed then the method generates
-            the blade root using the BRepOffsetAPI_ThruSections algorithm
-            in order to close the blade at the root, then exports the generated
-            CAD into .iges file holding the name <tip_string>.iges.
-            Default value is None
-        :param int max_deg: Define the maximal U degree of generated surface.
-            Default value is 1
-        :param bool display: if True, then display the generated CAD. Default
-            value is False
-        :param string errors: if string is passed then the method writes out
-            the distances between each discrete point used to construct the
-            blade and the nearest point on the CAD that is perpendicular to
-            that point. Default value is None
-
-        We note that the blade object must have its radial sections be arranged
-        in order from the blade root to the blade tip, so that generate_iges
-        method can build the CAD surface that passes through the corresponding
-        airfoils. Also to be able to identify and close the blade tip and root.
-        """
-
-        from OCC.Core.IGESControl import IGESControl_Writer
-        from OCC.Display.SimpleGui import init_display
-
-        if max_deg <= 0:
-            raise ValueError('max_deg argument must be a positive integer.')
-
-        if upper_face:
-            self._check_string(filename=upper_face)
-            self._generate_upper_face(max_deg=max_deg)
-            # Write IGES
-            iges_writer = IGESControl_Writer()
-            iges_writer.AddShape(self.generated_upper_face)
-            iges_writer.Write(upper_face + '.iges')
-
-        if lower_face:
-            self._check_string(filename=lower_face)
-            self._generate_lower_face(max_deg=max_deg)
-            # Write IGES
-            iges_writer = IGESControl_Writer()
-            iges_writer.AddShape(self.generated_lower_face)
-            iges_writer.Write(lower_face + '.iges')
-
-        if tip:
-            self._check_string(filename=tip)
-            self._generate_tip(max_deg=max_deg)
-            # Write IGES
-            iges_writer = IGESControl_Writer()
-            iges_writer.AddShape(self.generated_tip)
-            iges_writer.Write(tip + '.iges')
-
-        if root:
-            self._check_string(filename=root)
-            self._generate_root(max_deg=max_deg)
-            # Write IGES
-            iges_writer = IGESControl_Writer()
-            iges_writer.AddShape(self.generated_root)
-            iges_writer.Write(root + '.iges')
-
-        if errors:
-            # Write out errors between discrete points and constructed faces
-            self._check_string(filename=errors)
-            self._check_errors(upper_face=upper_face, lower_face=lower_face)
-
-            self._write_blade_errors(
-                upper_face=upper_face, lower_face=lower_face, errors=errors)
-
-        if display:
-            display, start_display, add_menu, add_function_to_menu = init_display(
-            )
-
-            ## DISPLAY FACES
-            if upper_face:
-                display.DisplayShape(self.generated_upper_face, update=True)
-            if lower_face:
-                display.DisplayShape(self.generated_lower_face, update=True)
-            if tip:
-                display.DisplayShape(self.generated_tip, update=True)
-            if root:
-                display.DisplayShape(self.generated_root, update=True)
-            start_display()
-
     def generate_solid(self,
                              max_deg=1,
                              display=False,
@@ -766,145 +655,24 @@ class Blade(object):
         if max_deg <= 0:
             raise ValueError('max_deg argument must be a positive integer.')
 
-        self._generate_upper_face(max_deg=max_deg)
-
-        print(self.generated_upper_face)
-        from . import InterpolatedFace
-        upper_face = InterpolatedFace(self.blade_coordinates_up)
-        lower_face = InterpolatedFace(self.blade_coordinates_down)
-        tip_face = InterpolatedFace(np.stack([
-            self.blade_coordinates_up[-1],
-            self.blade_coordinates_down[-1]
-        ]))
-        root_face = InterpolatedFace(np.stack([
-            self.blade_coordinates_up[0],
-            self.blade_coordinates_down[0]
-        ]))
-        # print(upper_face.face)
-        # fff
-        # self._generate_lower_face(max_deg=max_deg)
-        # self._generate_tip(max_deg=max_deg)
-        # self._generate_root(max_deg=max_deg)
-
-        if errors:
-            # Write out errors between discrete points and constructed faces
-            self._check_string(filename=errors)
-            self._check_errors(upper_face=upper_face, lower_face=lower_face)
-
-            self._write_blade_errors(
-                upper_face=upper_face, lower_face=lower_face, errors=errors)
-
+        faces = [
+            self.upper_face, self.lower_face, self.tip_face, self.root_face
+        ]
 
         sewer = BRepBuilderAPI_Sewing(1e-2)
-        for face in [upper_face.face, lower_face.face, tip_face.face,
-                     root_face.face]:
+        for face in faces:
             sewer.Add(face)
         sewer.Perform()
 
         result_shell = sewer.SewedShape()
         solid_maker = BRepBuilderAPI_MakeSolid()
         solid_maker.Add(OCC.Core.TopoDS.topods.Shell(result_shell))
+
         if not solid_maker.IsDone():
             raise RuntimeError('Unsuccessful assembling of solid blade')
         result_solid = solid_maker.Solid()
+
        	return result_solid
-
-    def generate_stl(self, upper_face=None,
-                      lower_face=None,
-                      tip=None,
-                      root=None,
-                      max_deg=1,
-                      display=False,
-                      errors=None):
-        """
-        Generate and export the .STL files for upper face, lower face, tip
-        and root. This method requires PythonOCC (7.4.0) to be installed.
-
-        :param string upper_face: if string is passed then the method generates
-            the blade upper surface using the BRepOffsetAPI_ThruSections
-            algorithm, then exports the generated CAD into .stl file holding
-            the name <upper_face_string>.stl. Default value is None
-        :param string lower_face: if string is passed then the method generates
-            the blade lower surface using the BRepOffsetAPI_ThruSections
-            algorithm, then exports the generated CAD into .stl file holding
-            the name <lower_face_string>.stl. Default value is None
-        :param string tip: if string is passed then the method generates
-            the blade tip using the BRepOffsetAPI_ThruSections algorithm
-            in order to close the blade at the tip, then exports the generated
-            CAD into .stl file holding the name <tip_string>.stl.
-            Default value is None
-        :param string root: if string is passed then the method generates
-            the blade root using the BRepOffsetAPI_ThruSections algorithm
-            in order to close the blade at the root, then exports the generated
-            CAD into .stl file holding the name <tip_string>.stl.
-            Default value is None
-        :param int max_deg: Define the maximal U degree of generated surface.
-            Default value is 1
-        :param bool display: if True, then display the generated CAD. Default
-            value is False
-        :param string errors: if string is passed then the method writes out
-            the distances between each discrete point used to construct the
-            blade and the nearest point on the CAD that is perpendicular to
-            that point. Default value is None
-
-        We note that the blade object must have its radial sections be arranged
-        in order from the blade root to the blade tip, so that generate_stl
-        method can build the CAD surface that passes through the corresponding
-        airfoils. Also to be able to identify and close the blade tip and root.
-        """
-
-        from OCC.Extend.DataExchange import write_stl_file
-        from OCC.Display.SimpleGui import init_display
-
-        if max_deg <= 0:
-            raise ValueError('max_deg argument must be a positive integer.')
-
-        if upper_face:
-            self._check_string(filename=upper_face)
-            self._generate_upper_face(max_deg=max_deg)
-            # Write STL
-            write_stl_file(self.generated_upper_face, upper_face + '.stl')
-
-        if lower_face:
-            self._check_string(filename=lower_face)
-            self._generate_lower_face(max_deg=max_deg)
-            # Write STL
-            write_stl_file(self.generated_lower_face, lower_face + '.stl')
-
-        if tip:
-            self._check_string(filename=tip)
-            self._generate_tip(max_deg=max_deg)
-            # Write STL
-            write_stl_file(self.generated_tip, tip + '.stl')
-
-        if root:
-            self._check_string(filename=root)
-            self._generate_root(max_deg=max_deg)
-            # Write STL
-            write_stl_file(self.generated_root, root + '.stl')
-
-        if errors:
-            # Write out errors between discrete points and constructed faces
-            self._check_string(filename=errors)
-            self._check_errors(upper_face=upper_face, lower_face=lower_face)
-
-            self._write_blade_errors(
-                upper_face=upper_face, lower_face=lower_face, errors=errors)
-
-        if display:
-            display, start_display, add_menu, add_function_to_menu = init_display(
-            )
-
-            ## DISPLAY FACES
-            if upper_face:
-                display.DisplayShape(self.generated_upper_face, update=True)
-            if lower_face:
-                display.DisplayShape(self.generated_lower_face, update=True)
-            if tip:
-                display.DisplayShape(self.generated_tip, update=True)
-            if root:
-                display.DisplayShape(self.generated_root, update=True)
-            start_display()
 
     def generate_stl_blade(self, filename):
         """

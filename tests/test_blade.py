@@ -239,7 +239,6 @@ class TestBlade(TestCase):
         blade = create_sample_blade_NACA()
         blade.radii[1] = 1.
         blade.pitch[1] = 2.0 * np.pi
-        blade.pitch_angles = blade._compute_pitch_angle()
         assert blade.pitch_angles[1] == (np.pi / 4.0)
 
     def test_pitch_angles_array_length(self):
@@ -266,21 +265,12 @@ class TestBlade(TestCase):
         blade = create_sample_blade_NACA()
         assert len(blade.blade_coordinates_down) == 0
 
-    def test_blade_generated_upper_face_init(self):
+    def test_blade_faces_init(self):
         blade = create_sample_blade_NACA()
-        assert blade.generated_upper_face == None
-
-    def test_blade_generated_lower_face_init(self):
-        blade = create_sample_blade_NACA()
-        assert blade.generated_lower_face == None
-
-    def test_blade_generated_tip_init(self):
-        blade = create_sample_blade_NACA()
-        assert blade.generated_tip == None
-
-    def test_blade_generated_root_init(self):
-        blade = create_sample_blade_NACA()
-        assert blade.generated_root == None
+        assert blade.upper_face == None
+        assert blade.lower_face == None
+        assert blade.tip_face == None
+        assert blade.root_face == None
 
     def test_planar_to_cylindrical_blade_up(self):
         blade = create_sample_blade_NACA()
@@ -354,7 +344,7 @@ class TestBlade(TestCase):
         with self.assertRaises(ValueError):
             blade.rotate(rad_angle=80, deg_angle=None)
 
-    def test_rotate_deg_section_0_xup(self):
+    def test_rotate_deg_section_0(self):
         blade = create_sample_blade_NACA_10()
         blade.apply_transformations()
         blade.rotate(deg_angle=90)
@@ -365,10 +355,6 @@ class TestBlade(TestCase):
         np.testing.assert_almost_equal(blade.blade_coordinates_up[0][0],
                                        rotated_coordinates)
 
-    def test_rotate_deg_section_0_yup(self):
-        blade = create_sample_blade_NACA_10()
-        blade.apply_transformations()
-        blade.rotate(deg_angle=90)
         rotated_coordinates = np.array([
             -0.409087 , -0.449122 , -0.4720087, -0.4872923, -0.4963637,
             -0.4999122, -0.4983684, -0.4920609, -0.4813081, -0.4664844
@@ -376,10 +362,6 @@ class TestBlade(TestCase):
         np.testing.assert_almost_equal(blade.blade_coordinates_up[0][1],
                                        rotated_coordinates)
 
-    def test_rotate_deg_section_0_zup(self):
-        blade = create_sample_blade_NACA_10()
-        blade.apply_transformations()
-        blade.rotate(deg_angle=90)
         rotated_coordinates = np.array([
             0.2874853, 0.2197486, 0.1649479, 0.1120097, 0.0601922,
             0.0093686, -0.04036, -0.0887472, -0.1354346, -0.1799786

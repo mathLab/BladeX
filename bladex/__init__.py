@@ -5,7 +5,7 @@ __all__ = [
         'ProfileInterface', 'NacaProfile', 'CustomProfile',
         'ReversePropeller', 'Blade', 'Shaft', 'CylinderShaft',
         'Propeller', 'Deformation', 'ParamFile', 'RBF',
-        'reconstruct_f', 'scipy_bspline'
+        'reconstruct_f', 'scipy_bspline', 'InterpolatedFace'
 ]
 
 from .profile import ProfileInterface
