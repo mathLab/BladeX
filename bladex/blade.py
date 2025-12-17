@@ -424,10 +424,10 @@ class Blade(object):
         else:
             raise ValueError('Axis must be either x, y, or z.')
 
-        # self.blade_coordinates_up = np.einsum('ij, kjl->kil',
-        #     rot_matrix, self.blade_coordinates_up)
-        # self.blade_coordinates_down = np.einsum('ij, kjl->kil',
-        #     rot_matrix, self.blade_coordinates_down)
+        self.blade_coordinates_up = np.einsum('ij, kjl->kil',
+            rot_matrix, self.blade_coordinates_up)
+        self.blade_coordinates_down = np.einsum('ij, kjl->kil',
+            rot_matrix, self.blade_coordinates_down)
 
     def scale(self, factor):
         """

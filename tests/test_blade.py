@@ -636,29 +636,11 @@ class TestBlade(TestCase):
     #     self.assertTrue(os.path.isfile('tests/test_datasets/errors.txt'))
     #     self.addCleanup(os.remove, 'tests/test_datasets/errors.txt')
 
-    def test_solid_max_deg_exception(self):
-        blade = create_sample_blade_NACA()
-        blade.build()
-        with self.assertRaises(ValueError):
-            blade.generate_solid(
-                max_deg=-1,
-                display=False,
-                errors=None)
-
-    def test_solid_errors_exception(self):
-        blade = create_sample_blade_NACA()
-        blade.apply_transformations()
-        with self.assertRaises(ValueError):
-            blade.generate_solid(
-                max_deg=-1,
-                display=False,
-                errors='tests/test_datasets/errors')
 
     def test_generate_solid(self):
         blade = create_sample_blade_NACA()
         blade.build()
-        blade_solid = blade.generate_solid(max_deg=2, display=False,
-                                                 errors=None)
+        blade_solid = blade.generate_solid()
         self.assertIsInstance(blade_solid, TopoDS_Solid)
 
     def test_abs_to_norm_radii(self):
