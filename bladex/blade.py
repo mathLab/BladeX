@@ -404,6 +404,7 @@ class Blade(object):
         elif deg_angle is not None:
             cosine = np.cos(np.radians(deg_angle))
             sine = np.sin(np.radians(deg_angle))
+            rad_angle = deg_angle * np.pi / 180
         else:
             raise ValueError(
                 'You have to pass either the angle in radians or in degrees.')
