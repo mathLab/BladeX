@@ -27,6 +27,14 @@ class Propeller(object):
         self.shaft_solid = shaft.generate_solid()
 
         blade.build(reflect=True)
+        import copy
+
+        self.blades = [copy.deepcopy(blade) for _ in range(n_blades)]
+        [
+            blade.rotate(rad_angle=i * 2.0 * np.pi / float(n_blades))
+            for i, blade in enumerate(self.blades)
+        ]
+
         blade_solid = blade.generate_solid()
         blades = []
         blades.append(blade_solid)
@@ -34,10 +42,12 @@ class Propeller(object):
             blade.rotate(rad_angle=1.0 * 2.0 * np.pi / float(n_blades))
             blade_solid = blade.generate_solid()
             blades.append(blade_solid)
-        blades_combined = blades[0]
+
+        blade_solids = [blade_.generate_solid() for blade_ in self.blades]
+        blades_combined = blade_solids[0]
         for i in range(len(blades) - 1):
             print(i)
-            boolean_union = BRepAlgoAPI_Fuse(blades_combined, blades[i + 1])
+            boolean_union = BRepAlgoAPI_Fuse(blades_combined, blade_solids[i + 1])
             boolean_union.Build()
             if not boolean_union.IsDone():
                 raise RuntimeError("Unsuccessful assembling of blade")
