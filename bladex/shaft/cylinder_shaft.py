@@ -22,9 +22,13 @@ class CylinderShaft:
 
         if orientation is None:
             self.orientation = [1.0, 0.0, 0.0]  # default orientation along X
+        else:
+            self.orientation = orientation
 
         if origin is None:
             self.origin = [0.0, 0.0, 0.0]  # default origin at (0,0,0)
+        else:
+            self.origin = origin
 
     def generate_solid(self):
         """
