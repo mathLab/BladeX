@@ -404,6 +404,7 @@ class Blade(object):
         elif deg_angle is not None:
             cosine = np.cos(np.radians(deg_angle))
             sine = np.sin(np.radians(deg_angle))
+            rad_angle = deg_angle * np.pi / 180
         else:
             raise ValueError(
                 'You have to pass either the angle in radians or in degrees.')
@@ -429,6 +430,39 @@ class Blade(object):
         self.blade_coordinates_down = np.einsum('ij, kjl->kil',
             rot_matrix, self.blade_coordinates_down)
 
+        # TODO: working but ugly
+        for id, face in enumerate([self.upper_face, self.lower_face,
+                     self.tip_face, self.root_face]):
+            from OCC.Core.BRepBuilderAPI import BRepBuilderAPI_Transform
+            from OCC.Core.gp import gp_Pnt
+            from OCC.Core.gp import gp_Dir
+            from OCC.Core.gp import gp_Ax1
+            from OCC.Core.gp import gp_Trsf
+            
+            origin = gp_Pnt(0, 0, 0)
+            if axis == 'y':
+                direction = gp_Dir(0, 1, 0)
+            elif axis == 'z':
+                direction = gp_Dir(0, 0, 1)
+            elif axis == 'x':
+                direction = gp_Dir(1, 0, 0)
+            else:
+                raise ValueError('Axis must be either x, y, or z.')
+            ax1 = gp_Ax1(origin, direction)
+            trsf = gp_Trsf()
+            trsf.SetRotation(ax1, rad_angle)
+
+            brep_tr = BRepBuilderAPI_Transform(face, trsf, True, True)
+            face = brep_tr.Shape()
+            if id == 0:
+                self.upper_face = face
+            elif id == 1:
+                self.lower_face = face
+            elif id == 2:
+                self.tip_face = face
+            elif id == 3:
+                self.root_face = face
+
     def scale(self, factor):
         """
         Scale the blade coordinates by a specified factor.
@@ -438,11 +472,29 @@ class Blade(object):
         from OCC.Core.BRepBuilderAPI import BRepBuilderAPI_Transform
         self.blade_coordinates_up *= factor
         self.blade_coordinates_down *= factor
-        # for face in [self.upper_face, self.lower_face, self.tip_face, self.root_face]:
-        #     brepgp_Trsf = BRepBuilderAPI_Transform()
-        #     brepgp_Trsf.SetScale(gp_Pnt(0, 0, 0), factor)
-        #     brepgp_Trsf.Perform(face, True)
-        #     face = brepgp_Trsf.Shape()
+
+        for id, face in enumerate([self.upper_face, self.lower_face,
+                     self.tip_face, self.root_face]):
+            from OCC.Core.BRepBuilderAPI import BRepBuilderAPI_Transform
+            from OCC.Core.gp import gp_Pnt
+            from OCC.Core.gp import gp_Dir
+            from OCC.Core.gp import gp_Ax1
+            from OCC.Core.gp import gp_Trsf
+            
+            origin = gp_Pnt(0, 0, 0)
+            trsf = gp_Trsf()
+            trsf.SetScale(origin, factor)
+
+            brep_tr = BRepBuilderAPI_Transform(face, trsf, True, True)
+            face = brep_tr.Shape()
+            if id == 0:
+                self.upper_face = face
+            elif id == 1:
+                self.lower_face = face
+            elif id == 2:
+                self.tip_face = face
+            elif id == 3:
+                self.root_face = face
 
     def plot(self, elev=None, azim=None, ax=None, outfile=None):
         """
@@ -944,3 +996,15 @@ class Blade(object):
         string += '\nInduced rake from skew (in unit length)'\
                   ' for the sections = {}'.format(self.induced_rake)
         return string
+
+    def display(self):
+        """
+        Display the propeller with shaft.
+        """
+        from OCC.Display.SimpleGui import init_display
+        display, start_display = init_display()[:2]
+        display.DisplayShape(self.upper_face, update=True)
+        display.DisplayShape(self.lower_face, update=True)
+        display.DisplayShape(self.root_face, update=True)
+        display.DisplayShape(self.tip_face, update=True)
+        start_display()
