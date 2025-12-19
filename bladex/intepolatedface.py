@@ -14,7 +14,7 @@ from OCC.Core.BRepBuilderAPI import BRepBuilderAPI_MakeVertex,\
 
 class InterpolatedFace:
 
-    def __init__(self, pts, max_deg=3, tolerance=1e-10):
+    def __init__(self, pts, max_deg=1, tolerance=1e-6):
 
         print(pts.shape)
         if pts.ndim not in [2, 3]:

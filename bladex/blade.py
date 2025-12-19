@@ -711,7 +711,7 @@ class Blade(object):
             self.upper_face, self.lower_face, self.tip_face, self.root_face
         ]
 
-        sewer = BRepBuilderAPI_Sewing(1e-2)
+        sewer = BRepBuilderAPI_Sewing(1e-7)
         for face in faces:
             sewer.Add(face)
         sewer.Perform()
