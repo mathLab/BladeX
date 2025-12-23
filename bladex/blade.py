@@ -463,6 +463,54 @@ class Blade(object):
             elif id == 3:
                 self.root_face = face
 
+    def mirror(self, point1, point2, point3):
+        """
+        3D mirroring of the blade with respect to a plane defined by three points
+
+        :param list point1: coordinates of point1
+        :param list point2: coordinates of point2
+        :param list point3: coordinates of point3
+
+        """
+        if len(self.blade_coordinates_up) == 0:
+            raise ValueError('You must apply transformations before rotation.')
+
+        from OCC.Core.BRepBuilderAPI import BRepBuilderAPI_Transform
+        from OCC.Core.gp import gp_Pnt
+        from OCC.Core.gp import gp_Vec
+        from OCC.Core.gp import gp_Dir
+        from OCC.Core.gp import gp_Ax2
+        from OCC.Core.gp import gp_Trsf
+
+        point1 = gp_Pnt(*point1)
+        point2 = gp_Pnt(*point2)
+        point3 = gp_Pnt(*point3)
+
+        # Two vectors defining the directions of the plane
+        vector1 = gp_Vec(point1, point2)
+        vector2 = gp_Vec(point2, point3)
+        # Normal versor to the plane passing through the three points
+        normal = gp_Dir(vector1.Crossed(vector2))
+        # Ax2 object identifying the plane
+        ax2 = gp_Ax2(point1, normal)
+
+        # Mirroring wrt plane transformation
+        trsf = gp_Trsf()
+        trsf.SetMirror(ax2)
+        
+        for id, face in enumerate([self.upper_face, self.lower_face,
+                     self.tip_face, self.root_face]):
+            brep_tr = BRepBuilderAPI_Transform(face, trsf, True, True)
+            face = brep_tr.Shape()
+            if id == 0:
+                self.upper_face = face
+            elif id == 1:
+                self.lower_face = face
+            elif id == 2:
+                self.tip_face = face
+            elif id == 3:
+                self.root_face = face
+
     def scale(self, factor):
         """
         Scale the blade coordinates by a specified factor.
