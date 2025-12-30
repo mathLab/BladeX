@@ -386,6 +386,18 @@ class TestBlade(TestCase):
         np.testing.assert_almost_equal(blade.blade_coordinates_down[1][2],
                                        rotated_coordinates)
 
+    def test_blade_mirror_exceptions(self):
+        blade = create_sample_blade_NACA()
+        blade.apply_transformations()
+        with self.assertRaises(ValueError):
+            blade.mirror(wrong_argument=[0., 0., 0.], point2=[0., 1., 0.], point3=[0., 1., 1.])
+
+    def test_blade_mirror_exceptions_2(self):
+        blade = create_sample_blade_NACA()
+        blade.apply_transformations()
+        with self.assertRaises(ValueError):
+            blade.mirror([0., 1., 1.])
+
     def test_plot_view_elev_init(self):
         blade = create_sample_blade_NACA()
         blade.apply_transformations()
