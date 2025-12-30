@@ -463,17 +463,25 @@ class Blade(object):
             elif id == 3:
                 self.root_face = face
 
-    def mirror(self, point1, point2, point3):
+    def mirror(self, *args, **kwargs):
         """
-        3D mirroring of the blade with respect to a plane defined by three points
+        3D mirroring of the blade with respect to a plane.
+        The plane can be defined either by three points or by a point and its normal direction.
+        Which option to be used depends on the inputs taken by the funtion.
 
-        :param list point1: coordinates of point1
-        :param list point2: coordinates of point2
-        :param list point3: coordinates of point3
-
+        args:   -three entries means three points
+                -two entries means one point and one normal vector
+        kwargs: -only accepted arguments: point1, point2, point3, normal
         """
         if len(self.blade_coordinates_up) == 0:
             raise ValueError('You must apply transformations before rotation.')
+
+        if len(args) + len(kwargs) not in [2, 3]:
+            raise ValueError("Wrong number of arguments")
+
+        admissible_kwargs = ['point1', 'point2', 'point3', 'point', 'normal']
+        if any(key not in admissible_kwargs for key in kwargs.keys()):
+            raise ValueError('Wrong argument. Admissible arguments are only {}'.format(admissible_kwargs))
 
         from OCC.Core.BRepBuilderAPI import BRepBuilderAPI_Transform
         from OCC.Core.gp import gp_Pnt
@@ -482,15 +490,36 @@ class Blade(object):
         from OCC.Core.gp import gp_Ax2
         from OCC.Core.gp import gp_Trsf
 
-        point1 = gp_Pnt(*point1)
-        point2 = gp_Pnt(*point2)
-        point3 = gp_Pnt(*point3)
+        if len(args) == 3:
+            # Case where the three points are passed
+            point1 = gp_Pnt(*args[0])
+            point2 = gp_Pnt(*args[1])
+            point3 = gp_Pnt(*args[2])
+            # Two vectors defining the directions of the plane
+            vector1 = gp_Vec(point1, point2)
+            vector2 = gp_Vec(point2, point3)
+            # Normal versor to the plane passing through the three points
+            normal = gp_Dir(vector1.Crossed(vector2))
+        elif list(kwargs.keys()) == ['point1', 'point2', 'point3']:
+            # Case where the three points are passed
+            point1 = gp_Pnt(*kwargs['point1'])
+            point2 = gp_Pnt(*kwargs['point2'])
+            point3 = gp_Pnt(*kwargs['point3'])
+            # Two vectors defining the directions of the plane
+            vector1 = gp_Vec(point1, point2)
+            vector2 = gp_Vec(point2, point3)
+            # Normal versor to the plane passing through the three points
+            normal = gp_Dir(vector1.Crossed(vector2))
+        elif len(args) == 2:
+            # Case where one point and the normal are passed
+            point1 = gp_Pnt(*args[0])
+            normal = gp_Dir(*args[1])
+        elif sorted(kwargs.keys()) == sorted(['point', 'normal']):
+            point1 = gp_Pnt(*kwargs['point'])
+            normal = gp_Dir(*kwargs['normal'])
+        else:
+            raise ValueError('Wrong arguments passed')
 
-        # Two vectors defining the directions of the plane
-        vector1 = gp_Vec(point1, point2)
-        vector2 = gp_Vec(point2, point3)
-        # Normal versor to the plane passing through the three points
-        normal = gp_Dir(vector1.Crossed(vector2))
         # Ax2 object identifying the plane
         ax2 = gp_Ax2(point1, normal)
 
