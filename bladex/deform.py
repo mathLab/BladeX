@@ -305,7 +305,7 @@ class Deformation(object):
             if index.shape[0] > 1:
                 # In case more neighbors are found, then take first value only.
                 index = index[0]
-            self.deformed_parameters[param][i] = self.spline[param][index, 1]
+            self.deformed_parameters[param][i] = self.spline[param][index, 1].item()
 
     def compute_all(self,
                     rbf_points=1000,
