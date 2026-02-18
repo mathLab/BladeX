@@ -84,6 +84,10 @@ class Blade(object):
         radial section of the blade.
     :param array_like skew_angles: 1D array, contains the skew angles
         (in degrees) for each radial section of the blade.
+    :param array_like thickness: 1D array, contains the value of the
+        thickness of each section, specified if sections have not the desired thickness.
+    :param array_like camber: 1D array, contains the value of the
+        camber of each section, specified if sections have note the desired camber.
 
     Note that, each of the previous array_like parameters must be consistent
     with the other parameters in terms of the radial ordering of the blade
@@ -149,7 +153,7 @@ class Blade(object):
     """
 
     def __init__(self, sections, radii, chord_lengths, pitch, rake,
-                 skew_angles):
+                 skew_angles, thickness=None, camber=None):
         # Data are given in absolute values
         self.sections = sections
         self.n_sections = len(sections)
@@ -158,6 +162,8 @@ class Blade(object):
         self.pitch = pitch
         self.rake = rake
         self.skew_angles = skew_angles
+        self.thickness = thickness
+        self.camber = camber
         self._check_params()
 
         self.conversion_factor = 1000  # to convert units if necessary
@@ -328,11 +334,19 @@ class Blade(object):
             # Translate reference point into origin
             self.sections[i].translate(-self.sections[i].reference_point)
 
-            if reflect:
-                self.sections[i].reflect()
-
             # Scale the unit chord to actual length.
             self.sections[i].scale(self.chord_lengths[i])
+
+            # Setting thickness max is required
+            if self.thickness is not None:
+                self.sections[i].set_thickness_max(self.thickness[i])
+                
+            # Setting camber max is required
+            if self.camber is not None and i < self.n_sections-1:
+                self.sections[i].set_camber_line_max(self.camber[i])
+
+            if reflect:
+                self.sections[i].reflect()
 
             # Rotate according to the pitch angle.
             # Since the current orientation system is not standard (It is
