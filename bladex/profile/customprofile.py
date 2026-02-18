@@ -74,8 +74,8 @@ class CustomProfile(BaseProfile):
             raise RuntimeError(
                 """Input arguments should be the section coordinates
                 (xup, yup, xdown, ydown) or the section parameters
-                (camber_perc, thickness_perc,
-                camber_max, thickness_max, chord_perc).""")
+                (camber_perc, thickness_perc, camber_max,
+                 thickness_max, chord_perc, chord_len).""")
 
     def generate_parameters(self, convention='british'):
         return super().generate_parameters(convention)
