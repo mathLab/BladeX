@@ -5,63 +5,40 @@ approximated reconstruction of the blade and the whole propeller.
 
 import os, errno
 import os.path
-import matplotlib.pyplot as plt
 import numpy as np
 import csv
-from bladex import NacaProfile, CustomProfile, Blade, Propeller, Shaft
-from OCC.Core.IGESControl import (IGESControl_Reader, IGESControl_Writer,
-                                  IGESControl_Controller_Init)
+from bladex import CustomProfile, Blade, Propeller, Shaft
+from OCC.Core.IGESControl import (IGESControl_Reader)
 from OCC.Core.BRepBuilderAPI import BRepBuilderAPI_MakeVertex,\
              BRepBuilderAPI_MakeEdge, BRepBuilderAPI_MakeWire, BRepBuilderAPI_MakeSolid, \
-             BRepBuilderAPI_Sewing, BRepBuilderAPI_Transform, BRepBuilderAPI_NurbsConvert, \
-             BRepBuilderAPI_MakeFace
-from OCC.Core.BRep import (BRep_Tool, BRep_Builder, BRep_Tool_Curve,
-                           BRep_Tool_CurveOnSurface)
+             BRepBuilderAPI_Sewing, BRepBuilderAPI_NurbsConvert
+from OCC.Core.BRep import BRep_Tool
 import OCC.Core.TopoDS
-from OCC.Core.BRepAlgoAPI import BRepAlgoAPI_Fuse
-# from OCC.Core.BRepAlgoAPI import BRepAlgoAPI_Section
-from OCC.Core.TopTools import TopTools_ListOfShape, TopTools_MapOfShape
+from OCC.Core.TopTools import TopTools_ListOfShape
 from OCC.Core.TopExp import TopExp_Explorer
 from OCC.Core.TopAbs import TopAbs_VERTEX, TopAbs_EDGE, TopAbs_FACE, TopAbs_WIRE
-from OCC.Core.StlAPI import StlAPI_Writer
-from OCC.Core.BRepMesh import BRepMesh_IncrementalMesh
-from OCC.Core.gp import gp_Pnt, gp_Pnt2d, gp_Dir, gp_Ax1, gp_Ax2, gp_Trsf, gp_Pln, gp_Vec, gp_Lin
-from OCC.Core.TopoDS import TopoDS_Shape
-from OCC.Core.TColgp import TColgp_HArray1OfPnt, TColgp_Array1OfPnt
-from OCC.Core.GeomAPI import GeomAPI_Interpolate, GeomAPI_IntCS, GeomAPI_ProjectPointOnSurf
+from OCC.Core.gp import gp_Pnt, gp_Dir, gp_Ax2, gp_Vec
+from OCC.Core.TColgp import  TColgp_Array1OfPnt
 from OCC.Core.BRepAdaptor import BRepAdaptor_Curve
 from OCC.Core.GCPnts import GCPnts_AbscissaPoint
 from OCC.Core.BRep import BRep_Tool
-from OCC.Core.IntTools import IntTools_FClass2d
-from OCC.Core.TopAbs import TopAbs_IN
 from OCC.Core.BRepExtrema import BRepExtrema_DistShapeShape
-from OCC.Core.TopoDS import topods, TopoDS_Edge, TopoDS_Compound
-from subprocess import call
-from OCC.Core.IntCurvesFace import IntCurvesFace_ShapeIntersector
-from OCC.Core.Adaptor3d import Adaptor3d_Curve
-from OCC.Core.Geom import Geom_Line
+from OCC.Core.TopoDS import topods
 from OCC.Display.SimpleGui import init_display
-from OCC.Core.BRepGProp import (brepgprop_LinearProperties,
-                                brepgprop_SurfaceProperties,
-                                brepgprop_VolumeProperties)
-from OCC.Core.GProp import GProp_GProps
 from OCC.Core.BRepPrimAPI import BRepPrimAPI_MakeCylinder
 from OCC.Core.GeomLProp import GeomLProp_SLProps
 from OCC.Core.GCPnts import GCPnts_AbscissaPoint
 from OCC.Core.BRepAdaptor import (BRepAdaptor_Curve,
                                   BRepAdaptor_CompCurve)
-from OCC.Core.GCPnts import GCPnts_UniformDeflection
 from OCC.Core.GeomAPI import GeomAPI_PointsToBSpline
-from OCC.Core.GeomAbs import (GeomAbs_C0, GeomAbs_G1, GeomAbs_C1, GeomAbs_G2,
-                              GeomAbs_C2, GeomAbs_C3, GeomAbs_CN)
-from OCC.Core.GeomProjLib import geomprojlib
-from OCC.Core.TopExp import topexp
-from OCC.Core.IntCurvesFace import IntCurvesFace_ShapeIntersector
+from OCC.Core.GeomAbs import GeomAbs_C2
+from OCC.Core.Bnd import Bnd_Box
+from OCC.Core.BRepBndLib import brepbndlib
+from OCC.Core.BRepAlgoAPI import BRepAlgoAPI_Section
+from OCC.Display.SimpleGui import init_display
 
-from scipy.spatial import Voronoi, voronoi_plot_2d
+from scipy.spatial import Voronoi
 from scipy.interpolate import interp1d
-import matplotlib.pyplot as plt
-
 
 def distance(P1, P2):
     """
@@ -249,7 +226,7 @@ class ReversePropeller(object):
         sewer.Perform()
         result_sewed_blade = sewer.SewedShape()
         blade_solid_maker = BRepBuilderAPI_MakeSolid()
-        blade_solid_maker.Add(OCC.Core.TopoDS.topods_Shell(result_sewed_blade))
+        blade_solid_maker.Add(OCC.Core.TopoDS.topods.Shell(result_sewed_blade))
         if (blade_solid_maker.IsDone()):
             self.blade_solid = blade_solid_maker.Solid()
         else:
@@ -263,23 +240,27 @@ class ReversePropeller(object):
         section taken into account. This method is applied to all the radii in
         list 'radii_list' given as input.
         """
-        axis = gp_Ax2(gp_Pnt(-0.5 * self.conversion_unit, 0.0, 0.0),
+        # Base point such that cylinder intersect all section
+        bbox = Bnd_Box()
+        brepbndlib.Add(self.blade_solid, bbox)
+        xmin, ymin, zmin, xmax, ymax, zmax = bbox.Get()
+
+        axis = gp_Ax2(gp_Pnt(xmin-0.2*abs(xmin), 0.0, 0.0),
                       gp_Dir(1.0, 0.0, 0.0))
-        self.cylinder = BRepPrimAPI_MakeCylinder(axis, radius, 1 *
-                                                 self.conversion_unit).Shape()
+        self.cylinder = BRepPrimAPI_MakeCylinder(axis, radius, 1.2*(xmax-xmin)).Shape()
         faceCount = 0
         faces_explorer = TopExp_Explorer(self.cylinder, TopAbs_FACE)
 
         while faces_explorer.More():
-            face = OCC.Core.TopoDS.topods_Face(faces_explorer.Current())
+            face = OCC.Core.TopoDS.topods.Face(faces_explorer.Current())
             faceCount += 1
             # Convert the cylinder faces into Non Uniform Rational Basis-Splines geometry (NURBS)
             nurbs_converter = BRepBuilderAPI_NurbsConvert(face)
             nurbs_converter.Perform(face)
             nurbs_face_converter = nurbs_converter.Shape()
-            nurbs_face = OCC.Core.TopoDS.topods_Face(nurbs_face_converter)
+            nurbs_face = OCC.Core.TopoDS.topods.Face(nurbs_face_converter)
 
-            surface = BRep_Tool.Surface(OCC.Core.TopoDS.topods_Face(nurbs_face))
+            surface = BRep_Tool.Surface(OCC.Core.TopoDS.topods.Face(nurbs_face))
             self.bounds = 0.0
             self.bounds = surface.Bounds()
 
@@ -301,7 +282,7 @@ class ReversePropeller(object):
         """
         # Construction of the section lines between two shapes (in this case the
         # blade and the lateral face of the cylinder)
-        section_builder = BRepAlgo_Section(self.blade_solid,
+        section_builder = BRepAlgoAPI_Section(self.blade_solid,
                                            self.cylinder_lateral_face, False)
         # Define and build the parametric 2D curve (pcurve) for the section lines defined above
         section_builder.ComputePCurveOn2(True)
@@ -320,9 +301,8 @@ class ReversePropeller(object):
             edgeExplorer.Next()
         wire_maker.Add(edgeList)
         self.wire = wire_maker.Wire()
-        # Create a 3D curve from a wire
         self.curve_adaptor = BRepAdaptor_CompCurve(
-            OCC.Core.TopoDS.topods_Wire(self.wire))
+            OCC.Core.TopoDS.topods.Wire(self.wire))
         # Length of the curve section (ascissa curvilinea)
         self.total_section_length = GCPnts_AbscissaPoint.Length(
             self.curve_adaptor)
@@ -366,8 +346,6 @@ class ReversePropeller(object):
         # Create the Voronoi diagram for the 2D points
         vor = Voronoi(self.param_plane_points)
         vor_points = []
-        min_u = 1e8
-        self.start = vor.vertices[0]
         # Find in an iterative way the Voronoi points
         for i in range(len(vor.vertices)):
             p = [vor.vertices[i][0], vor.vertices[i][1]]
@@ -375,33 +353,15 @@ class ReversePropeller(object):
                                      p[1],
                                      self.param_plane_points,
                                      include_edges=True)):
-                if (p[0] < min_u):
-                    min_u = p[0]
-                    self.start = p
                 vor_points.append(p)
-        optimized_vor_points = optimized_path(vor_points, self.start)
-        us = []
-        vs = []
-        uss = []
-        vss = []
+        optimized_vor_points = sorted(vor_points, key=lambda x: x[0])
+        #vor_us includes the X coordinates and vor_vs the Z coordinates
         self.vor_us = []
         self.vor_vs = []
-        for p in self.orig_param_plane_points:
-            us.append(p[0])
-            vs.append(p[1])
-        for p in self.param_plane_points:
-            uss.append(
-                p[0]
-            )  # coordinates of the points of the original parametric curve
-            vss.append(p[1])
         for p in optimized_vor_points:
-            self.vor_us.append(
-                p[0])  # coordinates of the points of the Voronoi map
-            self.vor_vs.append(
-                p[1]
-            )  #vor_us includes the X coordinates and vor_vs the Z coordinates
-        us.append(self.orig_param_plane_points[0][0])
-        vs.append(self.orig_param_plane_points[0][1])
+            # coordinates of the points of the Voronoi map
+            self.vor_us.append(p[0])
+            self.vor_vs.append(p[1])
 
     def _camber_curve(self, radius):
         """
@@ -427,7 +387,7 @@ class ReversePropeller(object):
         # BUild the camber line from 3D edges
         self.edge_3d = BRepBuilderAPI_MakeEdge(camber_curve).Edge()
         camber_curve_adaptor = BRepAdaptor_Curve(
-            OCC.Core.TopoDS.topods_Edge(self.edge_3d))
+            OCC.Core.TopoDS.topods.Edge(self.edge_3d))
         # Compute the length of the camber curve for each section
         camber_curve_length = GCPnts_AbscissaPoint.Length(camber_curve_adaptor)
         relative_tolerance = 2.5e-3
@@ -544,7 +504,7 @@ class ReversePropeller(object):
 
         full_camber_wire = wire_maker.Wire()
         self.full_camber_curve_adaptor = BRepAdaptor_CompCurve(
-            OCC.Core.TopoDS.topods_Wire(full_camber_wire))
+            OCC.Core.TopoDS.topods.Wire(full_camber_wire))
         self.full_camber_length = GCPnts_AbscissaPoint.Length(
             self.full_camber_curve_adaptor)
 
