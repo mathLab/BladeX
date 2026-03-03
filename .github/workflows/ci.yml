@@ -7,28 +7,30 @@ jobs:
     runs-on: ubuntu-latest
         
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
 
 
     - name: Set up Python
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v5
       with:
-        python-version: 3.8
+        python-version: 3.11
         
-    - name: Setup conda
-      uses: s-weigand/setup-conda@v1
+    - name: Setup Conda
+      uses: conda-incubator/setup-miniconda@v3
       with:
-        update-conda: true
-        python-version: 3.8
-        conda-channels: anaconda, conda-forge
+        channels: conda-forge, defaults
+        activate-environment: ""
 
     - name: Install Python dependencies
       run: |
-        conda install --yes pythonocc-core=7.4.0 numpy scipy matplotlib pytest pytest-cov vtk
-        git clone https://github.com/mathLab/Smithers
-        cd Smithers
-        python setup.py install
-        cd ..
+        conda create -n occ python=${{ matrix.python-version }} pythonocc-core
+        conda info
+        conda activate occ
+        conda info
+        python -m pip install --upgrade pip
+        python -m pip install smithers[vtk]
+        python -m pip install .[test]
+        python -c 'import OCC'
     
     - name: Test with pytest
       env:
@@ -39,9 +41,4 @@ jobs:
         curl -s https://coverage.codacy.com/get.sh -o CodacyCoverageReporter.sh
         chmod +x CodacyCoverageReporter.sh
         ./CodacyCoverageReporter.sh report -r cobertura.xml  -t $CODACY_API_TOKEN
-
-    
-    - name: Test with pytest
-      run: |
-        python -m pytest tests
 

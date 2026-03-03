@@ -14,6 +14,25 @@ def create_custom_profile():
     return CustomProfile(xup=xup, yup=yup, xdown=xdown, ydown=ydown)
 
 
+class TestBaseProfileMethods(TestCase):
+    def test_max_thickness(self):
+        profile = NacaProfile(digits='2412')
+        self.assertAlmostEqual(profile.max_thickness(), .12, delta=1e-4)
+
+    def test_set_thickness_max(self):
+        profile = NacaProfile(digits='2412')
+        profile.set_thickness_max(.24)
+        self.assertAlmostEqual(profile.max_thickness(), .24, delta=1e-4)
+
+    def test_max_camber(self):
+        profile = NacaProfile(digits='3412')
+        self.assertAlmostEqual(profile.max_camber(), .03, delta=1e-4)
+
+    def test_set_camber_max(self):
+        profile = NacaProfile(digits='3412')
+        profile.set_camber_line_max(.05)
+        self.assertAlmostEqual(profile.max_camber(), .05, delta=1e-4)
+
 class TestCustomProfile(TestCase):
     def test_inheritance_custom(self):
         self.assertTrue(issubclass(CustomProfile, ProfileInterface))

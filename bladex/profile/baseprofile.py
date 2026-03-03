@@ -379,9 +379,6 @@ class BaseProfile(ProfileInterface):
 
         :param float percent_change: percentage of change of the
             maximum camber. Default value is None
-        :param bool interpolate:  if True, the interpolated coordinates are
-            used to compute the camber line and foil's thickness, otherwise
-            the original discrete coordinates are used. Default value is False.
         :param int n_interpolated_points: number of points to be used for the
             equally-spaced sample computations. If None then there is no
             interpolation, unless the arrays x_up != x_down elementwise which
@@ -414,6 +411,50 @@ class BaseProfile(ProfileInterface):
 
         self.yup_coordinates = self.camber_line[1] + half_thickness
         self.ydown_coordinates = self.camber_line[1] - half_thickness
+
+    def set_camber_line_max(self, camber_max):
+        """
+        Deform camber line according to a given maximum value. 
+        The percentage of camber wrt to the x/c coordinate does not change, i.e.,
+        we rescale the camber value by a scalar
+        Also reconstructs the deformed airfoil's coordinates.
+
+        Thus, the percentage of change is defined as follows:
+
+        .. math::
+            \\frac{\\text{new magnitude of max camber - old magnitude of
+            maximum \
+            camber}}{\\text{old magnitude of maximum camber}} * 100
+
+        A positive percentage means the new camber is larger than the max
+        camber value, while a negative percentage indicates the new value
+        is smaller.
+
+        We note that the method works only for airfoils in the reference
+        position, i.e. chord line lies on the X-axis and the foil is not
+        rotated, since the measurements are based on the Y-values of the
+        airfoil coordinates, hence any measurements or scalings will be
+        inaccurate for the foils not in their reference position.
+
+        :param float camber_max: maximum camber to be set.
+        """
+        old_camber_max = self.max_camber()
+        percent_scaling_factor = 100*(camber_max - old_camber_max) / (old_camber_max)  
+        # print(percent_scaling_factor)
+        self.deform_camber_line(percent_scaling_factor)
+
+    
+    def set_thickness_max(self, thickness_max):
+        """
+        Deform y_up and y_down coordinates to have the desired thickness max value.
+        To do so, we compute the ratio between olt thickness and new one
+
+        :param float thickness_max: maximum thickness to be set.
+        """
+        old_thickness = self.max_thickness()
+        ratio_thickness = thickness_max / old_thickness if old_thickness != 0. else 0.
+        self.yup_coordinates *= ratio_thickness
+        self.ydown_coordinates *= ratio_thickness
 
     @property
     def yup_curve(self):
