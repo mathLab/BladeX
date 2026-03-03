@@ -59,7 +59,6 @@ def optimized_path(coords, start=None):
         pass_by.remove(nearest)
     return path
 
-
 def point_inside_polygon(x, y, poly, include_edges=True):
     """
     Test if point (x,y) is inside polygon poly.
@@ -220,9 +219,18 @@ class ReversePropeller(object):
         iges_reader = IGESControl_Reader()
         iges_reader.ReadFile(self.iges_file)
         iges_reader.TransferRoots()
-        self.blade_compound = iges_reader.Shape()
         sewer = BRepBuilderAPI_Sewing(self.tolerance_solid)
-        sewer.Add(self.blade_compound)
+        # Case where we have Faces and not closed surface. 
+        # This is the case for BladeX generated blade
+        if iges_reader.Shape().ShapeType() == 4:
+            self.blade_compound = iges_reader.OneShape()
+            exp = TopExp_Explorer(self.blade_compound, TopAbs_FACE)
+            while exp.More():
+                sewer.Add(exp.Current())
+                exp.Next()
+        else:
+            self.blade_compound = iges_reader.Shape()
+            sewer.Add(self.blade_compound)
         sewer.Perform()
         result_sewed_blade = sewer.SewedShape()
         blade_solid_maker = BRepBuilderAPI_MakeSolid()
