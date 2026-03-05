@@ -3,65 +3,40 @@ Module for the extraction of the parameters of a blade and for the
 approximated reconstruction of the blade and the whole propeller.
 """
 
-import os, errno
-import os.path
-import matplotlib.pyplot as plt
 import numpy as np
-import csv
-from bladex import NacaProfile, CustomProfile, Blade, Propeller, Shaft
-from OCC.Core.IGESControl import (IGESControl_Reader, IGESControl_Writer,
-                                  IGESControl_Controller_Init)
+from bladex import CustomProfile, Blade, Propeller, Shaft
+from .basereversepropeller import BaseReversePropeller
+from OCC.Core.IGESControl import (IGESControl_Reader)
 from OCC.Core.BRepBuilderAPI import BRepBuilderAPI_MakeVertex,\
              BRepBuilderAPI_MakeEdge, BRepBuilderAPI_MakeWire, BRepBuilderAPI_MakeSolid, \
-             BRepBuilderAPI_Sewing, BRepBuilderAPI_Transform, BRepBuilderAPI_NurbsConvert, \
-             BRepBuilderAPI_MakeFace
-from OCC.Core.BRep import (BRep_Tool, BRep_Builder, BRep_Tool_Curve,
-                           BRep_Tool_CurveOnSurface)
+             BRepBuilderAPI_Sewing, BRepBuilderAPI_NurbsConvert
+from OCC.Core.BRep import BRep_Tool
 import OCC.Core.TopoDS
-from OCC.Core.BRepAlgoAPI import BRepAlgoAPI_Fuse
-# from OCC.Core.BRepAlgoAPI import BRepAlgoAPI_Section
-from OCC.Core.TopTools import TopTools_ListOfShape, TopTools_MapOfShape
+from OCC.Core.TopTools import TopTools_ListOfShape
 from OCC.Core.TopExp import TopExp_Explorer
 from OCC.Core.TopAbs import TopAbs_VERTEX, TopAbs_EDGE, TopAbs_FACE, TopAbs_WIRE
-from OCC.Core.StlAPI import StlAPI_Writer
-from OCC.Core.BRepMesh import BRepMesh_IncrementalMesh
-from OCC.Core.gp import gp_Pnt, gp_Pnt2d, gp_Dir, gp_Ax1, gp_Ax2, gp_Trsf, gp_Pln, gp_Vec, gp_Lin
-from OCC.Core.TopoDS import TopoDS_Shape
-from OCC.Core.TColgp import TColgp_HArray1OfPnt, TColgp_Array1OfPnt
-from OCC.Core.GeomAPI import GeomAPI_Interpolate, GeomAPI_IntCS, GeomAPI_ProjectPointOnSurf
+from OCC.Core.gp import gp_Pnt, gp_Dir, gp_Ax2, gp_Vec
+from OCC.Core.TColgp import  TColgp_Array1OfPnt
 from OCC.Core.BRepAdaptor import BRepAdaptor_Curve
 from OCC.Core.GCPnts import GCPnts_AbscissaPoint
 from OCC.Core.BRep import BRep_Tool
-from OCC.Core.IntTools import IntTools_FClass2d
-from OCC.Core.TopAbs import TopAbs_IN
 from OCC.Core.BRepExtrema import BRepExtrema_DistShapeShape
-from OCC.Core.TopoDS import topods, TopoDS_Edge, TopoDS_Compound
-from subprocess import call
-from OCC.Core.IntCurvesFace import IntCurvesFace_ShapeIntersector
-from OCC.Core.Adaptor3d import Adaptor3d_Curve
-from OCC.Core.Geom import Geom_Line
+from OCC.Core.TopoDS import topods
 from OCC.Display.SimpleGui import init_display
-from OCC.Core.BRepGProp import (brepgprop_LinearProperties,
-                                brepgprop_SurfaceProperties,
-                                brepgprop_VolumeProperties)
-from OCC.Core.GProp import GProp_GProps
 from OCC.Core.BRepPrimAPI import BRepPrimAPI_MakeCylinder
 from OCC.Core.GeomLProp import GeomLProp_SLProps
 from OCC.Core.GCPnts import GCPnts_AbscissaPoint
 from OCC.Core.BRepAdaptor import (BRepAdaptor_Curve,
                                   BRepAdaptor_CompCurve)
-from OCC.Core.GCPnts import GCPnts_UniformDeflection
 from OCC.Core.GeomAPI import GeomAPI_PointsToBSpline
-from OCC.Core.GeomAbs import (GeomAbs_C0, GeomAbs_G1, GeomAbs_C1, GeomAbs_G2,
-                              GeomAbs_C2, GeomAbs_C3, GeomAbs_CN)
-from OCC.Core.GeomProjLib import geomprojlib
-from OCC.Core.TopExp import topexp
-from OCC.Core.IntCurvesFace import IntCurvesFace_ShapeIntersector
+from OCC.Core.GeomAbs import GeomAbs_C2
+from OCC.Core.Bnd import Bnd_Box
+from OCC.Core.BRepBndLib import brepbndlib
+from OCC.Core.BRepAlgoAPI import BRepAlgoAPI_Section
+from OCC.Display.SimpleGui import init_display
 
-from scipy.spatial import Voronoi, voronoi_plot_2d
+from scipy.spatial import Voronoi
 from scipy.interpolate import interp1d
-import matplotlib.pyplot as plt
-
 
 def distance(P1, P2):
     """
@@ -81,7 +56,6 @@ def optimized_path(coords, start=None):
         path.append(nearest)
         pass_by.remove(nearest)
     return path
-
 
 def point_inside_polygon(x, y, poly, include_edges=True):
     """
@@ -126,34 +100,8 @@ def point_inside_polygon(x, y, poly, include_edges=True):
     return inside
 
 
-class ReversePropeller(object):
+class ReversePropeller(BaseReversePropeller):
     """
-    Extraction of the parameters of a blade and reconstruction of the parametrized
-    blade and of the entire propeller.
-
-    Given the IGES file of the blade, the following parameters are extracted:
-
-        - :math:`(X, Y)` coordinates of the blade cylindrical sections after
-          being expanded in 2D to create airfoils.
-
-        - Chord length, for each cylindrical section.
-
-        - Pitch :math:`(P)`, for each cylindrical section.
-
-        - Rake :math:`(k)`, in distance units, for each cylindrical section.
-
-        - Skew angle :math:`(\\theta_s)`, for each cylindrical section, expressed
-          in degrees.
-
-    The parameters can be saved in a csv file with the method
-    'save_global_parameters' and used to reconstruct the blade, which is saved
-    in a IGES file (method 'reconstruct_blade').
-    The coordinates of each section can be extracted with the method
-    'reconstruct_sections'.
-    Given the shaft, the whole propeller can be reconstructed and saved in a
-    IGES file with the method 'reconstruct_propeller'.
-
-    --------------------------
 
     :param filename: path to the IGES file of the blade.
     :param list radii_list: list which contains the radii values of the
@@ -163,36 +111,7 @@ class ReversePropeller(object):
     """
     def __init__(self, filename, radii_list, num_points_top_bottom):
 
-        self.iges_file = filename  #filename is the path to the file iges
-        self.radii_list = radii_list  #radii at which we want to measure properties
-        self.section_points_number = 1200  #number of points for each section profile
-        self.airfoil_points_number = 1000
-        self.num_points_top_bottom = num_points_top_bottom  #number of points used to reconstruct the profile, equal for top and lower parts of the profile
-        self.coords = []
-        self.num_sections = len(self.radii_list)
-        self.recons_sections = [0] * self.num_sections
-        self.start = None
-        self.x = []
-        self.y = []
-        self.poly = []
-        # Initialize things we want to compute from the blade IGES file
-        self.pitch_angles_list = []
-        self.pitch_list = []
-        self.skew_angles_list = []
-        self.skew_list = []
-        self.rake_list = []
-        self.chord_length_list = []
-        self.blade_solid = None
-        self.blade_compound = None
-        self.tolerance_solid = 5e-2
-        self._extract_solid_from_file()
-        self.xup = np.zeros((self.num_sections, self.num_points_top_bottom))
-        self.xdown = np.zeros((self.num_sections, self.num_points_top_bottom))
-        self.yup = np.zeros((self.num_sections, self.num_points_top_bottom))
-        self.ydown = np.zeros((self.num_sections, self.num_points_top_bottom))
-        # At each radius, i.e., for each section, the cylinder with that radius is built
-        # and the faces of the cylinder are isolated.
-
+        super().__init__(filename, radii_list, num_points_top_bottom)
         ind_sec = 0
         for radius in self.radii_list:
             self.cylinder = None
@@ -202,7 +121,7 @@ class ReversePropeller(object):
             self.linear_tolerance = 1e-3
             self.conversion_unit = 1000
             self._build_cylinder(radius)
-            self._build_intersection_cylinder_blade(radius)
+            self._build_intersection_cylinder_blade()
             self.leading_edge_point = []
             self.trailing_edge_point = []
             self.edge_3d = None
@@ -218,15 +137,14 @@ class ReversePropeller(object):
             # at a equal relative distance (taken on the curvilinear ascissa)
             self.param_plane_points = []
             self.orig_param_plane_points = []
-            for i in range(self.section_points_number):
-                self.i = i
-                self._camber_points(radius)
+            self._camber_points(radius)
             self._voronoi_points(radius)
             self._camber_curve(radius)
             self._initial_leading_trailing_edges_plane(radius)
             self._initial_camber_points_plane(radius)
             self._initial_airfoil_points_plane(radius)
             self._extract_parameters_and_transform_profile(radius)
+            self._store_properties(radius)
             self._airfoil_top_and_bottom_points()
             self.xup[ind_sec, :] = self.ascissa
             self.xdown[ind_sec, :] = self.ascissa
@@ -234,74 +152,15 @@ class ReversePropeller(object):
             self.ydown[ind_sec, :] = self.int_airfoil_bottom
             ind_sec = ind_sec + 1
 
-    def _extract_solid_from_file(self):
-        """
-        Private method that reads the IGES file of the blade and constructs
-        the correspondent solid object
-        """
-        # Extract the blade from the IGES file; build it as a solid with OCC
-        iges_reader = IGESControl_Reader()
-        iges_reader.ReadFile(self.iges_file)
-        iges_reader.TransferRoots()
-        self.blade_compound = iges_reader.Shape()
-        sewer = BRepBuilderAPI_Sewing(self.tolerance_solid)
-        sewer.Add(self.blade_compound)
-        sewer.Perform()
-        result_sewed_blade = sewer.SewedShape()
-        blade_solid_maker = BRepBuilderAPI_MakeSolid()
-        blade_solid_maker.Add(OCC.Core.TopoDS.topods_Shell(result_sewed_blade))
-        if (blade_solid_maker.IsDone()):
-            self.blade_solid = blade_solid_maker.Solid()
-        else:
-            self.blade_solid = result_sewed_blade
 
-    def _build_cylinder(self, radius):
-        """
-        Private method that builds the cylinder which  intersects the blade
-        at a specific cylindrical section.
-        Argument 'radius' is the radius value corresponding to the cylindrical
-        section taken into account. This method is applied to all the radii in
-        list 'radii_list' given as input.
-        """
-        axis = gp_Ax2(gp_Pnt(-0.5 * self.conversion_unit, 0.0, 0.0),
-                      gp_Dir(1.0, 0.0, 0.0))
-        self.cylinder = BRepPrimAPI_MakeCylinder(axis, radius, 1 *
-                                                 self.conversion_unit).Shape()
-        faceCount = 0
-        faces_explorer = TopExp_Explorer(self.cylinder, TopAbs_FACE)
-
-        while faces_explorer.More():
-            face = OCC.Core.TopoDS.topods_Face(faces_explorer.Current())
-            faceCount += 1
-            # Convert the cylinder faces into Non Uniform Rational Basis-Splines geometry (NURBS)
-            nurbs_converter = BRepBuilderAPI_NurbsConvert(face)
-            nurbs_converter.Perform(face)
-            nurbs_face_converter = nurbs_converter.Shape()
-            nurbs_face = OCC.Core.TopoDS.topods_Face(nurbs_face_converter)
-
-            surface = BRep_Tool.Surface(OCC.Core.TopoDS.topods_Face(nurbs_face))
-            self.bounds = 0.0
-            self.bounds = surface.Bounds()
-
-            # Compute the normal curve to the surfaces, specifying the bounds considered,
-            # the maximum order of the derivative we want to compute, the linear tolerance
-            normal = GeomLProp_SLProps(surface,
-                                       (self.bounds[0] + self.bounds[1]) / 2.0,
-                                       (self.bounds[2] + self.bounds[3]) / 2.0,
-                                       1, self.linear_tolerance).Normal()
-            if (normal * axis.Direction() == 0):
-                self.cylinder_lateral_face = face
-                self.cylinder_lateral_surface = surface
-            faces_explorer.Next()
-
-    def _build_intersection_cylinder_blade(self, radius):
+    def _build_intersection_cylinder_blade(self):
         """
         Private method that constructs the section lines which are the intersections
         between the cylinder at a fixed radius and the blade, and the camber points.
         """
         # Construction of the section lines between two shapes (in this case the
         # blade and the lateral face of the cylinder)
-        section_builder = BRepAlgo_Section(self.blade_solid,
+        section_builder = BRepAlgoAPI_Section(self.blade_solid,
                                            self.cylinder_lateral_face, False)
         # Define and build the parametric 2D curve (pcurve) for the section lines defined above
         section_builder.ComputePCurveOn2(True)
@@ -314,41 +173,42 @@ class ReversePropeller(object):
         self.total_section_length = 0.0
         edgeList = TopTools_ListOfShape()
         while edgeExplorer.More():
-            edgeCount = edgeCount + 1
+            edgeCount = edgeCount + 1 # Numbering from 1 in OCC
             edge = topods.Edge(edgeExplorer.Current())
             edgeList.Append(edge)
             edgeExplorer.Next()
         wire_maker.Add(edgeList)
         self.wire = wire_maker.Wire()
-        # Create a 3D curve from a wire
+        self.section_wires_list.append(self.wire)
         self.curve_adaptor = BRepAdaptor_CompCurve(
-            OCC.Core.TopoDS.topods_Wire(self.wire))
+            OCC.Core.TopoDS.topods.Wire(self.wire))
         # Length of the curve section (ascissa curvilinea)
         self.total_section_length = GCPnts_AbscissaPoint.Length(
             self.curve_adaptor)
+
 
     def _camber_points(self, radius):
         """
         Private method which computes the single points of the camber curve and
         collects them in param_plane_points and in orig_plane_points.
-
         """
         firstParam = self.curve_adaptor.FirstParameter()
-        rel_distance = float(self.i) / float(
-            self.section_points_number) * self.total_section_length
-        point_generator = GCPnts_AbscissaPoint(1e-7, self.curve_adaptor,
-                                               rel_distance, firstParam)
-        param = point_generator.Parameter()
-        self.point = self.curve_adaptor.Value(param)
-        # Compute the angle for polar reference system
-        theta = np.arctan2(self.point.Y(), self.point.Z())
-        if theta < 0:
-            theta += 2.0 * np.pi
-        # Param_plane_points is the list of all points parametrized in cylindric coordinates,
-        # i.e., the coordinate along X (the axis of the cylinder) and the
-        # radius multiplying the polar angle.
-        self.orig_param_plane_points.append([self.point.X(), radius * theta])
-        self.param_plane_points.append([self.point.X(), radius * theta])
+        for i in range(self.section_points_number):
+            rel_distance = float(i) / float(
+                self.section_points_number) * self.total_section_length
+            point_generator = GCPnts_AbscissaPoint(1e-7, self.curve_adaptor,
+                                                   rel_distance, firstParam)
+            param = point_generator.Parameter()
+            point = self.curve_adaptor.Value(param)
+            # Compute the angle for polar reference system
+            theta = np.arctan2(point.Y(), point.Z())
+            if theta < 0:
+                theta += 2.0 * np.pi
+            # Param_plane_points is the list of all points parametrized in cylindric coordinates,
+            # i.e., the coordinate along X (the axis of the cylinder) and the
+            # radius multiplying the polar angle.
+            self.orig_param_plane_points.append([point.X(), radius * theta])
+            self.param_plane_points.append([point.X(), radius * theta])
 
     def _voronoi_points(self, radius):
         """
@@ -366,8 +226,6 @@ class ReversePropeller(object):
         # Create the Voronoi diagram for the 2D points
         vor = Voronoi(self.param_plane_points)
         vor_points = []
-        min_u = 1e8
-        self.start = vor.vertices[0]
         # Find in an iterative way the Voronoi points
         for i in range(len(vor.vertices)):
             p = [vor.vertices[i][0], vor.vertices[i][1]]
@@ -375,33 +233,15 @@ class ReversePropeller(object):
                                      p[1],
                                      self.param_plane_points,
                                      include_edges=True)):
-                if (p[0] < min_u):
-                    min_u = p[0]
-                    self.start = p
                 vor_points.append(p)
-        optimized_vor_points = optimized_path(vor_points, self.start)
-        us = []
-        vs = []
-        uss = []
-        vss = []
+        optimized_vor_points = sorted(vor_points, key=lambda x: x[0])
+        #vor_us includes the X coordinates and vor_vs the Z coordinates
         self.vor_us = []
         self.vor_vs = []
-        for p in self.orig_param_plane_points:
-            us.append(p[0])
-            vs.append(p[1])
-        for p in self.param_plane_points:
-            uss.append(
-                p[0]
-            )  # coordinates of the points of the original parametric curve
-            vss.append(p[1])
         for p in optimized_vor_points:
-            self.vor_us.append(
-                p[0])  # coordinates of the points of the Voronoi map
-            self.vor_vs.append(
-                p[1]
-            )  #vor_us includes the X coordinates and vor_vs the Z coordinates
-        us.append(self.orig_param_plane_points[0][0])
-        vs.append(self.orig_param_plane_points[0][1])
+            # coordinates of the points of the Voronoi map
+            self.vor_us.append(p[0])
+            self.vor_vs.append(p[1])
 
     def _camber_curve(self, radius):
         """
@@ -424,10 +264,14 @@ class ReversePropeller(object):
         # with tolerance 1e-1
         spline_builder = GeomAPI_PointsToBSpline(Pnts, 3, 3, GeomAbs_C2, 1e-1)
         camber_curve = spline_builder.Curve()
-        # BUild the camber line from 3D edges
+        # Build the camber line from 3D edges
         self.edge_3d = BRepBuilderAPI_MakeEdge(camber_curve).Edge()
         camber_curve_adaptor = BRepAdaptor_Curve(
-            OCC.Core.TopoDS.topods_Edge(self.edge_3d))
+            OCC.Core.TopoDS.topods.Edge(self.edge_3d))
+        # Converting camber edge into wire for plotting purposes
+        wire_maker = BRepBuilderAPI_MakeWire()
+        wire_maker.Add(self.edge_3d)
+        self.camber_wires_list.append(wire_maker.Wire())
         # Compute the length of the camber curve for each section
         camber_curve_length = GCPnts_AbscissaPoint.Length(camber_curve_adaptor)
         relative_tolerance = 2.5e-3
@@ -544,7 +388,7 @@ class ReversePropeller(object):
 
         full_camber_wire = wire_maker.Wire()
         self.full_camber_curve_adaptor = BRepAdaptor_CompCurve(
-            OCC.Core.TopoDS.topods_Wire(full_camber_wire))
+            OCC.Core.TopoDS.topods.Wire(full_camber_wire))
         self.full_camber_length = GCPnts_AbscissaPoint.Length(
             self.full_camber_curve_adaptor)
 
@@ -620,7 +464,7 @@ class ReversePropeller(object):
             self.leading_edge_point_on_plane +
             self.trailing_edge_point_on_plane) / 2.0
 
-    def _extract_parameters_and_transform_profile(self, radius):
+    def _store_properties(self, radius):
         """
         Private method which extracts the parameters (pitch, rake, skew ,...) related
         to a specific section of the blade, and then transforms the camber points
@@ -632,78 +476,6 @@ class ReversePropeller(object):
         Basically all points and edges of the profile section are transformed
         to fulfill the properties of the specific sectionwe are considering.
         """
-        self.pitch_angle = np.arctan2(
-            self.leading_edge_point_on_plane[1] -
-            self.trailing_edge_point_on_plane[1],
-            self.leading_edge_point_on_plane[0] -
-            self.trailing_edge_point_on_plane[0])
-        self.skew = self.mid_chord_point_on_plane[1]
-        self.rake_induced_by_skew = self.skew / np.tan(self.pitch_angle)
-
-        self.airfoil_points_on_plane[:, 1:2] -= self.skew
-        self.camber_points_on_plane[:, 1:2] -= self.skew
-        self.leading_edge_point_on_plane[1] -= self.skew
-        self.trailing_edge_point_on_plane[1] -= self.skew
-        self.mid_chord_point_on_plane[1] -= self.skew
-
-        self.airfoil_points_on_plane[:, 0:1] -= self.rake_induced_by_skew
-        self.camber_points_on_plane[:, 0:1] -= self.rake_induced_by_skew
-        self.leading_edge_point_on_plane[0] -= self.rake_induced_by_skew
-        self.trailing_edge_point_on_plane[0] -= self.rake_induced_by_skew
-        self.mid_chord_point_on_plane[0] -= self.rake_induced_by_skew
-
-        self.rake = self.mid_chord_point_on_plane[0]
-
-        self.airfoil_points_on_plane[:, 0:1] -= self.rake
-        self.camber_points_on_plane[:, 0:1] -= self.rake
-        self.leading_edge_point_on_plane[0] -= self.rake
-        self.trailing_edge_point_on_plane[0] -= self.rake
-        self.mid_chord_point_on_plane[0] -= self.rake
-
-        rotation_matrix = np.zeros((2, 2))
-        rotation_matrix[0][0] = np.cos(-self.pitch_angle)
-        rotation_matrix[0][1] = -np.sin(-self.pitch_angle)
-        rotation_matrix[1][0] = np.sin(-self.pitch_angle)
-        rotation_matrix[1][1] = np.cos(-self.pitch_angle)
-
-        self.airfoil_points_on_plane = self.airfoil_points_on_plane.dot(
-            rotation_matrix.transpose())
-        self.camber_points_on_plane = self.camber_points_on_plane.dot(
-            rotation_matrix.transpose())
-        self.leading_edge_point_on_plane = self.leading_edge_point_on_plane.dot(
-            rotation_matrix.transpose())
-        self.trailing_edge_point_on_plane = self.trailing_edge_point_on_plane.dot(
-            rotation_matrix.transpose())
-        self.mid_chord_point_on_plane = self.mid_chord_point_on_plane.dot(
-            rotation_matrix.transpose())
-
-        self.chord_length = ((self.leading_edge_point_on_plane[0] -
-                              self.trailing_edge_point_on_plane[0])**2 +
-                             (self.leading_edge_point_on_plane[1] -
-                              self.trailing_edge_point_on_plane[1])**2)**.5
-
-        self.airfoil_points_on_plane[:, 0:2] /= self.chord_length
-        self.camber_points_on_plane[:, 0:2] /= self.chord_length
-        self.leading_edge_point_on_plane[0:1] /= self.chord_length
-        self.trailing_edge_point_on_plane[0:1] /= self.chord_length
-        self.mid_chord_point_on_plane[0:1] /= self.chord_length
-
-        self.airfoil_points_on_plane[:, 0:1] *= -1.0
-        self.camber_points_on_plane[:, 0:1] *= -1.0
-        self.leading_edge_point_on_plane[0] *= -1.0
-        self.trailing_edge_point_on_plane[0] *= -1.0
-        self.mid_chord_point_on_plane[0] *= -1.0
-
-        self.airfoil_points_on_plane[:, 0:1] += 0.5
-        self.camber_points_on_plane[:, 0:1] += 0.5
-        self.leading_edge_point_on_plane[0] += 0.5
-        self.trailing_edge_point_on_plane[0] += 0.5
-        self.mid_chord_point_on_plane[0] += 0.5
-
-        self.camber_points_on_plane = np.matrix(self.camber_points_on_plane)
-        self.camber_points_on_plane[0, 0] = 0.0
-        self.camber_points_on_plane[-1, 0] = 1.0
-
         # Save the properties we wanted for each section
         self.pitch_angles_list.append(self.pitch_angle)
         self.pitch_list.append(
@@ -716,14 +488,6 @@ class ReversePropeller(object):
         self.rake = -self.rake / 1000.0
         self.rake_list.append(self.rake)
         self.chord_length_list.append(self.chord_length / 1000.0)
-        self.camber_points_on_plane = np.sort(
-            self.camber_points_on_plane.view('float64,float64'),
-            order=['f0'],
-            axis=0).view(np.float64)
-        self.f_camber = interp1d(
-            np.squeeze(np.asarray(self.camber_points_on_plane[:, 0])),
-            np.squeeze(np.asarray(self.camber_points_on_plane[:, 1])),
-            kind='cubic')
 
     def _airfoil_top_and_bottom_points(self):
         """
@@ -788,120 +552,3 @@ class ReversePropeller(object):
         self.int_airfoil_bottom[0] = 0.0
         self.int_airfoil_bottom[-1] = 0.0
 
-    def save_global_parameters(self, filename_csv):
-        """
-        Method that writes all blade properties and points of the sections
-        in a csv file named filename_csv
-        """
-
-        # open the file in the write mode
-        with open(filename_csv, 'w') as f:
-            # create the csv writer
-            writer = csv.writer(f)
-            # write a row to the csv file
-            writer.writerow(("Radii list: ", self.radii_list))
-            writer.writerow(("Pitch angles list: ", self.pitch_angles_list))
-            writer.writerow(("Pitch list: ", self.pitch_list))
-            writer.writerow(("Skew angles list: ", self.skew_angles_list))
-            writer.writerow(("Rake list: ", self.rake_list))
-            writer.writerow(("Chord length list: ", self.chord_length_list))
-            for j in range(self.num_sections):
-                writer.writerow(("x section" + str(j) + " upper coordinates: ",
-                                 self.xup[j, :]))
-                writer.writerow(("x section" + str(j) + " lower coordinates: ",
-                                 self.xdown[j, :]))
-                writer.writerow(("y section" + str(j) + " upper coordinates: ",
-                                 self.yup[j, :]))
-                writer.writerow(("y section" + str(j) + " lower coordinates: ",
-                                 self.ydown[j, :]))
-
-    def reconstruct_sections(self):
-        """
-        Method that reconstructs single sections of the blade starting from the
-        points computed from the original IGES file.
-        If sections are not enough to reconstruct the blade, one can just export sections
-        and then reconstruct the blade in a dedicated script.
-        """
-
-        for j in range(self.num_sections):
-            self.recons_sections[j] = CustomProfile(
-                xup=self.xup[j, :],
-                yup=self.yup[j, :],
-                xdown=self.xdown[j, :],
-                ydown=self.ydown[j, :])
-        return self.recons_sections
-
-    def reconstruct_blade(self):
-        """
-        Method that reconstructs the blade starting from the sections
-        computed from the original IGES file, and then reconstruct the 4 parts
-        of the blade (upper, lower face, tip, root).
-        """
-
-        for j in range(self.num_sections):
-            self.recons_sections[j] = CustomProfile(
-                xup=self.xup[j, :],
-                yup=self.yup[j, :],
-                xdown=self.xdown[j, :],
-                ydown=self.ydown[j, :])
-        radii = np.array(self.radii_list) / 1000
-        self.recons_blade = Blade(sections=self.recons_sections,
-                                  radii=radii,
-                                  chord_lengths=self.chord_length_list,
-                                  pitch=self.pitch_list,
-                                  rake=self.rake_list,
-                                  skew_angles=self.skew_angles_list)
-        self.recons_blade.apply_transformations()
-        self.recons_blade.generate_iges_blade('iges_reconstructed.iges')
-
-    def reconstruct_propeller(self, propeller_iges, shaft_iges, n_blades):
-        """
-        Method which reconstructs the whole propeller with shaft starting from
-        the iges file of the shaft and the number of blades. The whole propeller
-        is saved in an IGES file named filename_iges (must be given as input).
-        """
-        shaft_path = shaft_iges
-        prop_shaft = Shaft(shaft_path)
-        prop = Propeller(prop_shaft, self.recons_blade, n_blades)
-        prop.generate_iges(propeller_iges)
-        prop.display()
-
-    def display_cylinders(self):
-        """
-        Method that displays the cylinders and the blade, for each section.
-        """
-        display, start_display, add_menu, add_function_to_menu = init_display()
-        for radius in self.radii_list:
-            # Display the blade and the wire corresponding to the intersection with the
-            # lateral face of the cylinder computed for each section radius
-            display.DisplayShape(self.blade_solid, update=True)
-            display.DisplayShape(self.wire, update=True)
-
-    def display_sections(self):
-        """
-        Method that displays the sections profiles.
-        """
-        display, start_display, add_menu, add_function_to_menu = init_display()
-        for radius in self.radii_list:
-
-            display.DisplayShape(BRepBuilderAPI_MakeVertex(
-                self.leading_edge_point).Vertex(),
-                                 update=True,
-                                 color="ORANGE")
-            display.DisplayShape(BRepBuilderAPI_MakeVertex(
-                self.trailing_edge_point).Vertex(),
-                                 update=True,
-                                 color="GREEN")
-            # Display the camber points, leading and trailing edges projected on plane
-            display.DisplayShape(self.camber_curve_edge,
-                                 update=True,
-                                 color="GREEN")
-            display.DisplayShape(self.edge_3d, update=True, color="RED")
-            display.DisplayShape(self.first_edge, update=True, color="BLUE1")
-            display.DisplayShape(self.last_edge, update=True, color="BLUE1")
-            display.DisplayShape(self.firstSegment, update=True, color="ORANGE")
-            display.DisplayShape(self.lastSegment, update=True, color="ORANGE")
-            # Update the blade, cylinder and section when considering a different radius
-            display.DisplayShape(self.blade_compound, update=True)
-            display.DisplayShape(self.cylinder_lateral_face, update=True)
-            display.DisplayShape(self.section, update=True)

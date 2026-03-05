@@ -17,6 +17,10 @@ from .propeller import Propeller
 from .deform import Deformation
 from .params import ParamFile
 from .ndinterpolator import RBF, reconstruct_f, scipy_bspline
+from .reversepropeller import ReversePropellerInterface
+from .reversepropeller import BaseReversePropeller
 from .reversepropeller import ReversePropeller
+from .reversepropeller import ReversePropellerBladeX
+from .reversepropeller.reversepropeller import ReversePropeller
 from .shaft.cylinder_shaft import CylinderShaft
 from .intepolatedface import InterpolatedFace
