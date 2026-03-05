@@ -1,6 +1,4 @@
-import os, errno
-import os.path
-import time
+import sys
 import numpy as np
 import csv
 from bladex import CustomProfile, Blade, Propeller, Shaft
@@ -13,7 +11,7 @@ from OCC.Core.BRep import BRep_Tool
 import OCC.Core.TopoDS
 from OCC.Core.TopTools import TopTools_ListOfShape
 from OCC.Core.TopExp import TopExp_Explorer
-from OCC.Core.TopAbs import TopAbs_VERTEX, TopAbs_EDGE, TopAbs_FACE, TopAbs_WIRE
+from OCC.Core.TopAbs import TopAbs_VERTEX, TopAbs_EDGE, TopAbs_FACE, TopAbs_WIRE, TopAbs_SHELL
 from OCC.Core.gp import gp_Pnt, gp_Dir, gp_Ax2, gp_Vec, gp_Pln
 from OCC.Core.TColgp import  TColgp_Array1OfPnt
 from OCC.Core.BRepAdaptor import BRepAdaptor_Curve
@@ -128,7 +126,14 @@ class BaseReversePropeller(ReversePropellerInterface):
         sewer.Perform()
         result_sewed_blade = sewer.SewedShape()
         blade_solid_maker = BRepBuilderAPI_MakeSolid()
-        blade_solid_maker.Add(OCC.Core.TopoDS.topods.Shell(result_sewed_blade))
+        if result_sewed_blade.ShapeType() == 0:
+            exp = TopExp_Explorer(result_sewed_blade, TopAbs_SHELL)
+            while exp.More():
+                shell = topods.Shell(exp.Current())
+                blade_solid_maker.Add(shell)
+                exp.Next()
+        else:
+            blade_solid_maker.Add(OCC.Core.TopoDS.topods.Shell(result_sewed_blade))
         if (blade_solid_maker.IsDone()):
             self.blade_solid = blade_solid_maker.Solid()
         else:
@@ -265,18 +270,6 @@ class BaseReversePropeller(ReversePropellerInterface):
         self.camber_points_on_plane[0, 0] = 0.0
         self.camber_points_on_plane[-1, 0] = 1.0
 
-        # Save the properties we wanted for each section
-        self.pitch_angles_list.append(self.pitch_angle)
-        self.pitch_list.append(
-            abs(2 * np.pi * radius / np.tan(self.pitch_angle)) / 1000.0)
-        self.skew_angles_list.append((self.skew / radius - np.pi) * 180 / np.pi)
-        self.skew_list.append((self.skew - np.pi * radius) / 1000.0)
-        total_rake = self.rake + self.rake_induced_by_skew
-        rake = total_rake - (self.skew - np.pi * radius) / np.tan(
-            self.pitch_angle)
-        rake = -rake / 1000.0
-        self.rake_list.append(rake)
-        self.chord_length_list.append(self.chord_length / 1000.0)
         self.camber_points_on_plane = np.sort(
             self.camber_points_on_plane.view('float64,float64'),
             order=['f0'],
@@ -303,7 +296,7 @@ class BaseReversePropeller(ReversePropellerInterface):
             writer.writerow(("Skew angles list: ", self.skew_angles_list))
             writer.writerow(("Rake list: ", self.rake_list))
             writer.writerow(("Chord length list: ", self.chord_length_list))
-            for j in range(self.num_sections):
+            for j in range(len(self.radii_list)):
                 writer.writerow(("x section" + str(j) + " upper coordinates: ",
                                  self.xup[j, :]))
                 writer.writerow(("x section" + str(j) + " lower coordinates: ",

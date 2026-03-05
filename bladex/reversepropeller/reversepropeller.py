@@ -144,6 +144,7 @@ class ReversePropeller(BaseReversePropeller):
             self._initial_camber_points_plane(radius)
             self._initial_airfoil_points_plane(radius)
             self._extract_parameters_and_transform_profile(radius)
+            self._store_properties(radius)
             self._airfoil_top_and_bottom_points()
             self.xup[ind_sec, :] = self.ascissa
             self.xdown[ind_sec, :] = self.ascissa
@@ -463,7 +464,7 @@ class ReversePropeller(BaseReversePropeller):
             self.leading_edge_point_on_plane +
             self.trailing_edge_point_on_plane) / 2.0
 
-    def _extract_parameters_and_transform_profile(self, radius):
+    def _store_properties(self, radius):
         """
         Private method which extracts the parameters (pitch, rake, skew ,...) related
         to a specific section of the blade, and then transforms the camber points
@@ -475,78 +476,6 @@ class ReversePropeller(BaseReversePropeller):
         Basically all points and edges of the profile section are transformed
         to fulfill the properties of the specific sectionwe are considering.
         """
-        self.pitch_angle = np.arctan2(
-            self.leading_edge_point_on_plane[1] -
-            self.trailing_edge_point_on_plane[1],
-            self.leading_edge_point_on_plane[0] -
-            self.trailing_edge_point_on_plane[0])
-        self.skew = self.mid_chord_point_on_plane[1]
-        self.rake_induced_by_skew = self.skew / np.tan(self.pitch_angle)
-
-        self.airfoil_points_on_plane[:, 1:2] -= self.skew
-        self.camber_points_on_plane[:, 1:2] -= self.skew
-        self.leading_edge_point_on_plane[1] -= self.skew
-        self.trailing_edge_point_on_plane[1] -= self.skew
-        self.mid_chord_point_on_plane[1] -= self.skew
-
-        self.airfoil_points_on_plane[:, 0:1] -= self.rake_induced_by_skew
-        self.camber_points_on_plane[:, 0:1] -= self.rake_induced_by_skew
-        self.leading_edge_point_on_plane[0] -= self.rake_induced_by_skew
-        self.trailing_edge_point_on_plane[0] -= self.rake_induced_by_skew
-        self.mid_chord_point_on_plane[0] -= self.rake_induced_by_skew
-
-        self.rake = self.mid_chord_point_on_plane[0]
-
-        self.airfoil_points_on_plane[:, 0:1] -= self.rake
-        self.camber_points_on_plane[:, 0:1] -= self.rake
-        self.leading_edge_point_on_plane[0] -= self.rake
-        self.trailing_edge_point_on_plane[0] -= self.rake
-        self.mid_chord_point_on_plane[0] -= self.rake
-
-        rotation_matrix = np.zeros((2, 2))
-        rotation_matrix[0][0] = np.cos(-self.pitch_angle)
-        rotation_matrix[0][1] = -np.sin(-self.pitch_angle)
-        rotation_matrix[1][0] = np.sin(-self.pitch_angle)
-        rotation_matrix[1][1] = np.cos(-self.pitch_angle)
-
-        self.airfoil_points_on_plane = self.airfoil_points_on_plane.dot(
-            rotation_matrix.transpose())
-        self.camber_points_on_plane = self.camber_points_on_plane.dot(
-            rotation_matrix.transpose())
-        self.leading_edge_point_on_plane = self.leading_edge_point_on_plane.dot(
-            rotation_matrix.transpose())
-        self.trailing_edge_point_on_plane = self.trailing_edge_point_on_plane.dot(
-            rotation_matrix.transpose())
-        self.mid_chord_point_on_plane = self.mid_chord_point_on_plane.dot(
-            rotation_matrix.transpose())
-
-        self.chord_length = ((self.leading_edge_point_on_plane[0] -
-                              self.trailing_edge_point_on_plane[0])**2 +
-                             (self.leading_edge_point_on_plane[1] -
-                              self.trailing_edge_point_on_plane[1])**2)**.5
-
-        self.airfoil_points_on_plane[:, 0:2] /= self.chord_length
-        self.camber_points_on_plane[:, 0:2] /= self.chord_length
-        self.leading_edge_point_on_plane[0:1] /= self.chord_length
-        self.trailing_edge_point_on_plane[0:1] /= self.chord_length
-        self.mid_chord_point_on_plane[0:1] /= self.chord_length
-
-        self.airfoil_points_on_plane[:, 0:1] *= -1.0
-        self.camber_points_on_plane[:, 0:1] *= -1.0
-        self.leading_edge_point_on_plane[0] *= -1.0
-        self.trailing_edge_point_on_plane[0] *= -1.0
-        self.mid_chord_point_on_plane[0] *= -1.0
-
-        self.airfoil_points_on_plane[:, 0:1] += 0.5
-        self.camber_points_on_plane[:, 0:1] += 0.5
-        self.leading_edge_point_on_plane[0] += 0.5
-        self.trailing_edge_point_on_plane[0] += 0.5
-        self.mid_chord_point_on_plane[0] += 0.5
-
-        self.camber_points_on_plane = np.matrix(self.camber_points_on_plane)
-        self.camber_points_on_plane[0, 0] = 0.0
-        self.camber_points_on_plane[-1, 0] = 1.0
-
         # Save the properties we wanted for each section
         self.pitch_angles_list.append(self.pitch_angle)
         self.pitch_list.append(
@@ -559,14 +488,6 @@ class ReversePropeller(BaseReversePropeller):
         self.rake = -self.rake / 1000.0
         self.rake_list.append(self.rake)
         self.chord_length_list.append(self.chord_length / 1000.0)
-        self.camber_points_on_plane = np.sort(
-            self.camber_points_on_plane.view('float64,float64'),
-            order=['f0'],
-            axis=0).view(np.float64)
-        self.f_camber = interp1d(
-            np.squeeze(np.asarray(self.camber_points_on_plane[:, 0])),
-            np.squeeze(np.asarray(self.camber_points_on_plane[:, 1])),
-            kind='cubic')
 
     def _airfoil_top_and_bottom_points(self):
         """

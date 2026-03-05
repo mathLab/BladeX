@@ -100,6 +100,7 @@ class ReversePropellerBladeX(BaseReversePropeller):
             self._initial_airfoil_points_plane(radius)
             self._airfoil_top_and_bottom_points_before_transformations(radius)
             self._extract_parameters_and_transform_profile(radius)
+            self._store_properties(radius)
             self._transform_top_and_bottom()
             self._airfoil_top_and_bottom_points_after_transformations()
             self.xup[ind_sec, :] = self.ascissa
@@ -122,7 +123,6 @@ class ReversePropellerBladeX(BaseReversePropeller):
         section_builder.ComputePCurveOn2(True)
         section_builder.Build()
         self.section = section_builder.Shape()
-
         wire_maker = BRepBuilderAPI_MakeWire()
         wire_maker_top = BRepBuilderAPI_MakeWire()
         wire_maker_bottom = BRepBuilderAPI_MakeWire()
@@ -171,10 +171,8 @@ class ReversePropellerBladeX(BaseReversePropeller):
         Computation of the camber points. We get the chord, move along it and fint the intersection
         of the othogonal plane to the chord-curvilinear absissa and the top-bottom wires
         """
-        # self.trailing_edge = self.curve_adaptor_top.Value(0.0)
-        # self.leading_edge = self.curve_adaptor_top.Value(self.curve_adaptor_top.LastParameter())
-        self.trailing_edge = self.curve_adaptor_bottom.Value(0.0)
-        self.leading_edge = self.curve_adaptor_bottom.Value(self.curve_adaptor_bottom.LastParameter())
+        self.trailing_edge = self.curve_adaptor_top.Value(0.0)
+        self.leading_edge = self.curve_adaptor_top.Value(self.curve_adaptor_top.LastParameter())
         # Equation of generic geodesic from leading to trailing edge:
         # x = lambda*s + mu, y = R*sin(a*s+b), z = R*cos(a*s+b)
         # with s parametrization of curve and lambda, mu, a, b to be found
@@ -362,6 +360,20 @@ class ReversePropellerBladeX(BaseReversePropeller):
 
         self.airfoil_top = np.array(self.airfoil_top)
         self.airfoil_bottom = np.array(self.airfoil_bottom)
+
+    def _store_properties(self, radius):
+        # Save the properties we wanted for each section
+        self.pitch_angles_list.append(self.pitch_angle)
+        self.pitch_list.append(
+            abs(2 * np.pi * radius / np.tan(self.pitch_angle)) / 1000.0)
+        self.skew_angles_list.append(-(self.skew / radius) * 180 / np.pi)
+        self.skew_list.append(self.skew / 1000.0)
+        total_rake = self.rake + self.rake_induced_by_skew
+        rake = total_rake - (self.skew) / np.tan(
+            self.pitch_angle)
+        rake = -rake / 1000.0
+        self.rake_list.append(rake)
+        self.chord_length_list.append(self.chord_length / 1000.0)
 
     def _transform_top_and_bottom(self):
         """
