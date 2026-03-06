@@ -153,38 +153,37 @@ class ReversePropeller(BaseReversePropeller):
             ind_sec = ind_sec + 1
 
 
-    def _build_intersection_cylinder_blade(self):
-        """
-        Private method that constructs the section lines which are the intersections
-        between the cylinder at a fixed radius and the blade, and the camber points.
-        """
-        # Construction of the section lines between two shapes (in this case the
-        # blade and the lateral face of the cylinder)
-        section_builder = BRepAlgoAPI_Section(self.blade_solid,
-                                           self.cylinder_lateral_face, False)
-        # Define and build the parametric 2D curve (pcurve) for the section lines defined above
-        section_builder.ComputePCurveOn2(True)
-        section_builder.Build()
-        self.section = section_builder.Shape()
-        edgeExplorer = TopExp_Explorer(self.section, TopAbs_EDGE)
-        wire_maker = BRepBuilderAPI_MakeWire()
+    # def _build_intersection_cylinder_blade(self):
+    #     """
+    #     Private method that constructs the section lines which are the intersections
+    #     between the cylinder at a fixed radius and the blade, and the camber points.
+    #     """
+    #     # Construction of the section lines between two shapes (in this case the
+    #     # blade and the lateral face of the cylinder)
+    #     section_builder = BRepAlgoAPI_Section(self.blade_solid,
+    #                                        self.cylinder_lateral_face, False)
+    #     # Define and build the parametric 2D curve (pcurve) for the section lines defined above
+    #     section_builder.ComputePCurveOn2(True)
+    #     section_builder.Build()
+    #     self.section = section_builder.Shape()
+    #     edgeExplorer = TopExp_Explorer(self.section, TopAbs_EDGE)
+    #     wire_maker = BRepBuilderAPI_MakeWire()
 
-        edgeCount = 0
-        self.total_section_length = 0.0
-        edgeList = TopTools_ListOfShape()
-        while edgeExplorer.More():
-            edgeCount = edgeCount + 1 # Numbering from 1 in OCC
-            edge = topods.Edge(edgeExplorer.Current())
-            edgeList.Append(edge)
-            edgeExplorer.Next()
-        wire_maker.Add(edgeList)
-        self.wire = wire_maker.Wire()
-        self.section_wires_list.append(self.wire)
-        self.curve_adaptor = BRepAdaptor_CompCurve(
-            OCC.Core.TopoDS.topods.Wire(self.wire))
-        # Length of the curve section (ascissa curvilinea)
-        self.total_section_length = GCPnts_AbscissaPoint.Length(
-            self.curve_adaptor)
+    #     edgeCount = 0
+    #     edgeList = TopTools_ListOfShape()
+    #     while edgeExplorer.More():
+    #         edgeCount = edgeCount + 1 # Numbering from 1 in OCC
+    #         edge = topods.Edge(edgeExplorer.Current())
+    #         edgeList.Append(edge)
+    #         edgeExplorer.Next()
+    #     wire_maker.Add(edgeList)
+    #     self.wire = wire_maker.Wire()
+    #     self.section_wires_list.append(self.wire)
+    #     self.curve_adaptor = BRepAdaptor_CompCurve(
+    #         OCC.Core.TopoDS.topods.Wire(self.wire))
+    #     # Length of the curve section (ascissa curvilinea)
+    #     self.total_section_length = GCPnts_AbscissaPoint.Length(
+    #         self.curve_adaptor)
 
 
     def _camber_points(self, radius):
