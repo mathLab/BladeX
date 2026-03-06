@@ -111,46 +111,23 @@ class ReversePropellerBladeX(BaseReversePropeller):
 
 
     def _build_intersection_cylinder_blade(self):
-        """
-        Private method that constructs the section lines which are the intersections
-        between the cylinder at a fixed radius and the blade, and the camber points.
-        """
-        # Construction of the section lines between two shapes (in this case the
-        # blade and the lateral face of the cylinder)
-        section_builder = BRepAlgoAPI_Section(self.blade_solid,
-                                           self.cylinder_lateral_face, False)
-        # Define and build the parametric 2D curve (pcurve) for the section lines defined above
-        section_builder.ComputePCurveOn2(True)
-        section_builder.Build()
-        self.section = section_builder.Shape()
-        wire_maker = BRepBuilderAPI_MakeWire()
+        super()._build_intersection_cylinder_blade()
         wire_maker_top = BRepBuilderAPI_MakeWire()
         wire_maker_bottom = BRepBuilderAPI_MakeWire()
-
-        edgeList = TopTools_ListOfShape()
         edgeList_top = TopTools_ListOfShape()
         edgeList_bottom = TopTools_ListOfShape()
-        edgeExplorer = TopExp_Explorer(self.section, TopAbs_EDGE)
         edgeCount = 0
+        edgeExplorer = TopExp_Explorer(self.section, TopAbs_EDGE)
         while edgeExplorer.More():
             edgeCount = edgeCount + 1 # Numbering from 1 in OCC
             edge = edgeExplorer.Current()
-            edgeList.Append(edge)
             if edgeCount % 2 == 1:
                 edgeList_top.Append(edge)
             else:
                 edgeList_bottom.Append(edge)
             edgeExplorer.Next()
         
-        # Total sectional curve
-        wire_maker.Add(edgeList)
-        self.wire = wire_maker.Wire()
-        self.section_wires_list.append(self.wire)
-        self.curve_adaptor = BRepAdaptor_CompCurve(
-            OCC.Core.TopoDS.topods.Wire(self.wire))
-        self.total_section_length = GCPnts_AbscissaPoint.Length(
-            self.curve_adaptor)
-        # Top part
+        # Top part of section
         wire_maker_top.Add(edgeList_top)
         self.wire_top = wire_maker_top.Wire()
         self.curve_adaptor_top = BRepAdaptor_CompCurve(
@@ -164,6 +141,61 @@ class ReversePropellerBladeX(BaseReversePropeller):
             OCC.Core.TopoDS.topods.Wire(self.wire_bottom))
         self.total_section_bottom_length = GCPnts_AbscissaPoint.Length(
             self.curve_adaptor_bottom)
+
+    # def _build_intersection_cylinder_blade(self):
+    #     """
+    #     Private method that constructs the section lines which are the intersections
+    #     between the cylinder at a fixed radius and the blade, and the camber points.
+    #     """
+    #     # Construction of the section lines between two shapes (in this case the
+    #     # blade and the lateral face of the cylinder)
+    #     section_builder = BRepAlgoAPI_Section(self.blade_solid,
+    #                                        self.cylinder_lateral_face, False)
+    #     # Define and build the parametric 2D curve (pcurve) for the section lines defined above
+    #     section_builder.ComputePCurveOn2(True)
+    #     section_builder.Build()
+    #     self.section = section_builder.Shape()
+    #     wire_maker = BRepBuilderAPI_MakeWire()
+    #     wire_maker_top = BRepBuilderAPI_MakeWire()
+    #     wire_maker_bottom = BRepBuilderAPI_MakeWire()
+
+    #     edgeList = TopTools_ListOfShape()
+    #     edgeList_top = TopTools_ListOfShape()
+    #     edgeList_bottom = TopTools_ListOfShape()
+    #     edgeExplorer = TopExp_Explorer(self.section, TopAbs_EDGE)
+    #     edgeCount = 0
+    #     while edgeExplorer.More():
+    #         edgeCount = edgeCount + 1 # Numbering from 1 in OCC
+    #         edge = edgeExplorer.Current()
+    #         edgeList.Append(edge)
+    #         if edgeCount % 2 == 1:
+    #             edgeList_top.Append(edge)
+    #         else:
+    #             edgeList_bottom.Append(edge)
+    #         edgeExplorer.Next()
+        
+    #     # Total sectional curve
+    #     wire_maker.Add(edgeList)
+    #     self.wire = wire_maker.Wire()
+    #     self.section_wires_list.append(self.wire)
+    #     self.curve_adaptor = BRepAdaptor_CompCurve(
+    #         OCC.Core.TopoDS.topods.Wire(self.wire))
+    #     self.total_section_length = GCPnts_AbscissaPoint.Length(
+    #         self.curve_adaptor)
+    #     # Top part
+    #     wire_maker_top.Add(edgeList_top)
+    #     self.wire_top = wire_maker_top.Wire()
+    #     self.curve_adaptor_top = BRepAdaptor_CompCurve(
+    #         OCC.Core.TopoDS.topods.Wire(self.wire_top))
+    #     self.total_section_top_length = GCPnts_AbscissaPoint.Length(
+    #         self.curve_adaptor_top)
+    #     # Bottom part
+    #     wire_maker_bottom.Add(edgeList_bottom)
+    #     self.wire_bottom = wire_maker_bottom.Wire()
+    #     self.curve_adaptor_bottom = BRepAdaptor_CompCurve(
+    #         OCC.Core.TopoDS.topods.Wire(self.wire_bottom))
+    #     self.total_section_bottom_length = GCPnts_AbscissaPoint.Length(
+    #         self.curve_adaptor_bottom)
 
 
     def _camber_curve(self, radius):
