@@ -1,7 +1,17 @@
 from unittest import TestCase
 import os
+import struct
+
 import numpy as np
-from bladex import NacaProfile, Shaft, Propeller, Blade
+import pytest
+from bladex import Blade, CylinderShaft, NacaProfile, Propeller, Shaft
+from bladex.export import make_compound, to_solid
+from OCC.Core.BRepPrimAPI import BRepPrimAPI_MakeBox
+from OCC.Core.IGESControl import IGESControl_Reader
+from OCC.Core.TopAbs import (TopAbs_COMPOUND, TopAbs_EDGE, TopAbs_FACE,
+                             TopAbs_SHELL, TopAbs_SOLID)
+from OCC.Core.TopExp import TopExp_Explorer
+from OCC.Core.TopoDS import TopoDS_Iterator
 from smithers.io.obj import ObjHandler
 from smithers.io.stlhandler import STLHandler
 
@@ -227,3 +237,170 @@ class TestPropeller(TestCase):
 
     def test_isdisplay(self):
         assert hasattr(Propeller, "display") == True
+
+
+def _stl_triangles(filename):
+    with open(filename, "rb") as stl_file:
+        header = stl_file.read(84)  # 80 byte header + uint32 count
+    return struct.unpack("<I", header[80:84])[0]
+
+
+def _iges_faces(filename):
+    reader = IGESControl_Reader()
+    reader.ReadFile(filename)
+    roots = reader.TransferRoots()
+    explorer = TopExp_Explorer(reader.Shape(), TopAbs_FACE)
+    count = 0
+    while explorer.More():
+        count += 1
+        explorer.Next()
+    return roots, count
+
+
+def _iges_edges(filename):
+    reader = IGESControl_Reader()
+    reader.ReadFile(filename)
+    reader.TransferRoots()
+    explorer = TopExp_Explorer(reader.Shape(), TopAbs_EDGE)
+    count = 0
+    while explorer.More():
+        count += 1
+        explorer.Next()
+    return count
+
+
+def _first_sub_shape(shape):
+    iterator = TopoDS_Iterator(shape)
+    assert iterator.More()
+    return iterator.Value()
+
+
+def test_to_solid_converts_a_nested_single_shell():
+    box = BRepPrimAPI_MakeBox(1.0, 1.0, 1.0).Shape()
+    nested = make_compound([make_compound([_first_sub_shape(box)])])
+
+    assert to_solid(nested).ShapeType() == TopAbs_SOLID
+
+
+def test_to_solid_leaves_other_shapes_unchanged():
+    # no shell at all, and a shell mixed with another sub-shape
+    assert to_solid(make_compound([])).ShapeType() == TopAbs_COMPOUND
+
+    box = BRepPrimAPI_MakeBox(1.0, 1.0, 1.0).Shape()
+    explorer = TopExp_Explorer(box, TopAbs_FACE)
+    assert explorer.More()
+    mixed = make_compound([_first_sub_shape(box), explorer.Current()])
+
+    assert to_solid(mixed).ShapeType() == TopAbs_COMPOUND
+
+
+def test_export_stl_with_and_without_shaft(tmp_path):
+    blade = create_sample_blade_NACApptc()
+    propeller = Propeller(CylinderShaft(radius=0.02, height=0.05), blade, 4)
+
+    full = str(tmp_path / "propeller.stl")
+    blades = str(tmp_path / "blades.stl")
+    propeller.export_stl(full)
+    propeller.export_stl(blades, include_shaft=False)
+
+    assert _stl_triangles(full) > _stl_triangles(blades) > 0
+    with open(full, "rb") as stl_file:
+        assert not stl_file.read(5).startswith(b"solid")  # binary
+
+
+def test_blade_shell_is_a_single_body():
+    blade = create_sample_blade_NACApptc()
+    blade.build()
+
+    assert blade.shell().ShapeType() in (TopAbs_SHELL, TopAbs_SOLID)
+
+
+def test_export_iges_is_readable(tmp_path):
+    blade = create_sample_blade_NACApptc()
+    propeller = Propeller(CylinderShaft(radius=0.02, height=0.05), blade, 4)
+
+    path = str(tmp_path / "propeller.iges")
+    propeller.export_iges(path)
+
+    roots, _ = _iges_faces(path)
+    assert roots > 0
+
+
+def test_blade_export_iges(tmp_path):
+    blade = create_sample_blade_NACApptc()
+    blade.build()
+
+    plain = str(tmp_path / "blade.iges")
+    with_curves = str(tmp_path / "blade_le.iges")
+    blade.export_iges(plain)
+    blade.export_iges(with_curves, include_le_curves=True)
+
+    roots, faces = _iges_faces(plain)
+    assert roots > 0
+    assert faces >= 4
+    assert _iges_edges(with_curves) > _iges_edges(plain)
+
+
+def test_export_survives_unsewable_faces(tmp_path, monkeypatch):
+    blade = create_sample_blade_NACApptc()
+    blade.build()
+
+    def broken_shell(self, sewing_tolerance=1e-2):
+        return make_compound([self.upper_face, self.lower_face,
+                              self.root_face, self.tip_face])
+
+    monkeypatch.setattr(Blade, "shell", broken_shell)
+
+    assert blade.generate_solid().ShapeType() == TopAbs_COMPOUND
+
+    stl = str(tmp_path / "blade.stl")
+    iges = str(tmp_path / "blade.iges")
+    blade.export_stl(stl)
+    blade.export_iges(iges)
+
+    assert _stl_triangles(stl) > 0
+    assert _iges_faces(iges)[1] == 4
+
+
+def test_tmp_stl_is_an_alias_of_export_stl_without_shaft(tmp_path):
+    blade = create_sample_blade_NACApptc()
+    propeller = Propeller(CylinderShaft(radius=0.02, height=0.05), blade, 4)
+
+    exported = str(tmp_path / "exported.stl")
+    deprecated = str(tmp_path / "deprecated.stl")
+    propeller.export_stl(exported, include_shaft=False)
+    with pytest.warns(DeprecationWarning):
+        propeller.tmp_stl(deprecated)
+
+    assert _stl_triangles(exported) == _stl_triangles(deprecated)
+
+
+def test_reflect_blade_requires_an_unbuilt_blade():
+    blade = create_sample_blade_NACApptc()
+    blade.build()
+
+    with pytest.raises(ValueError):
+        Propeller(CylinderShaft(), blade, 4, reflect_blade=True)
+
+
+def test_generate_obj_regions(tmp_path):
+    blade = create_sample_blade_NACApptc()
+    propeller = Propeller(CylinderShaft(radius=0.02, height=0.05), blade, 3)
+
+    path = str(tmp_path / "propeller.obj")
+    propeller.generate_obj(path)
+
+    data = ObjHandler.read(path)
+    assert set(data.regions) == {"blades", "shaftHead", "shaftTail"}
+
+
+def test_generate_obj_blades_regions(tmp_path):
+    blade = create_sample_blade_NACApptc()
+    propeller = Propeller(CylinderShaft(radius=0.02, height=0.05), blade, 3)
+
+    path = str(tmp_path / "blades.obj")
+    propeller.generate_obj_blades(path)
+
+    data = ObjHandler.read(path)
+    assert data.regions == ["blades"]
+    assert len(data.polygons) > 0
