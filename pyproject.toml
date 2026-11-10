@@ -35,6 +35,9 @@ test = [
     "pytest",
     "pytest-cov"
 ]
+obj = [
+    "smithers[vtk]",
+]
 
 [project.urls]
 Homepage = "https://github.com/mathLab/BladeX"

@@ -5,6 +5,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 
+from .export import (make_compound, sew_shapes, to_solid, write_iges,
+                     write_stl)
 from .intepolatedface import InterpolatedFace
 
 class Blade(object):
@@ -782,65 +784,47 @@ class Blade(object):
                         output_string += '\n'
             f.write(output_string)
 
+    def shell(self, sewing_tolerance=1e-2):
+        """
+        Sew the four boundary faces into a single shape.
+
+        :param float sewing_tolerance: tolerance used by the sewing algorithm
+        :return: a shell when the faces close, otherwise the sewed compound
+        :rtype: OCC.Core.TopoDS.TopoDS_Shape
+        """
+        return sew_shapes(
+            [self.upper_face, self.lower_face, self.root_face,
+             self.tip_face], sewing_tolerance)
+
     def generate_solid(self):
         """
-        Generate a solid blade assembling the upper face, lower face, tip and
-        root using the BRepBuilderAPI_MakeSolid algorithm.
+        Generate a solid blade from its boundary faces.
 
-        :param int max_deg: Define the maximal U degree of generated surface.
-            Default value is 1
-        :raises RuntimeError: if the assembling of the solid blade is not
-            completed successfully
+        If the four faces do not close into a single shell, the sewed shape is
+        returned instead: IGES and STL accept both, and this keeps the export
+        working on degenerate geometries (e.g. a tip collapsing to a point).
+
+        :return: the blade as a solid, or as the sewed shape when it cannot be
+            closed into a single shell
+        :rtype: OCC.Core.TopoDS.TopoDS_Shape
         """
-        from OCC.Display.SimpleGui import init_display
-        from OCC.Core.TopoDS import TopoDS_Shell
-        import OCC.Core.TopoDS
-        from OCC.Core.BRepBuilderAPI import BRepBuilderAPI_Sewing, \
-                BRepBuilderAPI_MakeSolid
+        return to_solid(self.shell())
 
-        faces = [
-            self.upper_face, self.lower_face, self.tip_face, self.root_face
-        ]
-
-        sewer = BRepBuilderAPI_Sewing(1e-7)
-        for face in faces:
-            sewer.Add(face)
-        sewer.Perform()
-
-        result_shell = sewer.SewedShape()
-        solid_maker = BRepBuilderAPI_MakeSolid()
-        solid_maker.Add(OCC.Core.TopoDS.topods.Shell(result_shell))
-
-        if not solid_maker.IsDone():
-            raise RuntimeError('Unsuccessful assembling of solid blade')
-        result_solid = solid_maker.Solid()
-
-       	return result_solid
-
-    def export_stl(self, filename, linear_deflection=0.1):
+    def export_stl(self, filename, linear_deflection=0.05,
+                   angular_deflection=0.3):
         """
         Generate and export the .STL file for the entire blade.
         This method requires PythonOCC (7.4.0) to be installed.
+
+        :param string filename: path (with the file extension) where to store
+            the .stl CAD for the blade
+        :param float linear_deflection: relative linear deflection used for the
+            tessellation; lower values give smoother surfaces
+        :param float angular_deflection: angular deflection (in radians) used
+            for the tessellation; lower values give smoother surfaces
         """
-        from OCC.Core.BRepBuilderAPI import BRepBuilderAPI_Sewing
-        from OCC.Core.BRepMesh import BRepMesh_IncrementalMesh
-        from OCC.Extend.DataExchange import write_stl_file
-        from OCC.Core.StlAPI import StlAPI_Writer
-
-        sewer = BRepBuilderAPI_Sewing(1e-2)
-        sewer.Add(self.upper_face)
-        sewer.Add(self.lower_face)
-        sewer.Add(self.root_face)
-        sewer.Add(self.tip_face)
-        sewer.Perform()
-        sewed_shape = sewer.SewedShape()
-
-        triangulation = BRepMesh_IncrementalMesh(sewed_shape, linear_deflection, True)
-        triangulation.Perform()
-
-        writer = StlAPI_Writer()
-        writer.SetASCIIMode(False)
-        writer.Write(sewed_shape, filename)
+        write_stl(self.shell(), filename, linear_deflection,
+                  angular_deflection)
 
     def _generate_leading_edge_curves(self):
         """
@@ -894,27 +878,27 @@ class Blade(object):
         self.upper_le_edge = BRepBuilderAPI_MakeEdge(upper_curve.Curve()).Edge()
         self.lower_le_edge = BRepBuilderAPI_MakeEdge(lower_curve.Curve()).Edge()
 
-    def export_iges(self, filename, include_le_curves=False):
+    def export_iges(self, filename, include_le_curves=False,
+                    sewing_tolerance=1e-2):
         """
         Generate and export the .IGES file for the entire blade.
-        This method requires PythonOCC (7.4.0) to be installed.
-        """
-        from OCC.Core.IGESControl import IGESControl_Writer
 
+        The export starts from the sewn shell of the four boundary faces, so
+        that IGES and STL share the same B-Rep and the sewing tolerance can be
+        tuned. The leading-edge curves are optional.
+
+        :param string filename: path (with the file extension) where to store
+            the .iges CAD for the blade
+        :param bool include_le_curves: if True, the upper and lower leading
+            edge curves are exported together with the body
+        :param float sewing_tolerance: tolerance used to sew the faces
+        :raises RuntimeError: if the IGES file cannot be written
+        """
+        shapes = [self.shell(sewing_tolerance)]
         if include_le_curves:
             self._generate_leading_edge_curves()
-        
-        iges_writer = IGESControl_Writer()
-        iges_writer.AddShape(self.upper_face)
-        iges_writer.AddShape(self.lower_face)
-        iges_writer.AddShape(self.root_face)
-        iges_writer.AddShape(self.tip_face)
-        
-        if include_le_curves:
-            iges_writer.AddShape(self.upper_le_edge)
-            iges_writer.AddShape(self.lower_le_edge)
-        
-        iges_writer.Write(filename)
+            shapes.extend([self.upper_le_edge, self.lower_le_edge])
+        write_iges(make_compound(shapes), filename)
 
     @staticmethod
     def _check_string(filename):

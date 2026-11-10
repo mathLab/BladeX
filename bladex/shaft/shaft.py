@@ -1,9 +1,9 @@
 import os
 from OCC.Core.IGESControl import IGESControl_Reader
 from OCC.Extend.DataExchange import read_stl_file
-from OCC.Core.BRepBuilderAPI import BRepBuilderAPI_MakeSolid, BRepBuilderAPI_Sewing
-import OCC.Core.TopoDS
 from OCC.Display.SimpleGui import init_display
+
+from bladex.export import sew_shapes, to_solid
 
 class Shaft(object):
     """
@@ -21,13 +21,12 @@ class Shaft(object):
 
     def generate_solid(self):
         """
-        Generate an assembled solid shaft using the BRepBuilderAPI_MakeSolid  
-        algorithm. This method requires PythonOCC to be installed.
+        Generate an assembled solid shaft from its IGES/STL file.
+        This method requires PythonOCC to be installed.
 
-        :raises RuntimeError: if the assembling of the solid shaft is not 
-            completed successfully
-        :return: solid shaft
-        :rtype: OCC.Core.TopoDS.TopoDS_Solid
+        :return: the shaft as a solid, or as the sewed shape when it cannot be
+            closed into a single shell
+        :rtype: OCC.Core.TopoDS.TopoDS_Shape
         """
         ext = os.path.splitext(self.filename)[1][1:]
         if ext == 'stl':
@@ -39,16 +38,7 @@ class Shaft(object):
             shaft_compound = iges_reader.Shape()
         else:
             raise Exception('The shaft file is not in iges/stl formats')
-        sewer = BRepBuilderAPI_Sewing(1e-2)
-        sewer.Add(shaft_compound)
-        sewer.Perform()
-        result_sewed_shaft = sewer.SewedShape()
-        shaft_solid_maker = BRepBuilderAPI_MakeSolid()
-        shaft_solid_maker.Add(OCC.Core.TopoDS.topods.Shell(result_sewed_shaft))
-        if not shaft_solid_maker.IsDone():
-            raise RuntimeError('Unsuccessful assembling of solid shaft')
-        shaft_solid = shaft_solid_maker.Solid()
-        return shaft_solid
+        return to_solid(sew_shapes([shaft_compound], tolerance=1e-2))
 
     def display(self):
         """
