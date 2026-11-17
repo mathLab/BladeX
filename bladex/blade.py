@@ -340,7 +340,7 @@ class Blade(object):
             # Setting thickness max is required
             if self.thickness is not None:
                 self.sections[i].set_thickness_max(self.thickness[i])
-                
+
             # Setting camber max is required
             if self.camber is not None and i < self.n_sections-1:
                 self.sections[i].set_camber_line_max(self.camber[i])
@@ -533,6 +533,17 @@ class Blade(object):
             normal = gp_Dir(*kwargs['normal'])
         else:
             raise ValueError('Wrong arguments passed')
+
+        # Updating np.array with coords
+        point1_np = np.array([point1.X(), point1.Y(), point1.Z()])
+        normal_np = np.array([normal.X(), normal.Y(), normal.Z()])
+
+        # Formula to compute one shot the mirrored points w.r.t. plane
+        V_up = self.blade_coordinates_up - point1_np[None, :, None]
+        self.blade_coordinates_up = self.blade_coordinates_up - 2*np.einsum('j,ik->ijk', normal_np, np.einsum('ijk,j->ik', V_up, normal_np))
+        V_down = self.blade_coordinates_down - point1_np[None, :, None]
+        self.blade_coordinates_down = self.blade_coordinates_down - 2*np.einsum('j,ik->ijk', normal_np, np.einsum('ijk,j->ik', V_down, normal_np))
+
 
         # Ax2 object identifying the plane
         ax2 = gp_Ax2(point1, normal)
