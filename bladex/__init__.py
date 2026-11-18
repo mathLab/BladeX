@@ -5,7 +5,8 @@ __all__ = [
         'ProfileInterface', 'NacaProfile', 'CustomProfile',
         'ReversePropeller', 'Blade', 'Shaft', 'CylinderShaft',
         'Propeller', 'Deformation', 'ParamFile', 'RBF',
-        'reconstruct_f', 'scipy_bspline', 'InterpolatedFace'
+        'reconstruct_f', 'scipy_bspline', 'InterpolatedFace',
+        'DesignTable'
 ]
 
 from .profile import ProfileInterface
@@ -24,3 +25,4 @@ from .reversepropeller import ReversePropellerBladeX
 from .reversepropeller.reversepropeller import ReversePropeller
 from .shaft.cylinder_shaft import CylinderShaft
 from .intepolatedface import InterpolatedFace
+from .designtable import DesignTable
