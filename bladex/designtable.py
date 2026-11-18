@@ -36,7 +36,7 @@ class DesignTable:
                 raise ValueError("The pitch must be in the design table to convert skew from meters to degrees.")
             r_dim = np.asarray(self.table['radii'], dtype=float) * self.propeller_radius
             pitch = np.asarray(self.table['pitch'], dtype=float)
-            return 180 * skew * np.cos(pitch) / (r_dim * np.pi)
+            return 180 * skew * np.cos(np.arctan(pitch/(2*np.pi*r_dim))) / (r_dim * np.pi)
         raise ValueError(f"Unknown skew unit '{unit}'. Use 'm' or 'deg'.")
 
     def radii(self):
