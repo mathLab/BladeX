@@ -7,7 +7,7 @@ these operations in one place avoids each class reinventing its own variant.
 """
 from OCC.Core.BRep import BRep_Builder
 from OCC.Core.BRepBuilderAPI import (BRepBuilderAPI_MakeSolid,
-                                     BRepBuilderAPI_Sewing)
+                                     BRepBuilderAPI_Sewing, BRepBuilderAPI_Copy)
 from OCC.Core.BRepMesh import BRepMesh_IncrementalMesh
 from OCC.Core.IGESControl import IGESControl_Writer
 from OCC.Core.StlAPI import StlAPI_Writer
@@ -94,12 +94,19 @@ def _single_shell(shape):
 def mesh(shape,
          linear_deflection=0.05,
          angular_deflection=0.3,
-         is_relative=True):
+         is_relative=True,
+         copy=False):
     """Tessellate `shape` with the incremental mesh algorithm."""
-    triangulation = BRepMesh_IncrementalMesh(shape, linear_deflection,
-                                             is_relative, angular_deflection,
-                                             True)
-    triangulation.Perform()
+    if copy:
+        shape = BRepBuilderAPI_Copy(shape, True, False).Shape()
+
+    mesher = BRepMesh_IncrementalMesh(shape, linear_deflection, is_relative,
+                                      angular_deflection, True)
+
+    if not mesher.IsDone():
+        raise RuntimeError("Meshing failed")
+
+    return shape
 
 
 def write_stl(shape,
