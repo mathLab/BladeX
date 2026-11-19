@@ -3,7 +3,7 @@ name = "BladeX"
 version = "0.1.0"
 description = "Python Blade Morphing"
 readme = { file = "README.md", content-type = "text/markdown" }
-requires-python = ">=3.9"
+requires-python = ">=3.11"
 license = { text = "MIT" }
 authors = [
     { name = "Marco Tezzele", email = "marcotez@gmail.com" },
@@ -13,10 +13,10 @@ keywords = ["blade-generation", "propeller", "iges", "procal"]
 classifiers = [
     "Development Status :: 5 - Production/Stable",
     "License :: OSI Approved :: MIT License",
-    "Programming Language :: Python :: 3.9",
-    "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
     "Intended Audience :: Science/Research",
     "Topic :: Scientific/Engineering :: Mathematics"
 ]
