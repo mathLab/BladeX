@@ -1,30 +1,17 @@
 """
 Module for the propeller with shaft bottom-up parametrized construction.
 """
-import numpy as np
-from OCC.Core.IGESControl import IGESControl_Writer
-from OCC.Core.BRepBuilderAPI import BRepBuilderAPI_Sewing
-from OCC.Core.BRepAlgoAPI import BRepAlgoAPI_Fuse
-from OCC.Extend.DataExchange import write_stl_file
-from OCC.Display.SimpleGui import init_display
-from smithers.io.obj import ObjHandler, WavefrontOBJ
-from smithers.io.stlhandler import STLHandler
-
-from OCC.Core.BRep import BRep_Builder
-from OCC.Core.TopoDS import TopoDS_Compound
 import copy
+import os
+import tempfile
+import warnings
 
-def make_compound(shapes):
-    builder = BRep_Builder()
-    comp = TopoDS_Compound()
-    builder.MakeCompound(comp)
+import numpy as np
+from OCC.Core.BRepAlgoAPI import BRepAlgoAPI_Fuse
+from OCC.Display.SimpleGui import init_display
 
-    for s in shapes:
-        if s is None:
-            raise ValueError("make_compound: shape is None")
-        builder.Add(comp, s)
+from .export import make_compound, sew_shapes, write_iges, write_stl
 
-    return comp
 
 class Propeller(object):
     """
@@ -34,14 +21,21 @@ class Propeller(object):
     :param shaft.Shaft shaft: shaft to be added to the propeller
     :param blade.Blade blade: blade of the propeller
     :param int n_blades: number of blades composing the propeller
-    :cvar OCC.Core.TopoDS.TopoDS_Solid shaft_solid: solid shaft
-    :cvar OCC.Core.TopoDS.TopoDS_Shell sewed_full_body: propeller with shaft shell
+    :cvar list blades: the blades of the propeller
+    :cvar shaft.Shaft shaft: the shaft of the propeller
     """
 
     def __init__(self, shaft, blade, n_blades, reflect_blade=False):
         self.shaft = shaft
 
-        blade.build(reflect=reflect_blade)
+        # The Propeller assembles an existing blade: rebuilding it here would
+        # silently discard any mirror/rotate the caller applied after build().
+        if blade.upper_face is None:
+            blade.build(reflect=reflect_blade)
+        elif reflect_blade:
+            raise ValueError(
+                "reflect_blade is applied by Blade.build: build the blade "
+                "with the desired reflection instead of passing a built one")
 
         self.blades = [copy.deepcopy(blade) for _ in range(n_blades)]
         [
@@ -49,102 +43,112 @@ class Propeller(object):
             for i, blade in enumerate(self.blades)
         ]
 
+    def _blades_shapes(self, sewing_tolerance=1e-2):
+        """Sew the four boundary faces of every blade."""
+        return [
+            sew_shapes([
+                blade.upper_face, blade.lower_face, blade.root_face,
+                blade.tip_face
+            ], sewing_tolerance) for blade in self.blades
+        ]
 
-    def tmp_stl(self, filename, linear_deflection=0.1):
+    def blades_shape(self, sewing_tolerance=1e-2):
+        """The blades only, collected in a single compound."""
+        return make_compound(self._blades_shapes(sewing_tolerance))
+
+    def compound(self, sewing_tolerance=1e-2):
+        """The propeller and shaft assembled in a compound, without booleans."""
+        shapes = self._blades_shapes(sewing_tolerance)
+        shapes.append(self.shaft.generate_solid())
+        return make_compound(shapes)
+
+    def tmp_stl(self, filename, linear_deflection=0.05):
         """
+        Export the .stl CAD for the blades only.
 
+        Deprecated: use :meth:`export_stl` with ``include_shaft=False``.
         """
-        from OCC.Core.BRepMesh import BRepMesh_IncrementalMesh
-        from OCC.Core.StlAPI import StlAPI_Writer
-        shapes = []
-        for blade_ in self.blades:
-
-            sewer = BRepBuilderAPI_Sewing(1e-2)
-            sewer.Add(blade_.upper_face)
-            sewer.Add(blade_.lower_face)
-            sewer.Add(blade_.root_face)
-            sewer.Add(blade_.tip_face)
-            sewer.Perform()
-            sewed_shape = sewer.SewedShape()
-            shapes.append(sewed_shape)
-
-        blades_compound = make_compound(shapes)
-        triangulation = BRepMesh_IncrementalMesh(blades_compound, linear_deflection, True)
-        triangulation.Perform()
-
-        writer = StlAPI_Writer()
-        writer.SetASCIIMode(False)
-        writer.Write(blades_compound, filename)
+        warnings.warn(
+            "tmp_stl is deprecated, use export_stl(include_shaft=False)",
+            DeprecationWarning,
+            stacklevel=2)
+        self.export_stl(filename, linear_deflection=linear_deflection,
+                        include_shaft=False)
 
     @property
     def shape(self):
-        if hasattr(self, '_shape'):
-            return self._shape
-        
-        solid = self.solid
-
-        sewer = BRepBuilderAPI_Sewing(1e-2)
-        sewer.Add(solid)
-        sewer.Perform()
-        
-        self._shape = sewer.SewedShape()
-        return self._shape
+        """The assembled propeller (alias of :meth:`compound`)."""
+        return self.compound()
 
     @property
     def solid(self):
         """
-        Docstring for build
-        
-        :param self: Description
+        Best-effort boolean union of shaft and blades.
+
+        It is not used by the export methods: a boolean failure, or a blade
+        that does not close into a solid, only affects callers that explicitly
+        ask for a single solid.
+
+        :raises RuntimeError: if the boolean union fails
+        :rtype: OCC.Core.TopoDS.TopoDS_Shape
         """
-        if hasattr(self, '_solid'):
-            return self._solid
-
-        shaft_solid = self.shaft.generate_solid()
-        blade_solids = [blade_.generate_solid() for blade_ in self.blades]
-        blades_compound = make_compound(blade_solids)
-
-        fuse = BRepAlgoAPI_Fuse(shaft_solid, blades_compound)
-        # fuse.SetRunParallel(True)  # if available in your build
+        blade_solids = [blade.generate_solid() for blade in self.blades]
+        fuse = BRepAlgoAPI_Fuse(self.shaft.generate_solid(),
+                                make_compound(blade_solids))
         fuse.SetFuzzyValue(1e-4)
-
         fuse.Build()
         if not fuse.IsDone():
             raise RuntimeError("Fuse shaft + blades failed")
+        return fuse.Shape()
 
-        self._solid = fuse.Shape()
-        return self._solid
-
-
-    def export_iges(self, filename):
+    def export_iges(self, filename, include_shaft=True,
+                    sewing_tolerance=1e-2):
         """
-        Export the .iges CAD for the propeller with shaft.
+        Export the .iges CAD for the propeller.
+
+        Every blade is sewn into a shell and collected, together with the
+        shaft, in a single compound. No boolean fuse is performed: IGES does
+        not need it and the fuse is the operation that fails most often.
 
         :param string filename: path (with the file extension) where to store
-            the .iges CAD for the propeller and shaft
-        :raises RuntimeError: if the solid assembling of blades is not
-            completed successfully
+            the .iges CAD
+        :param bool include_shaft: if False, only the blades are exported
+        :param float sewing_tolerance: tolerance used to sew each blade
+        :raises RuntimeError: if the IGES file cannot be written
         """
-        iges_writer = IGESControl_Writer()
-        iges_writer.AddShape(self.shape)
-        iges_writer.Write(filename)
+        if include_shaft:
+            shape = self.compound(sewing_tolerance)
+        else:
+            shape = self.blades_shape(sewing_tolerance)
+        write_iges(shape, filename)
 
-    def export_stl(self, filename):
+    def export_stl(self, filename, linear_deflection=0.05,
+                   angular_deflection=0.3, include_shaft=True):
         """
-        Export the .stl CAD for the propeller with shaft.
+        Export the .stl CAD for the propeller.
 
         :param string filename: path (with the file extension) where to store
-            the .stl CAD for the propeller and shaft
-        :raises RuntimeError: if the solid assembling of blades is not
-            completed successfully
+            the .stl CAD
+        :param float linear_deflection: relative linear deflection used for the
+            tessellation; lower values give smoother surfaces
+        :param float angular_deflection: angular deflection (in radians) used
+            for the tessellation; lower values give smoother surfaces
+        :param bool include_shaft: if False, only the blades are exported
+        :raises RuntimeError: if the STL file cannot be written
         """
-        write_stl_file(self.shape, filename)
+        if include_shaft:
+            shape = self.compound()
+        else:
+            shape = self.blades_shape()
+        write_stl(shape, filename, linear_deflection, angular_deflection)
 
     def generate_obj(self, filename, region_selector="by_coords", **kwargs):
         """
         Export the .obj CAD for the propeller with shaft. The resulting
-        file contains two regions: `propellerTip` and `propellerStem`, selected
-        according to the criteria passed in the parameter `region_selector`.
+        file contains the regions `blades`, `shaftHead` and `shaftTail` (or
+        `blades` and `shaft` with `region_selector="blades_and_stem"`),
+        selected according to the criteria passed in the parameter
+        `region_selector`.
 
         :param string filename: path (with the file extension).
         :param string region_selector: Two selectors available:
@@ -153,19 +157,23 @@ class Propeller(object):
                 the solid which represents the blades of the propeller. Then all
                 the polygons (belonging to both blades and shaft) composed of
                 points whose X coordinate is greater than :math:`x` are
-                considered to be part of the region `propellerTip`. The rest
-                belongs to `propellerStem`;
-            * `blades_and_stem`: The two regions are simply given by the two
-                solids which are used in :func:`__init__`.
-        :raises RuntimeError: if the solid assembling of blades is not
-            completed successfully
+                considered to be part of the region `shaftHead`. The rest
+                belongs to `shaftTail`;
+            * `blades_and_stem`: The two regions are simply given by the blades
+                and the shaft solids.
+        :raises RuntimeError: if the STL file cannot be written
         """
+        from smithers.io.obj import ObjHandler, WavefrontOBJ
+        from smithers.io.stlhandler import STLHandler
 
         # we write the propeller to STL, then re-open it to obtain the points
-        write_stl_file(self.shaft_solid, "/tmp/temp_shaft.stl")
-        shaft = STLHandler.read("/tmp/temp_shaft.stl")
-        write_stl_file(self.blades_solid, "/tmp/temp_blades.stl")
-        blades = STLHandler.read("/tmp/temp_blades.stl")
+        with tempfile.TemporaryDirectory() as tmpdir:
+            shaft_stl = os.path.join(tmpdir, "shaft.stl")
+            blades_stl = os.path.join(tmpdir, "blades.stl")
+            write_stl(self.shaft.generate_solid(), shaft_stl)
+            write_stl(make_compound(self._blades_shapes()), blades_stl)
+            shaft = STLHandler.read(shaft_stl)
+            blades = STLHandler.read(blades_stl)
 
         obj_instance = WavefrontOBJ()
 
@@ -259,10 +267,14 @@ class Propeller(object):
 
         :param string filename: path (with the file extension).
         """
+        from smithers.io.obj import ObjHandler, WavefrontOBJ
+        from smithers.io.stlhandler import STLHandler
 
         # we write the propeller to STL, then re-open it to obtain the points
-        write_stl_file(self.blades_solid, "/tmp/temp_blades.stl")
-        blades = STLHandler.read("/tmp/temp_blades.stl")
+        with tempfile.TemporaryDirectory() as tmpdir:
+            blades_stl = os.path.join(tmpdir, "blades.stl")
+            write_stl(make_compound(self._blades_shapes()), blades_stl)
+            blades = STLHandler.read(blades_stl)
 
         obj_instance = WavefrontOBJ()
 
@@ -307,5 +319,5 @@ class Propeller(object):
         Display the propeller with shaft.
         """
         display, start_display = init_display()[:2]
-        display.DisplayShape(self.shape, update=True)
+        display.DisplayShape(self.compound(), update=True)
         start_display()
